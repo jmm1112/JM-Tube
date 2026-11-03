@@ -910,10 +910,10 @@
     <string name="location_dialog_subtitle">Elija dónde se guardan los archivos descargados en su dispositivo.</string>
     <string name="location_custom_header">Ubicación personalizada</string>
     <string name="location_preset_header">Ubicaciones preestablecidas</string>
-    <string name="location_downloads_label">Descargas / Flow</string>
+    <string name="location_downloads_label">Descargas / JM Video</string>
     <string name="location_internal_app_label">Almacenamiento interno de aplicaciones</string>
-    <string name="location_internal_app_desc">Privado de Flow. Se eliminará si desinstalas la aplicación.</string>
-    <string name="location_movies_label">Películas / Flow</string>
+    <string name="location_internal_app_desc">Privado de JM Tube. Se eliminará si desinstalas la aplicación.</string>
+    <string name="location_movies_label">Películas / JM Video</string>
     <string name="location_custom_saf_desc">Elija cualquier carpeta usando el selector de archivos del sistema</string>
     <string name="location_custom_manual_desc">Escriba una ruta absoluta, p. /almacenamiento/emulado/0/MiCarpeta</string>
     <string name="location_manual_hint">/almacenamiento/emulado/0/…</string>
@@ -2787,7 +2787,7 @@
     </plurals>
     <string name="list_separator_dot">" · "</string>
     <string name="downloads_recover_title">Encuentra descargas de una instalación anterior</string>
-    <string name="downloads_recover_body">Flow guarda las descargas en Download/Flow y Music/Flow. Para ver los archivos que guardó una instalación anterior ahí, permite el acceso a vídeos y audio.</string>
+    <string name="downloads_recover_body">JM Tube guarda las descargas en Download/JM Video, Movies/JM Video y Music/JM Music. Para ver los archivos que guardó una instalación anterior ahí, permite el acceso a vídeos y audio.</string>
     <string name="downloads_recover_allow">Permitir acceso</string>
     <string name="local_partial_access_body">Permite el acceso a todos los vídeos para ver el resto.</string>
     <string name="local_permission_denied_body">Permite el acceso a vídeos y música en los ajustes de la aplicación para verlos aquí.</string>

@@ -564,8 +564,8 @@
     <string name="location_dialog_subtitle">Choisissez où les fichiers téléchargés sont enregistrés sur votre appareil.</string>
     <string name="location_preset_header">Emplacements prédéfinis</string>
     <string name="location_custom_header">Emplacement personnalisé</string>
-    <string name="location_downloads_label">Téléchargements / Flow</string>
-    <string name="location_movies_label">Vidéos / Flow</string>
+    <string name="location_downloads_label">Téléchargements / JM Video</string>
+    <string name="location_movies_label">Vidéos / JM Video</string>
     <string name="location_internal_app_label">Stockage interne de l\'application</string>
     <string name="location_internal_app_desc">Privé à l\'application — les fichiers peuvent être supprimés si vous désinstallez</string>
     <string name="location_custom_saf_label">Parcourir…</string>
@@ -2754,7 +2754,7 @@
         <item quantity="other">Cours · %d leçons</item>
     </plurals>
     <string name="downloads_recover_title">Rechercher les fichiers téléchargés lors d\'une installation précédente</string>
-    <string name="downloads_recover_body">Flow enregistre les téléchargements dans les dossiers « Téléchargements/Flow » et « Musique/Flow ». Pour afficher la liste des fichiers enregistrés à cet emplacement par une installation antérieure, autorisez l\'accès aux vidéos et aux fichiers audio.</string>
+    <string name="downloads_recover_body">JM Tube enregistre les téléchargements dans les dossiers « Téléchargements/JM Video » et « Musique/JM Music ». Pour afficher la liste des fichiers enregistrés à cet emplacement par une installation antérieure, autorisez l\'accès aux vidéos et aux fichiers audio.</string>
     <string name="downloads_recover_allow">Autoriser l\'accès</string>
     <string name="downloads_recover_dismiss">Pas maintenant</string>
     <plurals name="downloads_recovered_count">

@@ -13,6 +13,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.data.local.dao.DownloadDao
 import com.jmtube.app.data.local.entity.DownloadItemStatus
+import com.jmtube.app.data.video.VideoDownloadManager.Companion.AUDIO_DIR
 import com.jmtube.app.data.video.VideoDownloadManager.Companion.VIDEO_DIR
 import com.jmtube.app.data.video.downloader.tags.DownloadTagReader
 import com.jmtube.app.data.video.storage.DownloadCovers
@@ -95,10 +96,12 @@ class DownloadRecoveryScanner
 
         private fun defaultFolders(): List<File> =
             buildList {
-                listOf(Environment.DIRECTORY_DOWNLOADS, Environment.DIRECTORY_MOVIES, Environment.DIRECTORY_MUSIC).forEach { type ->
-                    runCatching { add(File(Environment.getExternalStoragePublicDirectory(type), VIDEO_DIR)) }
-                    context.getExternalFilesDir(type)?.let { add(File(it, VIDEO_DIR)) }
-                }
+                runCatching { add(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), VIDEO_DIR)) }
+                runCatching { add(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), VIDEO_DIR)) }
+                runCatching { add(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), AUDIO_DIR)) }
+                runCatching { add(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), AUDIO_DIR)) }
+                context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)?.let { add(File(it, VIDEO_DIR)) }
+                context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.let { add(File(it, AUDIO_DIR)) }
             }
 
         /**

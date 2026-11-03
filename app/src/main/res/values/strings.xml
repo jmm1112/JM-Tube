@@ -477,7 +477,7 @@
     <string name="you">You</string>
     <string name="empty_downloads">No downloads yet</string>
     <string name="downloads_recover_title">Find downloads from an earlier install</string>
-    <string name="downloads_recover_body">Flow saves downloads in Download/Flow and Music/Flow. To list the files an earlier install saved there, allow access to videos and audio.</string>
+    <string name="downloads_recover_body">JM Tube saves downloads in Download/JM Video, Movies/JM Video, and Music/JM Music. To list the files an earlier install saved there, allow access to videos and audio.</string>
     <string name="downloads_recover_allow">Allow access</string>
     <string name="downloads_recover_dismiss">Not now</string>
     <plurals name="downloads_recovered_count">
@@ -1827,8 +1827,8 @@
     <string name="location_dialog_subtitle">Choose where downloaded files are saved on your device.</string>
     <string name="location_preset_header">Preset Locations</string>
     <string name="location_custom_header">Custom Location</string>
-    <string name="location_downloads_label">Downloads / Flow</string>
-    <string name="location_movies_label">Movies / Flow</string>
+    <string name="location_downloads_label">Downloads / JM Video</string>
+    <string name="location_movies_label">Movies / JM Video</string>
     <string name="location_internal_app_label">Internal App Storage</string>
     <string name="location_internal_app_desc">Private to Flow. Removed if you uninstall.</string>
     <string name="location_custom_saf_label">Browse…</string>
@@ -4065,7 +4065,7 @@
     <string name="settings_storage_access_summary">Also lets Local media list files saved by other apps</string>
     <string name="settings_storage_usage">%1$s free of %2$s</string>
     <string name="settings_location_default">Default</string>
-    <string name="settings_music_folder_label">Music / Flow</string>
+    <string name="settings_music_folder_label">Music / JM Music</string>
     <string name="settings_keywords_downloads">save offline, folder, storage, sd card</string>
     <string name="settings_section_notification_types">Notify me about</string>
     <string name="settings_keywords_notifications">alerts, push, new uploads, background checks, shorts</string>
