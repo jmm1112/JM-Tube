@@ -3927,7 +3927,7 @@
     <string name="downloads_sort_title">Título</string>
     <string name="downloads_sort_channel">Canal</string>
     <string name="downloads_sort_largest">Más grande</string>
-    <string name="downloads_storage_used">%1$s en Flow</string>
+    <string name="downloads_storage_used">%1$s en JM Tube</string>
     <string name="downloads_storage_free">%1$s libre</string>
     <string name="downloads_storage_videos">Vídeos %1$s</string>
     <string name="downloads_storage_music">Música %1$s</string>

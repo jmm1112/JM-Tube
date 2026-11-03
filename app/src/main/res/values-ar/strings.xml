@@ -3421,7 +3421,7 @@
     <string name="downloads_sort_largest">الأكبر</string>
     <string name="downloads_sort_title">العنوان</string>
     <string name="downloads_sort_channel">القناة</string>
-    <string name="downloads_storage_used">%1$s في Flow</string>
+    <string name="downloads_storage_used">%1$s في JM Tube</string>
     <string name="downloads_storage_free">%1$s متاح</string>
     <string name="downloads_storage_videos">فيديوهات %1$s</string>
     <string name="downloads_storage_music">موسيقى %1$s</string>

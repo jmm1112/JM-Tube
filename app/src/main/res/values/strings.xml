@@ -1597,7 +1597,7 @@
     <!-- Time Management Screen -->
     <string name="time_management_title">Time management</string>
     <string name="time_management_subtitle">Track and control your screen time</string>
-    <string name="stats_disclaimer">Based on your watch history in Flow. Actual use may differ.</string>
+    <string name="stats_disclaimer">Based on your watch history in JM Tube. Actual use may differ.</string>
     <string name="tools_to_manage_time">Tools to manage your time</string>
     <string name="remind_bedtime">Remind me when it\'s bedtime</string>
     <string name="start_time">Start time</string>
@@ -1879,7 +1879,7 @@
     <string name="about_notices_summary">Word lists and code from other projects</string>
     <string name="about_license_name">GNU GPL v3</string>
     <string name="about_changelog">Changelog</string>
-    <string name="whats_new_in_flow">What\'s new in Flow</string>
+    <string name="whats_new_in_flow">What\'s new in JM Tube</string>
     <string name="about_device_info">Device Info</string>
     <string name="gnu_license_full_title">GNU General Public License</string>
     <string name="loading_ellipsis">Loading...</string>
@@ -2935,7 +2935,7 @@
     <string name="error_not_available">Video not available</string>
     <string name="error_not_available_hint">This video may have been deleted, made private, or removed by YouTube.</string>
     <string name="error_not_supported">Content type not supported</string>
-    <string name="error_not_supported_hint">This format or content type cannot be played in Flow.</string>
+    <string name="error_not_supported_hint">This format or content type cannot be played in JM Tube.</string>
     <string name="error_no_internet">No internet connection</string>
     <string name="error_no_internet_hint">Check your Wi-Fi or mobile data and try again.</string>
     <string name="error_timeout">Connection timed out</string>
@@ -3336,7 +3336,7 @@
     <string name="discord_error_heartbeat_unacknowledged">Discord Gateway heartbeat was not acknowledged.</string>
     <string name="discord_error_heartbeat_failed">Discord Gateway heartbeat failed.</string>
     <string name="discord_account_fallback">Discord user</string>
-    <string name="discord_presence_playing_fallback">Playing in Flow</string>
+    <string name="discord_presence_playing_fallback">Playing in JM Tube</string>
     <string name="discord_presence_by_creator">by %1$s</string>
     <!-- Android TV -->
     <string name="settings_item_interface_mode">Interface mode</string>
@@ -3383,7 +3383,7 @@
     <string name="tv_guide_player_back">Close a panel or the controls first; press again to leave the player.</string>
     <!-- Home-screen widgets -->
     <string name="widget_now_playing_label">Now Playing</string>
-    <string name="widget_now_playing_description">Control the music that\'s playing in Flow</string>
+    <string name="widget_now_playing_description">Control the music that\'s playing in JM Tube</string>
     <string name="widget_quick_actions_label">Quick actions</string>
     <string name="widget_quick_actions_description">Search Flow and jump to downloads, history, or recognition</string>
     <string name="widget_recognize_label">Recognize music</string>
@@ -3755,7 +3755,7 @@
     <string name="downloads_sort_largest">Largest</string>
     <string name="downloads_sort_title">Title</string>
     <string name="downloads_sort_channel">Channel</string>
-    <string name="downloads_storage_used">%1$s in Flow</string>
+    <string name="downloads_storage_used">%1$s in JM Tube</string>
     <string name="downloads_storage_free">%1$s free</string>
     <string name="downloads_storage_videos">Videos %1$s</string>
     <string name="downloads_storage_music">Music %1$s</string>
@@ -3999,7 +3999,7 @@
     <string name="settings_section_watched">Watched videos</string>
     <string name="settings_section_sharing">Sharing</string>
     <string name="settings_section_links">Links</string>
-    <string name="content_settings_open_links_title">Open YouTube links in Flow</string>
+    <string name="content_settings_open_links_title">Open YouTube links in JM Tube</string>
     <string name="content_settings_open_links_subtitle">Choose which links open here</string>
     <string name="content_settings_open_links_all">On for every YouTube address</string>
     <string name="content_settings_open_links_some">On for %1$d of %2$d addresses</string>
