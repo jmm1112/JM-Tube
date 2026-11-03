@@ -238,6 +238,12 @@ class Media3MusicService : MediaLibraryService() {
     lateinit var scrobbler: com.jmtube.app.data.scrobble.Scrobbler
 
     @Inject
+    lateinit var playlistRepository: com.jmtube.app.data.music.PlaylistRepository
+
+    @Inject
+    lateinit var likedVideosRepository: com.jmtube.app.data.local.LikedVideosRepository
+
+    @Inject
     lateinit var videoSwitch: MusicVideoSwitch
 
     private val prefs by lazy { PlayerPreferences(this) }
@@ -1704,7 +1710,7 @@ class Media3MusicService : MediaLibraryService() {
                 .setDisplayName(getString(if (isLiked) R.string.unlike else R.string.like))
                 .setCustomIconResId(if (isLiked) R.drawable.ic_like_filled else R.drawable.ic_like)
                 .setSessionCommand(CommandToggleLike)
-                .setSlots(CommandButton.SLOT_OVERFLOW)
+                .setSlots(CommandButton.SLOT_CENTRAL)
                 .setEnabled(true)
                 .build()
 
@@ -1745,9 +1751,10 @@ class Media3MusicService : MediaLibraryService() {
                 .setEnabled(true)
                 .build()
 
-        // The Android 13+ card shows only the first two overflow buttons next to previous and next;
-        // the rest stay for older notifications, Auto and Wear (#1347).
-        mediaLibrarySession.setMediaButtonPreferences(listOf(shuffleButton, repeatButton, likeButton, closeButton))
+        // Place likeButton FIRST so Android 13+ system notification cards show the Like button directly!
+        val customButtons = listOf(likeButton, shuffleButton, repeatButton, closeButton)
+        mediaLibrarySession.setMediaButtonPreferences(customButtons)
+        mediaLibrarySession.setCustomLayout(customButtons)
     }
 
     @OptIn(UnstableApi::class)
@@ -1915,6 +1922,26 @@ class Media3MusicService : MediaLibraryService() {
             args: Bundle,
         ): ListenableFuture<SessionResult> {
             if (customCommand.customAction == ACTION_TOGGLE_LIKE) {
+                val currentTrack = com.jmtube.app.player.EnhancedMusicPlayerManager.currentTrack.value
+                if (currentTrack != null && !currentTrack.videoId.isNullOrBlank()) {
+                    lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                        val isNowLiked = playlistRepository.toggleFavorite(currentTrack)
+                        com.jmtube.app.player.EnhancedMusicPlayerManager.setLiked(isNowLiked)
+                        if (isNowLiked) {
+                            likedVideosRepository.likeVideo(
+                                com.jmtube.app.data.local.LikedVideoInfo(
+                                    videoId = currentTrack.videoId,
+                                    title = currentTrack.title,
+                                    thumbnail = currentTrack.thumbnailUrl ?: "",
+                                    channelName = currentTrack.artist,
+                                    isMusic = true,
+                                ),
+                            )
+                        } else {
+                            likedVideosRepository.removeLikeState(currentTrack.videoId)
+                        }
+                    }
+                }
                 com.jmtube.app.player.EnhancedMusicPlayerManager
                     .emitToggleLikeEvent()
                 return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
