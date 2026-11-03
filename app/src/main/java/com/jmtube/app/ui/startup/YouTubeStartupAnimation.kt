@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -37,31 +40,36 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import coil3.compose.AsyncImage
+import com.jmtube.app.util.AppIcons
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-private val YouTubeSplashBg = Color(0xFF0F0F0F)
 private val YouTubeBrandRed = Color(0xFFFF0000)
-private val SeekTrackColor = Color(0x38FFFFFF)
-private val SeekBufferColor = Color(0x66FFFFFF)
 
 private val SmoothMorphEasing = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)
 private val SnapLockupEasing = CubicBezierEasing(0.22f, 1.0f, 0.36f, 1.0f)
 
 /**
  * Authentic YouTube app opening animation sequence:
- * 1. Starts on a dark background (#0F0F0F) displaying the red YouTube rounded rectangle and white play triangle.
- * 2. Morphs and expands horizontally into an expanding timeline / seek bar with a sweeping red progress indicator & scrubber.
- * 3. Resolves into the classic YouTube logo lockup (Red YouTube pill + white play triangle + condensed bold wordmark).
+ * 1. Starts on a theme-adaptive background displaying the selected launcher app icon or red YouTube rounded rectangle.
+ * 2. Morphs and expands horizontally into an expanding timeline / seek bar with a sweeping progress indicator & scrubber.
+ * 3. Resolves into the classic YouTube logo lockup (App Icon / Red YouTube pill + condensed bold wordmark).
  * 4. Smoothly fades out into the main app interface.
  */
 @Composable
 internal fun YouTubeStartupAnimation(
     onFinished: () -> Unit,
+    iconSuffix: String = AppIcons.DEFAULT_SUFFIX,
+    backgroundColor: Color = MaterialTheme.colorScheme.background,
+    contentColor: Color = MaterialTheme.colorScheme.onBackground,
 ) {
     var completed by remember { mutableStateOf(false) }
     if (completed) return
+
+    val seekTrackColor = contentColor.copy(alpha = 0.22f)
+    val seekBufferColor = contentColor.copy(alpha = 0.40f)
 
     // Phase 1: Initial icon pop-in (0f -> 1f)
     val introScale = remember { Animatable(0.88f) }
@@ -76,14 +84,14 @@ internal fun YouTubeStartupAnimation(
     val exitScale = remember { Animatable(1f) }
 
     LaunchedEffect(Unit) {
-        // Stage 1: Pop in the YouTube Red Pill + White Play Triangle on dark background
+        // Stage 1: Pop in the icon on theme-adaptive background
         introScale.animateTo(
             targetValue = 1.0f,
             animationSpec = tween(durationMillis = 260, easing = LinearOutSlowInEasing),
         )
         delay(80L)
 
-        // Stage 2: Morph the YouTube Pill into the expanding timeline / seek bar and sweep the progress
+        // Stage 2: Morph into the expanding timeline / seek bar and sweep the progress
         val morphJob =
             launch {
                 morphToSeekBar.animateTo(
@@ -98,7 +106,7 @@ internal fun YouTubeStartupAnimation(
         )
         morphJob.join()
 
-        // Stage 3: Collapse timeline back into the YouTube Pill & resolve into the classic YouTube logo lockup
+        // Stage 3: Collapse timeline back into the Icon & resolve into the classic logo lockup
         coroutineScopeMorphToLockup(
             morphToSeekBar = morphToSeekBar,
             lockupResolve = lockupResolve,
@@ -130,7 +138,7 @@ internal fun YouTubeStartupAnimation(
                     alpha = overlayAlpha.value
                     scaleX = introScale.value * exitScale.value
                     scaleY = introScale.value * exitScale.value
-                }.background(YouTubeSplashBg)
+                }.background(backgroundColor)
                 .pointerInput(Unit) {
                     // Block stray touches during the opening animation transition
                     awaitPointerEventScope {
@@ -144,6 +152,29 @@ internal fun YouTubeStartupAnimation(
         val morph = morphToSeekBar.value
         val seek = seekProgress.value
         val lockup = lockupResolve.value
+
+        // If a custom launcher icon is selected, render the icon in Stage 1 & Stage 3
+        val isCustomIcon = iconSuffix != AppIcons.DARK_SUFFIX
+        if (isCustomIcon && (morph < 0.2f || lockup > 0.01f)) {
+            val iconScale = if (lockup > 0f) lerp(1f, 0.65f, lockup) else (1f - morph * 2.5f).coerceAtLeast(0f)
+            val lockupX = -62.dp * lockup
+            val sizeDp = (78 * iconScale).dp
+            if (iconScale > 0.01f) {
+                Box(
+                    modifier = Modifier
+                        .offset(x = lockupX)
+                        .size(sizeDp)
+                        .graphicsLayer { alpha = if (lockup > 0f) lockup else (1f - morph * 2.5f).coerceIn(0f, 1f) },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    AsyncImage(
+                        model = AppIcons.splashIconRes(iconSuffix),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+        }
 
         // Canvas draws the morphing YouTube Pill <-> Expanding Timeline/Seek Bar
         Canvas(
@@ -187,7 +218,7 @@ internal fun YouTubeStartupAnimation(
                 // Draw the timeline background track and buffered track during the seek bar phase
                 val trackAlpha = (morph * (1f - lockup * 0.5f)).coerceIn(0f, 1f)
                 drawRoundRect(
-                    color = SeekTrackColor.copy(alpha = SeekTrackColor.alpha * trackAlpha),
+                    color = seekTrackColor.copy(alpha = seekTrackColor.alpha * trackAlpha),
                     topLeft = Offset(left, top),
                     size = Size(currentW, currentH),
                     cornerRadius = CornerRadius(currentCorner, currentCorner),
@@ -196,67 +227,72 @@ internal fun YouTubeStartupAnimation(
                 val bufferProgress = (seek * 1.25f + 0.15f).coerceIn(0f, 1f)
                 val bufferW = currentW * lerp(1f, bufferProgress, morph)
                 drawRoundRect(
-                    color = SeekBufferColor.copy(alpha = SeekBufferColor.alpha * trackAlpha),
+                    color = seekBufferColor.copy(alpha = seekBufferColor.alpha * trackAlpha),
                     topLeft = Offset(left, top),
                     size = Size(bufferW, currentH),
                     cornerRadius = CornerRadius(currentCorner, currentCorner),
                 )
             }
 
-            // Active Red Pill / Red Timeline Progress Fill
-            val fillFraction =
-                if (lockup > 0f) {
-                    lerp(seek.coerceAtLeast(0.18f), 1f, lockup)
-                } else {
-                    lerp(1f, seek.coerceAtLeast(0.14f), morph)
-                }
-            val activeRedW = (currentW * fillFraction).coerceAtLeast(currentH)
-
-            drawRoundRect(
-                color = YouTubeBrandRed,
-                topLeft = Offset(left, top),
-                size = Size(activeRedW, currentH),
-                cornerRadius = CornerRadius(currentCorner, currentCorner),
-            )
-
-            // Glowing red scrubber thumb at the leading edge of the timeline during the seek bar phase
-            val scrubberVisibility = (morph * (1f - lockup)).coerceIn(0f, 1f)
-            if (scrubberVisibility > 0.05f) {
-                val thumbX = (left + activeRedW).coerceIn(left + currentCorner, left + currentW - currentCorner)
-                val thumbRadius = 6.5.dp.toPx() * scrubberVisibility
-                val haloRadius = 14.dp.toPx() * scrubberVisibility
-                drawCircle(
-                    color = YouTubeBrandRed.copy(alpha = 0.28f * scrubberVisibility),
-                    radius = haloRadius,
-                    center = Offset(thumbX, centerY),
-                )
-                drawCircle(
-                    color = YouTubeBrandRed,
-                    radius = thumbRadius,
-                    center = Offset(thumbX, centerY),
-                )
-            }
-
-            // Crisp White Play Triangle inside the YouTube Pill (fades out as pill morphs into seekbar, returns on lockup)
-            val triangleAlpha = (1f - morph * 1.35f).coerceIn(0f, 1f)
-            if (triangleAlpha > 0.01f) {
-                val triCenterX = centerX + lockupShiftX
-                val triScale = lerp(1f, lockupPillW / startPillW, lockup) * triangleAlpha
-                val halfH = 10.5.dp.toPx() * triScale
-                val leftX = triCenterX - 6.5.dp.toPx() * triScale
-                val rightX = triCenterX + 9.5.dp.toPx() * triScale
-
-                val trianglePath =
-                    Path().apply {
-                        moveTo(leftX, centerY - halfH)
-                        lineTo(rightX, centerY)
-                        lineTo(leftX, centerY + halfH)
-                        close()
+            // Active Red Pill / Red Timeline Progress Fill (hide pill background if custom icon is showing in lockup)
+            val pillAlpha = if (isCustomIcon) morph else 1f
+            if (pillAlpha > 0.01f) {
+                val fillFraction =
+                    if (lockup > 0f) {
+                        lerp(seek.coerceAtLeast(0.18f), 1f, lockup)
+                    } else {
+                        lerp(1f, seek.coerceAtLeast(0.14f), morph)
                     }
-                drawPath(
-                    path = trianglePath,
-                    color = Color.White.copy(alpha = triangleAlpha),
+                val activeRedW = (currentW * fillFraction).coerceAtLeast(currentH)
+
+                drawRoundRect(
+                    color = YouTubeBrandRed.copy(alpha = YouTubeBrandRed.alpha * pillAlpha),
+                    topLeft = Offset(left, top),
+                    size = Size(activeRedW, currentH),
+                    cornerRadius = CornerRadius(currentCorner, currentCorner),
                 )
+
+                // Glowing red scrubber thumb at the leading edge of the timeline during the seek bar phase
+                val scrubberVisibility = (morph * (1f - lockup)).coerceIn(0f, 1f)
+                if (scrubberVisibility > 0.05f) {
+                    val thumbX = (left + activeRedW).coerceIn(left + currentCorner, left + currentW - currentCorner)
+                    val thumbRadius = 6.5.dp.toPx() * scrubberVisibility
+                    val haloRadius = 14.dp.toPx() * scrubberVisibility
+                    drawCircle(
+                        color = YouTubeBrandRed.copy(alpha = 0.28f * scrubberVisibility),
+                        radius = haloRadius,
+                        center = Offset(thumbX, centerY),
+                    )
+                    drawCircle(
+                        color = YouTubeBrandRed,
+                        radius = thumbRadius,
+                        center = Offset(thumbX, centerY),
+                    )
+                }
+
+                // Crisp White Play Triangle inside the YouTube Pill (fades out as pill morphs into seekbar, returns on lockup)
+                if (!isCustomIcon) {
+                    val triangleAlpha = (1f - morph * 1.35f).coerceIn(0f, 1f)
+                    if (triangleAlpha > 0.01f) {
+                        val triCenterX = centerX + lockupShiftX
+                        val triScale = lerp(1f, lockupPillW / startPillW, lockup) * triangleAlpha
+                        val halfH = 10.5.dp.toPx() * triScale
+                        val leftX = triCenterX - 6.5.dp.toPx() * triScale
+                        val rightX = triCenterX + 9.5.dp.toPx() * triScale
+
+                        val trianglePath =
+                            Path().apply {
+                                moveTo(leftX, centerY - halfH)
+                                lineTo(rightX, centerY)
+                                lineTo(leftX, centerY + halfH)
+                                close()
+                            }
+                        drawPath(
+                            path = trianglePath,
+                            color = Color.White.copy(alpha = triangleAlpha),
+                        )
+                    }
+                }
             }
         }
 
@@ -276,7 +312,7 @@ internal fun YouTubeStartupAnimation(
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "JM Tube",
-                    color = Color.White,
+                    color = contentColor,
                     fontSize = 31.sp,
                     fontWeight = FontWeight.ExtraBold,
                     fontFamily = FontFamily.SansSerif,

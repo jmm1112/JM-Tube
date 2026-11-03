@@ -13,8 +13,10 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.ui.screens.home.YouTubeMusicLogoIcon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
@@ -153,6 +155,10 @@ fun EnhancedMusicScreen(
                 viewModel.refresh()
             }
     }
+    val context = LocalContext.current
+    val preferences = remember(context) { PlayerPreferences(context) }
+    val selectedAppIcon by preferences.selectedAppIcon.collectAsStateWithLifecycle(initialValue = null)
+
     val musicMenus = LocalMusicMenus.current
 
     val bottomInsets = LocalFlowBottomInsets.current
@@ -166,7 +172,8 @@ fun EnhancedMusicScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         YouTubeMusicLogoIcon(
-                            modifier = Modifier.size(28.dp),
+                            iconSuffix = selectedAppIcon,
+                            modifier = Modifier.size(38.dp),
                         )
                         Text(
                             text = "JM Music",

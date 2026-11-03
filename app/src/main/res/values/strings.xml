@@ -1695,12 +1695,12 @@
     </plurals>
     <!-- Import Data Screen -->
     <string name="import_data_title">Import Data</string>
-    <string name="import_flow_backup_success">Flow backup imported successfully</string>
-    <string name="import_flow_backup_failed_template">Failed to import Flow backup: %1$s</string>
+    <string name="import_flow_backup_success">JM Tube backup imported successfully</string>
+    <string name="import_flow_backup_failed_template">Failed to import JM Tube backup: %1$s</string>
     <string name="import_newpipe_failed_template">Failed to import NewPipe backup: %1$s</string>
     <string name="import_youtube_failed_template">Failed to import YouTube backup: %1$s</string>
-    <string name="import_flow_backup_item_title">Import Flow Backup</string>
-    <string name="import_flow_backup_desc">Restore your history, settings, and subscriptions from a Flow backup file.</string>
+    <string name="import_flow_backup_item_title">Import JM Tube Backup</string>
+    <string name="import_flow_backup_desc">Restore your history, settings, and subscriptions from a JM Tube backup file.</string>
     <string name="import_from_newpipe">Import from NewPipe</string>
     <string name="import_from_newpipe_desc">Import subscriptions from a NewPipe export file (JSON).</string>
     <string name="import_from_libretube">Import from LibreTube</string>
@@ -1975,7 +1975,7 @@
     <string name="onboarding_step_interests">Interests</string>
     <string name="onboarding_step_channels">Channels</string>
     <string name="onboarding_step_import">Import</string>
-    <string name="onboarding_import_source_flow">Flow backup</string>
+    <string name="onboarding_import_source_flow">JM Tube backup</string>
     <string name="onboarding_import_source_youtube">YouTube</string>
     <string name="onboarding_import_footnote">Everything here is optional. Settings has the same imports.</string>
     <string name="onboarding_import_done">Imported</string>
@@ -2607,7 +2607,7 @@
     <string name="export_engine_data_subtitle">Back up your AI personality &amp; learning data</string>
     <string name="export_engine_success">Engine profile exported successfully</string>
     <string name="export_engine_failed">Failed to export engine profile</string>
-    <string name="import_engine_data">Import Flow Engine Data</string>
+    <string name="import_engine_data">Import JM Tube Engine Data</string>
     <string name="import_engine_data_desc">Restore your AI personality profile from a backup file</string>
     <string name="import_engine_success">Engine profile restored successfully</string>
     <string name="import_engine_failed">Failed to import engine profile</string>
@@ -3810,7 +3810,7 @@
     <string name="download_block_failed">Block %1$s failed: %2$s</string>
     <string name="import_migrate_description">Migrate your subscriptions and history from other platforms to Flow seamlessly.</string>
     <string name="import_backup_restore">Backup &amp; Restore</string>
-    <string name="import_manage_backups">Manage your Flow backups</string>
+    <string name="import_manage_backups">Manage your JM Tube backups</string>
     <string name="import_external_services">External Services</string>
     <string name="import_other_youtube_clients">Import from other YouTube clients</string>
     <string name="imported_successfully">%1$s imported successfully</string>
@@ -4043,7 +4043,7 @@
     <string name="settings_backup_tab_auto">Automatic</string>
     <string name="settings_backup_full">Full backup</string>
     <string name="settings_backup_individual">Individual exports</string>
-    <string name="settings_backup_restore_flow">Restore from Flow</string>
+    <string name="settings_backup_restore_flow">Restore from JM Tube</string>
     <string name="settings_backup_source_youtube">YouTube and Google Takeout</string>
     <string name="settings_backup_source_newpipe">NewPipe</string>
     <string name="settings_backup_source_libretube">LibreTube</string>
@@ -4260,7 +4260,7 @@
     <string name="recap_source_all">Everything</string>
     <string name="recap_source_video">Videos</string>
     <string name="recap_source_music">Music</string>
-    <string name="recap_total_time">Time in Flow</string>
+    <string name="recap_total_time">Time in JM Tube</string>
     <string name="recap_delta_up">%1$s more than the time before</string>
     <string name="recap_delta_down">%1$s less than the time before</string>
     <string name="recap_delta_same">About the same as the time before</string>
@@ -4360,7 +4360,7 @@
     <string name="recap_ready_body">See what you watched and listened to, and share it if you like</string>
     <string name="recap_ready_open">Open</string>
     <string name="recap_ready_dismiss">Not now</string>
-    <string name="recap_story_intro">Your %1$s in Flow</string>
+    <string name="recap_story_intro">Your %1$s in JM Tube</string>
     <plurals name="recap_story_intro_body">
         <item quantity="one">Spread over %d day</item>
         <item quantity="other">Spread over %d days</item>
@@ -4383,12 +4383,12 @@
     <string name="recap_story_summary">Your %1$s, in one card</string>
     <string name="recap_story_share">Share</string>
     <string name="recap_story_share_title">Share your recap</string>
-    <string name="recap_story_share_text">My %1$s in Flow: %2$s</string>
+    <string name="recap_story_share_text">My %1$s in JM Tube: %2$s</string>
     <string name="recap_story_close">Close</string>
     <string name="recap_story_next">Next</string>
     <string name="recap_story_previous">Previous</string>
     <string name="recap_story_page">Page %1$d of %2$d</string>
-    <string name="recap_story_made_with">Made with Flow</string>
+    <string name="recap_story_made_with">Made with JM Tube</string>
     <string name="recap_story_pause">Pause</string>
     <string name="recap_story_play">Play</string>
     <string name="recap_summary_top_channel">Top channel</string>

@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -38,7 +39,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +51,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -81,7 +85,7 @@ internal fun MiniPlayerContent(
     // False while the expanded player covers the (alpha-0) mini bar: the waveform, marquee
     // and smooth progress ring stop forcing frames nobody can see. Values still update.
     animationsEnabled: Boolean = true,
-    showPrevious: Boolean = false,
+    showPrevious: Boolean = true,
     onOpen: (() -> Unit)? = null,
 ) {
     val playerState by EnhancedMusicPlayerManager.playerState.collectAsStateWithLifecycle()
@@ -104,6 +108,28 @@ internal fun MiniPlayerContent(
         label = "miniProgress",
     )
 
+    var totalDragX by remember { mutableFloatStateOf(0f) }
+    val swipeGestureModifier =
+        Modifier.pointerInput(Unit) {
+            detectHorizontalDragGestures(
+                onDragStart = { totalDragX = 0f },
+                onDragEnd = {
+                    val threshold = 36.dp.toPx()
+                    if (totalDragX < -threshold) {
+                        haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        EnhancedMusicPlayerManager.playNext()
+                    } else if (totalDragX > threshold) {
+                        haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        EnhancedMusicPlayerManager.playPrevious()
+                    }
+                },
+                onHorizontalDrag = { change, dragAmount ->
+                    change.consume()
+                    totalDragX += dragAmount
+                },
+            )
+        }
+
     Row(
         modifier =
             modifier
@@ -118,6 +144,7 @@ internal fun MiniPlayerContent(
             modifier =
                 Modifier
                     .weight(1f)
+                    .then(swipeGestureModifier)
                     .then(
                         if (onOpen == null) {
                             Modifier

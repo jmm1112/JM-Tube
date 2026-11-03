@@ -34,8 +34,9 @@ class AppIconController
             withContext(Dispatchers.IO) {
                 val packageManager = context.packageManager
                 AppIcons.ALL_SUFFIXES.firstOrNull { suffix ->
-                    packageManager.getComponentEnabledSetting(componentFor(suffix)) ==
-                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                    val state = packageManager.getComponentEnabledSetting(componentFor(suffix))
+                    state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED ||
+                        (state == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT && suffix == AppIcons.DEFAULT_SUFFIX)
                 } ?: AppIcons.DEFAULT_SUFFIX
             }
 
@@ -46,25 +47,29 @@ class AppIconController
         suspend fun apply(suffix: String) {
             require(suffix in AppIcons.ALL_SUFFIXES) { "Unknown launcher alias $suffix" }
             withContext(Dispatchers.IO) {
-                val states =
-                    (listOf(suffix) + (AppIcons.ALL_SUFFIXES - suffix)).map { alias ->
-                        val state =
-                            if (alias == suffix) {
-                                PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                            } else {
-                                PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-                            }
-                        componentFor(alias) to state
-                    }
                 val packageManager = context.packageManager
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    packageManager.setComponentEnabledSettings(
-                        states.map { (component, state) -> ComponentEnabledSetting(component, state, PackageManager.DONT_KILL_APP) },
+                // Enable target component first, then disable the rest
+                val targetComponent = componentFor(suffix)
+                packageManager.setComponentEnabledSetting(
+                    targetComponent,
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    PackageManager.DONT_KILL_APP,
+                )
+
+                val otherSuffixes = AppIcons.ALL_SUFFIXES.filter { it != suffix }
+                for (other in otherSuffixes) {
+                    packageManager.setComponentEnabledSetting(
+                        componentFor(other),
+                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                        PackageManager.DONT_KILL_APP,
                     )
-                } else {
-                    states.forEach { (component, state) ->
-                        packageManager.setComponentEnabledSetting(component, state, PackageManager.DONT_KILL_APP)
-                    }
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val states =
+                        listOf(ComponentEnabledSetting(targetComponent, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)) +
+                            otherSuffixes.map { ComponentEnabledSetting(componentFor(it), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP) }
+                    packageManager.setComponentEnabledSettings(states)
                 }
             }
             playerPreferences.setSelectedAppIcon(suffix)

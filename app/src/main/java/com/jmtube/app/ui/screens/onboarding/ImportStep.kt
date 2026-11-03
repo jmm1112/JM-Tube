@@ -34,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.jmtube.app.R
 import com.jmtube.app.data.backup.BackupOperation
 import com.jmtube.app.data.backup.ImportKind
@@ -182,9 +183,11 @@ private fun SourceGlyph(source: ImportSource) {
         Box(contentAlignment = Alignment.Center) {
             val iconRes = source.iconRes
             if (iconRes != null) {
-                // Metrolist's icon is light grey artwork that vanishes on a light disc; it reads as a silhouette.
-                val tint = if (source == ImportSource.METROLIST) MaterialTheme.colorScheme.onSurface else Color.Unspecified
-                Icon(painterResource(iconRes), contentDescription = null, tint = tint, modifier = Modifier.size(GlyphIconSize))
+                AsyncImage(
+                    model = iconRes,
+                    contentDescription = null,
+                    modifier = Modifier.size(GlyphIconSize),
+                )
             } else {
                 Icon(Icons.Outlined.History, contentDescription = null, modifier = Modifier.size(GlyphIconSize))
             }

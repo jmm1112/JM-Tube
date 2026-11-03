@@ -567,41 +567,45 @@ class MusicViewModel
          *  Each section loads independently to show content as fast as possible
          */
         private fun loadMusicContent(force: Boolean = false) {
-            viewModelScope.launch(PerformanceDispatcher.diskIO) {
-                val cachedTrending = MusicCache.getTrendingMusic(100)
-                val cachedResult =
-                    try {
-                        musicRecommendationAlgorithm.loadMusicHome()
-                    } catch (e: Exception) {
-                        emptyList<MusicSection>() to null
-                    }
-
-                val cachedSections = cachedResult.first
-
-                if (cachedTrending != null || cachedSections.isNotEmpty()) {
-                    withContext(PerformanceDispatcher.parsing) {
-                        // Apply cached data immediately
-                        if (cachedSections.isNotEmpty()) {
-                            processHomeSections(cachedSections)
-                            cachedResult.second?.let { continuation ->
-                                _uiState.update { it.copy(homeContinuation = continuation) }
-                            }
+            if (!force) {
+                viewModelScope.launch(PerformanceDispatcher.diskIO) {
+                    val cachedTrending = MusicCache.getTrendingMusic(100)
+                    val cachedResult =
+                        try {
+                            musicRecommendationAlgorithm.loadMusicHome()
+                        } catch (e: Exception) {
+                            emptyList<MusicSection>() to null
                         }
 
-                        cachedTrending?.let { trend ->
-                            _uiState.update {
-                                it.copy(
-                                    trendingSongs = trend,
-                                    allSongs = if (it.selectedFilter == null) trend else it.allSongs,
-                                )
-                            }
-                        }
+                    val cachedSections = cachedResult.first
 
-                        _uiState.update { it.copy(isLoading = false) }
+                    if (cachedTrending != null || cachedSections.isNotEmpty()) {
+                        withContext(PerformanceDispatcher.parsing) {
+                            // Apply cached data immediately
+                            if (cachedSections.isNotEmpty()) {
+                                processHomeSections(cachedSections)
+                                cachedResult.second?.let { continuation ->
+                                    _uiState.update { it.copy(homeContinuation = continuation) }
+                                }
+                            }
+
+                            cachedTrending?.let { trend ->
+                                _uiState.update {
+                                    it.copy(
+                                        trendingSongs = trend,
+                                        allSongs = if (it.selectedFilter == null) trend else it.allSongs,
+                                    )
+                                }
+                            }
+
+                            _uiState.update { it.copy(isLoading = false) }
+                        }
+                    } else {
+                        _uiState.update { it.copy(isLoading = true, error = null) }
                     }
-                } else {
-                    _uiState.update { it.copy(isLoading = true, error = null) }
                 }
+            } else {
+                _uiState.update { it.copy(isLoading = true, error = null) }
             }
 
             // On Repeat — served entirely from the local music brain, zero network.
@@ -619,7 +623,7 @@ class MusicViewModel
             val trendingJob =
                 viewModelScope.launch(PerformanceDispatcher.networkIO) {
                     val trending =
-                        withTimeoutOrNull(8_000L) {
+                        withTimeoutOrNull(12_000L) {
                             try {
                                 // Try to get charts first for high quality trending data
                                 val charts = InnertubeMusicService.fetchCharts()
@@ -651,7 +655,6 @@ class MusicViewModel
                             it.copy(
                                 trendingSongs = trend,
                                 allSongs = if (it.selectedFilter == null) trend else it.allSongs,
-                                isLoading = false,
                             )
                         }
                     }
@@ -662,55 +665,58 @@ class MusicViewModel
                 }
 
             // 2. IMPORTANT: Home Sections (Dynamic Content)
-            viewModelScope.launch(PerformanceDispatcher.networkIO) {
-                var skippedFreshCache = false
-                val homeResult =
-                    withTimeoutOrNull(10_000L) {
-                        // Reduced timeout
-                        try {
-                            if (force) {
-                                musicRecommendationAlgorithm.refreshMusicHome()
-                            } else {
-                                // Cache inside its 4 h TTL: the cached pass already rendered it.
-                                musicRecommendationAlgorithm.refreshMusicHomeIfStale()
-                                    ?: (emptyList<MusicSection>() to null).also { skippedFreshCache = true }
+            val homeJob =
+                viewModelScope.launch(PerformanceDispatcher.networkIO) {
+                    var skippedFreshCache = false
+                    val homeResult =
+                        withTimeoutOrNull(12_000L) {
+                            try {
+                                if (force) {
+                                    musicRecommendationAlgorithm.refreshMusicHome()
+                                } else {
+                                    // Cache inside its 4 h TTL: the cached pass already rendered it.
+                                    musicRecommendationAlgorithm.refreshMusicHomeIfStale()
+                                        ?: (emptyList<MusicSection>() to null).also { skippedFreshCache = true }
+                                }
+                            } catch (e: Exception) {
+                                Log.e("MusicViewModel", "Error refreshing home sections", e)
+                                emptyList<MusicSection>() to null
                             }
-                        } catch (e: Exception) {
-                            Log.e("MusicViewModel", "Error refreshing home sections", e)
-                            emptyList<MusicSection>() to null
+                        } ?: (emptyList<MusicSection>() to null)
+
+                    val homeSections = homeResult.first
+                    val homeContinuation = homeResult.second
+
+                    // Fetch Chips — ordered by learned genre/mood affinity so the
+                    // moods the user actually plays lead the row (stable otherwise).
+                    val homeChips = musicRecommendationAlgorithm.getHomeChips()
+                    val genreAffinity = musicBrain.genreAffinitySnapshot()
+                    val orderedChips =
+                        if (genreAffinity.isEmpty()) {
+                            homeChips
+                        } else {
+                            homeChips.sortedByDescending { genreAffinity[it.title.trim().lowercase()] ?: 0.0 }
                         }
-                    } ?: (emptyList<MusicSection>() to null)
+                    _uiState.update { it.copy(homeChips = orderedChips) }
 
-                val homeSections = homeResult.first
-                val homeContinuation = homeResult.second
-
-                // Fetch Chips — ordered by learned genre/mood affinity so the
-                // moods the user actually plays lead the row (stable otherwise).
-                val homeChips = musicRecommendationAlgorithm.getHomeChips()
-                val genreAffinity = musicBrain.genreAffinitySnapshot()
-                val orderedChips =
-                    if (genreAffinity.isEmpty()) {
-                        homeChips
-                    } else {
-                        homeChips.sortedByDescending { genreAffinity[it.title.trim().lowercase()] ?: 0.0 }
-                    }
-                _uiState.update { it.copy(homeChips = orderedChips) }
-
-                if (homeSections.isNotEmpty()) {
-                    processHomeSections(homeSections)
-                    _uiState.update { it.copy(homeContinuation = homeContinuation) }
-                } else if (!skippedFreshCache && !quickPicksComposed &&
-                    _uiState.value.forYouTracks.isEmpty() && _uiState.value.dynamicSections.isEmpty()
-                ) {
-                    val recs = musicRecommendationAlgorithm.getRecommendations(24).audioMusicOnly()
-                    if (recs.isNotEmpty()) {
-                        val ranked = musicBrain.rankTracks(recs, "quick_picks")
-                        _uiState.update { it.copy(forYouTracks = ranked) }
+                    if (homeSections.isNotEmpty()) {
+                        processHomeSections(homeSections)
+                        _uiState.update { it.copy(homeContinuation = homeContinuation) }
+                    } else if (!skippedFreshCache && !quickPicksComposed &&
+                        _uiState.value.forYouTracks.isEmpty() && _uiState.value.dynamicSections.isEmpty()
+                    ) {
+                        val recs = musicRecommendationAlgorithm.getRecommendations(24).audioMusicOnly()
+                        if (recs.isNotEmpty()) {
+                            val ranked = musicBrain.rankTracks(recs, "quick_picks")
+                            _uiState.update { it.copy(forYouTracks = ranked) }
+                        }
                     }
                 }
-                if (_uiState.value.trendingSongs.isNotEmpty() || homeSections.isNotEmpty()) {
-                    _uiState.update { it.copy(isLoading = false) }
-                }
+
+            viewModelScope.launch(PerformanceDispatcher.networkIO) {
+                trendingJob.join()
+                homeJob.join()
+                _uiState.update { it.copy(isLoading = false) }
             }
 
             // 3. SECONDARY: History (Disk IO)
@@ -1285,9 +1291,10 @@ class MusicViewModel
         }
 
         fun refresh() {
+            quickPicksComposed = false
             relatedCache.clear()
             artistDetailsCache.clear()
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true, error = null) }
             loadMusicContent(force = true)
         }
 

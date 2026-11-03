@@ -98,7 +98,6 @@ internal fun UnifiedMusicPlayerSheet(
     val miniHeightPx = with(density) { MediaMiniBarDefaults.Height.toPx() }
     val miniSpacerPx = with(density) { MediaMiniBarDefaults.BottomSpacer.toPx() }
     val containerWidthPx = with(density) { containerWidth.toPx() }
-    val isCompactWidth = !LocalWindowSizeClass.current.isMediumWidth
     val collapsedTargetY = (containerHeightPx - miniHeightPx - miniSpacerPx).coerceAtLeast(0f)
     val hiddenY = containerHeightPx + miniSpacerPx
 
@@ -168,17 +167,17 @@ internal fun UnifiedMusicPlayerSheet(
         try {
             progressFlow.collect { backEvent ->
                 predictiveBackProgress.snapTo(backEvent.progress)
+                val p = backEvent.progress
+                val baseY = state.translationY.value * (1f - p) + collapsedTargetYState.value * p
+                val baseFraction = (1f - p).coerceIn(0f, 1f)
+                motionController.snapTo(baseY, baseFraction)
             }
-            val p = predictiveBackProgress.value
-            val baseY =
-                state.translationY.value * (1f - p) + collapsedTargetYState.value * p
-            val baseFraction = state.expansionFraction.value * (1f - p)
-            motionController.snapTo(baseY, baseFraction)
             predictiveBackProgress.snapTo(0f)
             state.collapse()
         } catch (e: CancellationException) {
             scope.launch {
                 predictiveBackProgress.animateTo(0f, tween(250))
+                state.expand()
             }
             throw e
         }
@@ -410,7 +409,7 @@ internal fun UnifiedMusicPlayerSheet(
                         MiniPlayerContent(
                             track = displayTrack,
                             animationsEnabled = miniAnimationsEnabled,
-                            showPrevious = !isCompactWidth,
+                            showPrevious = true,
                         )
                     }
                 }

@@ -154,7 +154,7 @@ internal fun DiagnosticsScreen(
                 showChevron = false,
                 enabled = snapshotCount > 0,
                 value = noSnapshotText.takeIf { snapshotCount == 0 },
-                onClick = { exportSnapshot.launch("flow_home_snapshot_${LocalDate.now()}.json.gz") },
+                onClick = { exportSnapshot.launch("jmtube_home_snapshot_${LocalDate.now()}.json.gz") },
             )
         }
         if (BuildConfig.DEBUG) {

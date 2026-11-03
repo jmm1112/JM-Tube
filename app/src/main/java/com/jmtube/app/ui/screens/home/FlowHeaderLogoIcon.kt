@@ -5,12 +5,19 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.PathParser
+import coil3.compose.AsyncImage
+import com.jmtube.app.util.AppIcons
 
 // Authentic YouTube Red Pill Path
 @Suppress("ktlint:standard:max-line-length")
@@ -39,13 +46,55 @@ internal fun Modifier.homeLogoClicks(
 ): Modifier = combinedClickable(onClickLabel = clickLabel, onLongClickLabel = longClickLabel, onClick = onClick, onLongClick = onLongClick)
 
 /**
+ * Smart header logo icon for JM Tube & JM Music.
+ * Detects the currently selected launcher icon [iconSuffix] and renders the corresponding icon image.
+ * Displays default YouTube or YouTube Music logos if default icon is active or [iconSuffix] is null/default.
+ */
+@Composable
+fun SmartAppHeaderLogoIcon(
+    iconSuffix: String? = null,
+    isMusic: Boolean = false,
+    isDeepFlowActive: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
+    val suffix = iconSuffix ?: AppIcons.DEFAULT_SUFFIX
+    if (suffix == AppIcons.DARK_SUFFIX) {
+        if (isMusic) {
+            YouTubeMusicLogoIcon(modifier = modifier)
+        } else {
+            YouTubeLogoIcon(isDeepFlowActive = isDeepFlowActive, modifier = modifier)
+        }
+    } else {
+        Box(modifier = modifier, contentAlignment = Alignment.Center) {
+            AsyncImage(
+                model = AppIcons.splashIconRes(suffix),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+    }
+}
+
+/**
  * Authentic original YouTube play-button logo icon.
  */
 @Composable
 fun YouTubeLogoIcon(
     isDeepFlowActive: Boolean = false,
+    iconSuffix: String? = null,
     modifier: Modifier = Modifier,
 ) {
+    val suffix = iconSuffix ?: AppIcons.DEFAULT_SUFFIX
+    if (suffix != AppIcons.DARK_SUFFIX) {
+        SmartAppHeaderLogoIcon(
+            iconSuffix = suffix,
+            isMusic = false,
+            isDeepFlowActive = isDeepFlowActive,
+            modifier = modifier,
+        )
+        return
+    }
+
     val bgPath = remember { PathParser().parsePathString(YOUTUBE_LOGO_BG_PATH).toPath() }
     val playPath = remember { PathParser().parsePathString(YOUTUBE_PLAY_TRIANGLE_PATH).toPath() }
     val incognitoPath = remember { PathParser().parsePathString(FLOW_INCOGNITO_GLYPH_PATH).toPath() }
@@ -97,8 +146,19 @@ fun YouTubeLogoIcon(
  */
 @Composable
 fun YouTubeMusicLogoIcon(
+    iconSuffix: String? = null,
     modifier: Modifier = Modifier,
 ) {
+    val suffix = iconSuffix ?: AppIcons.DEFAULT_SUFFIX
+    if (suffix != AppIcons.DARK_SUFFIX) {
+        SmartAppHeaderLogoIcon(
+            iconSuffix = suffix,
+            isMusic = true,
+            modifier = modifier,
+        )
+        return
+    }
+
     val bgPath = remember { PathParser().parsePathString(YTM_BG_PATH).toPath() }
     val ringPath =
         remember {
@@ -130,10 +190,12 @@ fun YouTubeMusicLogoIcon(
 @Composable
 internal fun FlowHeaderLogoIcon(
     isDeepFlowActive: Boolean,
+    iconSuffix: String? = null,
     modifier: Modifier = Modifier,
 ) {
     YouTubeLogoIcon(
         isDeepFlowActive = isDeepFlowActive,
+        iconSuffix = iconSuffix,
         modifier = modifier,
     )
 }

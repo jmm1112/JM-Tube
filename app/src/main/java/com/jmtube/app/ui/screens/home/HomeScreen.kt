@@ -87,6 +87,7 @@ fun HomeScreen(
     val refreshHomeOnReselect by preferences.refreshHomeOnReselect.collectAsStateWithLifecycle(initialValue = true)
     val showAppLogoIcon by preferences.showAppLogoIcon.collectAsStateWithLifecycle(initialValue = true)
     val deepFlowActive by preferences.deepFlowActive.collectAsStateWithLifecycle(initialValue = false)
+    val selectedAppIcon by preferences.selectedAppIcon.collectAsStateWithLifecycle(initialValue = null)
 
     val gridStates = rememberHomeGridStates()
     val coroutineScope = rememberCoroutineScope()
@@ -140,7 +141,8 @@ fun HomeScreen(
                         if (showAppLogoIcon) {
                             YouTubeLogoIcon(
                                 isDeepFlowActive = deepFlowActive,
-                                modifier = Modifier.size(28.dp),
+                                iconSuffix = selectedAppIcon,
+                                modifier = Modifier.size(38.dp),
                             )
                         }
                         Text(

@@ -77,9 +77,9 @@
         android:fullBackupContent="@xml/backup_rules"
         android:fullBackupOnly="true"
         android:banner="@drawable/tv_banner"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_expressive_cookie"
         android:label="@string/app_launcher_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launcher_expressive_cookie"
         android:supportsRtl="true"
         android:theme="@style/Theme.Flow"
         android:usesCleartextTraffic="true"
@@ -426,7 +426,7 @@
         <!-- Default: Flow Red -->
         <activity-alias
             android:name=".IconFlowRed"
-            android:enabled="true"
+            android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:roundIcon="@mipmap/ic_launcher_round"
@@ -608,7 +608,7 @@
         <!-- Night Cookie (Expressive) -->
         <activity-alias
             android:name=".IconExpressiveCookie"
-            android:enabled="false"
+            android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_expressive_cookie"
             android:roundIcon="@mipmap/ic_launcher_expressive_cookie"

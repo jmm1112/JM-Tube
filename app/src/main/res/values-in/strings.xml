@@ -862,12 +862,12 @@
     <string name="period_six_months">6 bulan</string>
     <string name="period_one_year">1 tahun</string>
     <string name="import_data_title">Impor Data</string>
-    <string name="import_flow_backup_success">Cadangan Flow berhasil diimpor</string>
-    <string name="import_flow_backup_failed_template">Gagal mengimpor cadangan Flow: %1$s</string>
+    <string name="import_flow_backup_success">Cadangan JM Tube berhasil diimpor</string>
+    <string name="import_flow_backup_failed_template">Gagal mengimpor cadangan JM Tube: %1$s</string>
     <string name="import_newpipe_failed_template">Gagal mengimpor cadangan NewPipe: %1$s</string>
     <string name="import_youtube_failed_template">Gagal mengimpor cadangan YouTube: %1$s</string>
-    <string name="import_flow_backup_item_title">Impor Cadangan Flow</string>
-    <string name="import_flow_backup_desc">Pulihkan riwayat, pengaturan, dan langganan Anda dari file cadangan Flow.</string>
+    <string name="import_flow_backup_item_title">Impor Cadangan JM Tube</string>
+    <string name="import_flow_backup_desc">Pulihkan riwayat, pengaturan, dan langganan Anda dari file cadangan JM Tube.</string>
     <string name="import_from_newpipe">Impor dari NewPipe</string>
     <string name="import_from_newpipe_desc">Impor langganan dari file ekspor NewPipe (JSON).</string>
     <string name="import_from_libretube">Impor dari LibreTube</string>
@@ -1212,7 +1212,7 @@
     <string name="export_engine_data_subtitle">Buat cadangan kepribadian AI &amp; data pembelajaran Anda</string>
     <string name="export_engine_success">Profil mesin berhasil diekspor</string>
     <string name="export_engine_failed">Gagal mengekspor profil mesin</string>
-    <string name="import_engine_data">Impor Data Mesin Flow</string>
+    <string name="import_engine_data">Impor Data Mesin JM Tube</string>
     <string name="import_engine_data_desc">Pulihkan profil kepribadian AI Anda dari file cadangan</string>
     <string name="import_engine_success">Profil mesin berhasil dipulihkan</string>
     <string name="import_engine_failed">Gagal mengimpor profil mesin</string>
@@ -3012,7 +3012,7 @@
     <string name="settings_backup_tab_auto">Otomatis</string>
     <string name="settings_backup_full">Cadangan lengkap</string>
     <string name="settings_backup_individual">Ekspor individual</string>
-    <string name="settings_backup_restore_flow">Pulihkan dari Flow</string>
+    <string name="settings_backup_restore_flow">Pulihkan dari JM Tube</string>
     <string name="settings_backup_source_youtube">YouTube dan Google Takeout</string>
     <string name="settings_backup_source_newpipe">NewPipe</string>
     <string name="settings_backup_source_libretube">LibreTube</string>
@@ -3195,7 +3195,7 @@
     <string name="recap_source_all">Semuanya</string>
     <string name="recap_source_video">Video</string>
     <string name="recap_source_music">Musik</string>
-    <string name="recap_total_time">Waktu di Flow</string>
+    <string name="recap_total_time">Waktu di JM Tube</string>
     <string name="recap_delta_up">%1$s lebih banyak daripada periode sebelumnya</string>
     <string name="recap_delta_down">%1$s lebih sedikit daripada periode sebelumnya</string>
     <string name="recap_delta_same">Kurang lebih sama dengan periode sebelumnya</string>
@@ -3288,7 +3288,7 @@
     <string name="recap_ready_body">Lihat yang Anda tonton dan dengarkan, lalu bagikan jika Anda mau</string>
     <string name="recap_ready_open">Buka</string>
     <string name="recap_ready_dismiss">Nanti saja</string>
-    <string name="recap_story_intro">%1$s Anda di Flow</string>
+    <string name="recap_story_intro">%1$s Anda di JM Tube</string>
     <plurals name="recap_story_intro_body">
         <item quantity="other">Tersebar selama %d hari</item>
     </plurals>
@@ -3310,12 +3310,12 @@
     <string name="recap_story_summary">%1$s Anda, dalam satu kartu</string>
     <string name="recap_story_share">Bagikan</string>
     <string name="recap_story_share_title">Bagikan rekap Anda</string>
-    <string name="recap_story_share_text">%1$s saya di Flow: %2$s</string>
+    <string name="recap_story_share_text">%1$s saya di JM Tube: %2$s</string>
     <string name="recap_story_close">Tutup</string>
     <string name="recap_story_next">Berikutnya</string>
     <string name="recap_story_previous">Sebelumnya</string>
     <string name="recap_story_page">Halaman %1$d dari %2$d</string>
-    <string name="recap_story_made_with">Dibuat dengan Flow</string>
+    <string name="recap_story_made_with">Dibuat dengan JM Tube</string>
     <string name="recap_story_pause">Jeda</string>
     <string name="recap_story_play">Putar</string>
     <string name="recap_summary_top_channel">Channel teratas</string>

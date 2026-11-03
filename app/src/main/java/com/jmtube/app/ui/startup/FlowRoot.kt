@@ -19,7 +19,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jmtube.app.data.local.AppUiModePreferences
 import com.jmtube.app.data.recommendation.FlowNeuroEngine
 import com.jmtube.app.data.repository.DeArrowRepository
@@ -105,22 +104,17 @@ internal fun FlowRoot(
     }
 
     var startupAnimationDone by rememberSaveable { mutableStateOf(false) }
-    val isAppLocked =
-        if (appLockPreferences != null) {
-            val lockedState by appLockPreferences.isLocked.collectAsStateWithLifecycle()
-            lockedState
-        } else {
-            false
-        }
 
     FlowTheme(theme) {
         SideEffect { splashController.contentReady = true }
         val splashTone = splashTone(MaterialTheme.colorScheme.background)
         val selectedIcon by appIconController.selected.collectAsState(initial = null)
+        var activeIconSuffix by remember { mutableStateOf(com.jmtube.app.util.AppIcons.DEFAULT_SUFFIX) }
         LaunchedEffect(splashTone, selectedIcon) {
             val isDark = splashTone != SplashTone.LIGHT
             val currentSuffix = selectedIcon ?: appIconController.activeSuffix()
             val effectiveSuffix = com.jmtube.app.util.AppIcons.resolveSmartSuffix(currentSuffix, isDark)
+            activeIconSuffix = effectiveSuffix
             if (appIconController.activeSuffix() != effectiveSuffix) {
                 appIconController.apply(effectiveSuffix)
             }
@@ -195,9 +189,13 @@ internal fun FlowRoot(
                                 }
                             },
                         )
-                        if (!startupAnimationDone && !isAppLocked && appUiRoot != AppUiRoot.TV) {
+                        val isAppLocked = appLockPreferences?.isLocked?.collectAsState()?.value ?: false
+                        if (!startupAnimationDone && appUiRoot != AppUiRoot.TV && !isAppLocked) {
                             YouTubeStartupAnimation(
                                 onFinished = { startupAnimationDone = true },
+                                iconSuffix = selectedIcon ?: activeIconSuffix,
+                                backgroundColor = MaterialTheme.colorScheme.background,
+                                contentColor = MaterialTheme.colorScheme.onBackground,
                             )
                         }
                         if (appUiRoot != AppUiRoot.TV && appLockPreferences != null) {
