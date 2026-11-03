@@ -1,0 +1,6 @@
+{
+  "name": "JM Tube",
+  "description": "A privacy-respecting YouTube and YouTube Music client with local personalization, background playback, and sponsor blocking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

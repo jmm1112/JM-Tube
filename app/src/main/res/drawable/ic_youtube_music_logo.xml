@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Red circle background -->
+    <path
+        android:fillColor="#FF0000"
+        android:pathData="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10,-4.48,10,-10S17.52,2,12,2z" />
+    <!-- Concentric vinyl ring -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,6.5c-3.03,0-5.5,2.47-5.5,5.5s2.47,5.5,5.5,5.5s5.5,-2.47,5.5,-5.5S15.03,6.5,12,6.5z M12,15.8c-2.1,0-3.8,-1.7-3.8,-3.8s1.7,-3.8,3.8,-3.8s3.8,1.7,3.8,3.8S14.1,15.8,12,15.8z" />
+    <!-- White Play Triangle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M10.2,8.5 L15.2,12 L10.2,15.5 Z" />
+</vector>

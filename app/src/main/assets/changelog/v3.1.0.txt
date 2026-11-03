@@ -1,0 +1,25 @@
+JM TUBE CHANGE LOG
+VERSION: 3.1.0
+DATE: 2026-10-31
+STATUS: stable
+
+HIGHLIGHTS
+- Complete rebranding and visual redesign to official YouTube and YouTube Music aesthetics
+- Official YouTube play button icon and YouTube Music vinyl badge integration
+- Smooth YouTube-style scale and alpha opening launch animation
+- Added dedicated JM Music top app bar and layout
+- Custom developer profile integration (JM / jmm1112) with GitHub repository linking
+- Updated open source licenses, notices, and GPL v3 legal framework
+
+JM TUBE REBRANDING AND DESIGN
+- Transformed main header to [YouTube Logo] JM Tube
+- Transformed music section header to [YouTube Music Logo] JM Music
+- Native launch splash screen extended with custom entrance and exit transitions
+- Updated application branding strings and metadata across all supported locales
+
+DEVELOPER PROFILE & ABOUT SECTION
+- Replaced legacy developer profile with maintainer profile for JM (jmm1112)
+- Added direct link to the official JM Tube GitHub repository (jmm1112/JM-Tube)
+- Preserved Website and Reddit cards for future endpoint configuration
+- Updated Open Source Notices with comprehensive dependency and asset attributions
+- Verified GNU General Public License v3.0 compatibility

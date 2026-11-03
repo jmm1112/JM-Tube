@@ -1,0 +1,78 @@
+========================================================================
+JM Tube — Open Source Notices & Licenses
+========================================================================
+
+1. Flow / Flow Tube (Upstream Base Project)
+------------------------------------------------------------------------
+Source: https://github.com/Flow-Tube/Flow
+Copyright (C) 2025-2026 Flow | A-EDev
+License: GNU General Public License v3.0 (GPL-3.0)
+https://www.gnu.org/licenses/gpl-3.0.html
+
+2. NewPipe Extractor (github.com/TeamNewPipe/NewPipeExtractor)
+------------------------------------------------------------------------
+Copyright (C) TeamNewPipe
+License: GNU General Public License v3.0 (GPL-3.0)
+https://www.gnu.org/licenses/gpl-3.0.html
+
+3. Android Jetpack Libraries (androidx.*)
+------------------------------------------------------------------------
+Source: https://developer.android.com/jetpack
+Copyright (C) The Android Open Source Project
+License: Apache License, Version 2.0
+https://www.apache.org/licenses/LICENSE-2.0
+
+4. Kotlin & KotlinX Libraries (Kotlin, Coroutines, Serialization)
+------------------------------------------------------------------------
+Source: https://github.com/JetBrains/kotlin
+Copyright (C) JetBrains s.r.o. and Kotlin Programming Language contributors
+License: Apache License, Version 2.0
+https://www.apache.org/licenses/LICENSE-2.0
+
+5. Coil 3 Image Loading (github.com/coil-kt/coil)
+------------------------------------------------------------------------
+Copyright (C) Coil Contributors
+License: Apache License, Version 2.0
+https://www.apache.org/licenses/LICENSE-2.0
+
+6. OkHttp (github.com/square/okhttp)
+------------------------------------------------------------------------
+Copyright (C) Square, Inc.
+License: Apache License, Version 2.0
+https://www.apache.org/licenses/LICENSE-2.0
+
+7. Ktor Client (github.com/ktorio/ktor)
+------------------------------------------------------------------------
+Copyright (C) JetBrains s.r.o.
+License: Apache License, Version 2.0
+https://www.apache.org/licenses/LICENSE-2.0
+
+8. Dagger Hilt (github.com/google/dagger)
+------------------------------------------------------------------------
+Copyright (C) Google LLC
+License: Apache License, Version 2.0
+https://www.apache.org/licenses/LICENSE-2.0
+
+9. Snowball (snowballstem.org)
+------------------------------------------------------------------------
+Stemmers and stop word lists used by recommendation engine.
+Copyright (c) 2001, Dr Martin Porter
+Copyright (c) 2004,2005, Richard Boulton
+Copyright (c) 2013, Yoshiki Shibukawa
+Copyright (c) 2006-2025, Olly Betts
+License: BSD 3-Clause License
+
+10. stopwords-iso (github.com/stopwords-iso)
+------------------------------------------------------------------------
+Copyright (c) 2020 Gene Diaz
+License: MIT License
+
+11. FrequencyWords (github.com/hermitdave/FrequencyWords)
+------------------------------------------------------------------------
+Word frequency lists from OpenSubtitles 2018 (opus.nlpl.eu) by Hermit Dave.
+License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+
+12. Open Chinese Convert (github.com/BYVoid/OpenCC)
+------------------------------------------------------------------------
+Copyright (c) the OpenCC authors.
+License: Apache License, Version 2.0
