@@ -3178,6 +3178,7 @@
     <string name="settings_wellbeing_title">الرفاهية</string>
     <string name="settings_group_look">المظهر والإحساس</string>
     <string name="settings_group_watching">المشاهدة</string>
+    <string name="settings_group_accounts">الحسابات</string>
     <string name="settings_group_data">بياناتك</string>
     <string name="settings_group_system">النظام</string>
     <string name="settings_appearance_summary">السمة وأيقونة التطبيق والتخطيط وشريط التنقل</string>

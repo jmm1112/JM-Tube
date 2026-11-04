@@ -119,8 +119,10 @@ internal fun SettingsListScope.homeContent(
         page(SettingsDestination.CONTENT)
         page(SettingsDestination.INTEGRATIONS)
     }
-    group(key = "home.data", header = R.string.settings_group_data) {
+    group(key = "home.accounts", header = R.string.settings_group_accounts) {
         page(SettingsDestination.PROFILES)
+    }
+    group(key = "home.data", header = R.string.settings_group_data) {
         page(SettingsDestination.BACKUP)
         page(SettingsDestination.SYNC)
         page(SettingsDestination.HISTORY)

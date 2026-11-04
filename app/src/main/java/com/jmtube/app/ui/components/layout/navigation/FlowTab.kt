@@ -2,20 +2,20 @@ package com.jmtube.app.ui.components.layout.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Subscriptions
-import androidx.compose.material.icons.filled.VideoLibrary
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Subscriptions
-import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -60,7 +60,7 @@ fun FlowTab.icon(selected: Boolean): ImageVector =
         FlowTab.Shorts -> ImageVector.vectorResource(if (selected) R.drawable.ic_shorts_filled else R.drawable.ic_shorts)
         FlowTab.Music -> if (selected) Icons.Filled.MusicNote else Icons.Outlined.MusicNote
         FlowTab.Subscriptions -> if (selected) Icons.Filled.Subscriptions else Icons.Outlined.Subscriptions
-        FlowTab.Library -> if (selected) Icons.Filled.VideoLibrary else Icons.Outlined.VideoLibrary
+        FlowTab.Library -> if (selected) Icons.Filled.AccountCircle else Icons.Outlined.AccountCircle
         FlowTab.Search -> if (selected) Icons.Filled.Search else Icons.Outlined.Search
         FlowTab.Explore -> if (selected) Icons.Filled.Explore else Icons.Outlined.Explore
         FlowTab.Downloads -> if (selected) Icons.Filled.Download else Icons.Outlined.Download

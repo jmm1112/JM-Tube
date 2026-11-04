@@ -2907,6 +2907,7 @@
     <string name="settings_wellbeing_title">Kesejahteraan</string>
     <string name="settings_group_look">Tampilan &amp; nuansa</string>
     <string name="settings_group_watching">Menonton</string>
+    <string name="settings_group_accounts">Akun</string>
     <string name="settings_group_data">Data Anda</string>
     <string name="settings_group_system">Sistem</string>
     <string name="settings_appearance_summary">Tema, ikon aplikasi, tata letak, dan bilah navigasi</string>

@@ -3980,6 +3980,7 @@
     <string name="settings_wellbeing_title">Bienestar</string>
     <string name="settings_group_look">Aspecto y diseño</string>
     <string name="settings_group_watching">Visualización</string>
+    <string name="settings_group_accounts">Cuentas</string>
     <string name="settings_group_data">Tus datos</string>
     <string name="settings_group_system">Sistema</string>
     <string name="settings_language_region_summary">Idioma de la aplicación, idioma del contenido y país</string>

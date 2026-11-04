@@ -213,6 +213,9 @@ fun NavGraphBuilder.flowAppGraph(
             onManageData = {
                 navController.navigate("settings")
             },
+            onOpenSettings = { target ->
+                navController.navigate("settings?target=${target.encode()}")
+            },
             onVideoClick = { video ->
                 navController.openVideoOrShorts(video, disableShortsPlayer) { playerViewModel.playVideo(it) }
             },

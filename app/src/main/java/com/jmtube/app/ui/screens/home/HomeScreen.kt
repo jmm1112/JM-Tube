@@ -55,7 +55,6 @@ import com.jmtube.app.ui.components.layout.LocalFlowBottomInsets
 import com.jmtube.app.ui.components.layout.floatAboveBottomChrome
 import com.jmtube.app.ui.components.layout.navigation.FlowTab
 import com.jmtube.app.ui.components.layout.topbar.FlowTopBar
-import com.jmtube.app.ui.components.profiles.ProfileTopBarAction
 import com.jmtube.app.ui.components.rememberFeedGridLayout
 import com.jmtube.app.ui.components.settings.SettingsTarget
 import com.jmtube.app.ui.components.shared.FlowPullToRefreshBox
@@ -164,7 +163,6 @@ fun HomeScreen(
                         )
                     }
                 },
-                trailingAction = { ProfileTopBarAction(onOpenSettings) },
             )
         },
     ) { padding ->
