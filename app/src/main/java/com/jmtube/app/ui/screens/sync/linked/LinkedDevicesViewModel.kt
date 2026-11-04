@@ -96,19 +96,20 @@ internal class LinkedDevicesViewModel
                 combine(local, live.devices) { l, peers -> l to peers },
             ) { group, lastSync, nearby, syncing, (l, peers) ->
                 val kinds = peers.mapNotNull { (did, peer) -> peer.kind?.let { did to it } }.toMap()
-                val own = l.devices?.firstOrNull { it.thisDevice }?.id
+                val currentDevices = runCatching { actions.devices() }.getOrNull() ?: l.devices
+                val own = currentDevices?.firstOrNull { it.thisDevice }?.id
                 LinkedUiState(
-                    group?.storeUrl,
-                    group?.recoverySaved ?: true,
-                    lastSync,
-                    l.devices,
-                    l.requests,
-                    nearby,
-                    if (own != null) kinds + (own to ownKind) else kinds,
-                    l.words,
-                    l.busy,
-                    syncing,
-                    l.error ?: lastSync?.error,
+                    storeUrl = group?.storeUrl,
+                    recoverySaved = group?.recoverySaved ?: true,
+                    lastSync = lastSync,
+                    devices = currentDevices,
+                    requests = l.requests,
+                    nearby = nearby,
+                    kinds = if (own != null) kinds + (own to ownKind) else kinds,
+                    words = l.words,
+                    busy = l.busy,
+                    syncing = syncing,
+                    error = l.error ?: lastSync?.error,
                 )
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LinkedUiState())
 
