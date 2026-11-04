@@ -1,7 +1,7 @@
 # JM Tube
 
 <p align="center">
-  <img src="app/src/main/res/mipmap-xxhdpi/ic_launcher.png" width="120" height="120" alt="JM Tube Logo" />
+  <img src="assets/app_logo.svg" width="120" height="120" alt="JM Tube Night Cookie Logo" />
 </p>
 
 <p align="center">

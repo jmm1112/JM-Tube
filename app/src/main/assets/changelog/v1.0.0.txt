@@ -1,0 +1,20 @@
+JM TUBE CHANGE LOG
+VERSION: 1.0.0
+DATE: 2026-11-04
+STATUS: stable
+
+HIGHLIGHTS
+- Initial release of JM Tube (v1.0.0)
+- Official YouTube and YouTube Music aesthetics with YouTube play button logo and JM Music header
+- Google Account Sign-In & YouTube/YouTube Music Realtime Account Data Synchronization
+- Multi-profile management with real-time LAN Device Sync for Name, Color, Avatar Emoji, and Custom Photo images
+- Master Backup & App Data Backup support with full profile, photo, and settings archive
+- Time Management, Deep Mode, Equalizer, Offline Downloads, and Background Play
+- Custom developer profile integration for JM (jmm1112) with GitHub repository linking
+- Released under GNU General Public License v3.0
+
+JM TUBE DESIGN & FEATURES
+- Unified "You" tab navigation bar layout with clickable profile avatar
+- Real-time LAN WebSocket synchronization for peer-to-peer device pairing
+- Full offline video & music download manager with "JM Video" and "JM Music" folder structure
+- Built with Kotlin, Jetpack Compose, Material 3, and Media3
