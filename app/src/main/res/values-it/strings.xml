@@ -333,7 +333,7 @@
     <string name="settings_item_export_data_subtitle">Esegui il backup dei tuoi dati</string>
     <string name="settings_item_import_data">Importa dati</string>
     <string name="settings_item_import_data_subtitle">Reimposta da un backup o importa da un\'altra app</string>
-    <string name="settings_item_about_flow">Informazioni su Flow</string>
+    <string name="settings_item_about_flow">Informazioni su JM Tube</string>
     <string name="settings_item_about_flow_subtitle">Versione, licenza, collaboratori</string>
     <string name="settings_item_support">Supporto e donazioni</string>
     <string name="settings_item_support_subtitle">Contribuisci allo sviluppo di Flow</string>
@@ -877,7 +877,7 @@
     <string name="newpipe_extractor_subtitle">Libreria di estrazione principale</string>
     <string name="about_license">Licenza</string>
     <string name="about_changelog">Changelog</string>
-    <string name="whats_new_in_flow">Novità in Flow</string>
+    <string name="whats_new_in_flow">Novità in JM Tube</string>
     <string name="about_device_info">Informazioni sul dispositivo</string>
     <string name="gnu_license_full_title">Licenza Pubblica Generica GNU</string>
     <string name="loading_ellipsis">Caricamento…</string>

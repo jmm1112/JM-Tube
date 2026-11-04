@@ -17,6 +17,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import com.jmtube.app.sync2.service.LinkedProfiles
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,8 +31,13 @@ class ProfileSwitchViewModel
         @ApplicationContext context: Context,
         private val profiles: ProfileRepository,
         private val switcher: ProfileSwitcher,
+        linked: LinkedProfiles,
     ) : ViewModel() {
         val state: StateFlow<ProfileRegistryState?> = profiles.state.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+        val synced: StateFlow<Set<String>> =
+            linked.choices
+                .map { choices -> choices.local.filter { it.link != null }.mapTo(HashSet()) { it.id } }
+                .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
         val runningId: String = ActiveProfile.get(context).id
 
         /** This is the first process after a switch: what a cold start would ask has been answered. */

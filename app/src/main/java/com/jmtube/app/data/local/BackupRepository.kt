@@ -71,6 +71,16 @@ data class ContentPreferencesBackup(
     val blockedChannels: Set<String> = emptySet(),
 )
 
+data class ProfileBackup(
+    val id: String = "",
+    val name: String = "",
+    val colorKey: String = "",
+    val avatarKind: String = "initial",
+    val avatarEmoji: String = "",
+    val photoVersion: Long = 0L,
+    val photoBase64: String? = null,
+)
+
 data class BackupData(
     val version: Int = 2,
     val timestamp: Long = System.currentTimeMillis(),
@@ -86,6 +96,8 @@ data class BackupData(
     val likedVideos: List<LikedVideoInfo>? = emptyList(),
     val contentPreferences: ContentPreferencesBackup? = null,
     val settings: SettingsBackup? = null,
+    val profile: ProfileBackup? = null,
+    val allProfiles: List<com.jmtube.app.data.profile.Profile>? = null,
 )
 
 private data class FreeTubeHistoryExportEntry(
@@ -154,6 +166,11 @@ class BackupRepository(
         EntryPointAccessors
             .fromApplication(context.applicationContext, AppIconEntryPoint::class.java)
             .appIconController()
+    }
+    private val profilesRepo by lazy {
+        EntryPointAccessors
+            .fromApplication(context.applicationContext, com.jmtube.app.notification.AutoBackupEntryPoint::class.java)
+            .profileRepository()
     }
     private val localDataManager = LocalDataManager(context)
     private val appFontPreferences = AppFontPreferences(context)
@@ -294,6 +311,30 @@ class BackupRepository(
             ).seedFor(seed)
         }
 
+    private suspend fun currentProfileBackup(): ProfileBackup? {
+        val currentProfiles = profilesRepo.state.first().profiles
+        val runningId = com.jmtube.app.data.profile.ActiveProfile.get(context).id
+        val running = currentProfiles.firstOrNull { it.id == runningId } ?: return null
+        val photoBase64 = if (running.avatar.kind == com.jmtube.app.data.profile.ProfileAvatar.PHOTO) {
+            runCatching {
+                val file = com.jmtube.app.data.profile.ProfileAvatarPhotos.fileFor(context, running.id)
+                if (file.isFile && file.length() > 0) {
+                    android.util.Base64.encodeToString(file.readBytes(), android.util.Base64.NO_WRAP)
+                } else null
+            }.getOrNull()
+        } else null
+
+        return ProfileBackup(
+            id = running.id,
+            name = running.name,
+            colorKey = running.colorKey,
+            avatarKind = running.avatar.kind,
+            avatarEmoji = running.avatar.emoji,
+            photoVersion = running.avatar.photoVersion,
+            photoBase64 = photoBase64,
+        )
+    }
+
     private suspend fun buildBackupData(): BackupData =
         BackupData(
             viewHistory = viewHistory.getAllHistory().first(),
@@ -308,6 +349,8 @@ class BackupRepository(
             likedVideos = likedVideosRepo.getAllLikedVideos().first(),
             contentPreferences = getContentPreferencesBackup(),
             settings = getMergedSettingsBackup(),
+            profile = currentProfileBackup(),
+            allProfiles = profilesRepo.state.first().profiles,
         )
 
     /** The master backup: app data, the video engine and, when given, the music engine, in one ZIP. */
@@ -1851,6 +1894,32 @@ class BackupRepository(
         backupData: BackupData,
         restoreContentPreferences: Boolean = true,
     ) {
+        backupData.profile?.let { prof ->
+            val runningId = com.jmtube.app.data.profile.ActiveProfile.get(context).id
+            if (prof.name.isNotBlank()) profilesRepo.rename(runningId, prof.name)
+            val avatar = when (prof.avatarKind) {
+                com.jmtube.app.data.profile.ProfileAvatar.PHOTO -> {
+                    var pVersion = prof.photoVersion
+                    if (!prof.photoBase64.isNullOrBlank()) {
+                        runCatching {
+                            val bytes = android.util.Base64.decode(prof.photoBase64, android.util.Base64.NO_WRAP)
+                            val file = com.jmtube.app.data.profile.ProfileAvatarPhotos.fileFor(context, runningId)
+                            file.parentFile?.mkdirs()
+                            file.writeBytes(bytes)
+                            pVersion = System.currentTimeMillis()
+                        }
+                    }
+                    com.jmtube.app.data.profile.ProfileAvatar(kind = com.jmtube.app.data.profile.ProfileAvatar.PHOTO, photoVersion = pVersion)
+                }
+                com.jmtube.app.data.profile.ProfileAvatar.EMOJI -> {
+                    com.jmtube.app.data.profile.ProfileAvatar(kind = com.jmtube.app.data.profile.ProfileAvatar.EMOJI, emoji = prof.avatarEmoji)
+                }
+                else -> {
+                    com.jmtube.app.data.profile.ProfileAvatar(kind = com.jmtube.app.data.profile.ProfileAvatar.INITIAL)
+                }
+            }
+            profilesRepo.setAppearance(runningId, prof.colorKey, avatar)
+        }
         backupData.viewHistory?.let { entries ->
             if (entries.isNotEmpty()) viewHistory.bulkSaveHistoryEntries(entries)
         }

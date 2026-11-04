@@ -366,8 +366,8 @@
     <string name="settings_item_export_data_subtitle">Sichern Sie Ihre Daten</string>
     <string name="settings_item_import_data">Daten importieren</string>
     <string name="settings_item_import_data_subtitle">Aus einem Backup wiederherstellen oder Import aus anderen Apps</string>
-    <string name="settings_item_about_flow">Über Flow</string>
-    <string name="settings_item_about_flow_subtitle">Version, Lizenz, Mitwirkende</string>
+    <string name="settings_item_about_flow">Über JM Tube</string>
+    <string name="settings_item_about_flow_subtitle">Version, Lizenz, Informationen</string>
     <string name="settings_item_support">Unterstützung &amp; Spenden</string>
     <string name="settings_item_support_subtitle">Unterstützung bei der Entwicklung von Flow</string>
     <string name="settings_region_dialog_title">Region auswählen</string>
@@ -1449,7 +1449,7 @@
     <string name="newpipe_extractor_title">NewPipe Extractor</string>
     <string name="about_license_name">GNU GPL v3</string>
     <string name="about_changelog">Änderungsprotokoll</string>
-    <string name="whats_new_in_flow">Was gibt es Neues bei Flow?</string>
+    <string name="whats_new_in_flow">Was gibt es Neues bei JM Tube?</string>
     <string name="no_changelog_found_message">Es wurde kein Änderungsprotokoll gefunden.</string>
     <string name="error_changelog_load">Die Änderungsprotokoll-Datei konnte nicht geladen werden.</string>
     <string name="app_logo_desc">App Logo</string>

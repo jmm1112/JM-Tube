@@ -682,10 +682,10 @@
     <string name="notifications_empty_body">You\'re all caught up! New updates from your subscriptions will appear here.</string>
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
-    <string name="settings_flow_engine_header">Flow Engine</string>
+    <string name="settings_flow_engine_header">JM Tube Engine</string>
     <string name="settings_active_learning">ACTIVE LEARNING</string>
-    <string name="settings_reset_brain_title">Reset Flow Personality?</string>
-    <string name="settings_reset_brain_body">This erases your Flow Brain profile.\n\n• Learned topics are forgotten.\n• Personality traits reset.\n• Recommendations go back to default.\n\nThis cannot be undone.</string>
+    <string name="settings_reset_brain_title">Reset JM Tube Personality?</string>
+    <string name="settings_reset_brain_body">This erases your JM Tube Brain profile.\n\n• Learned topics are forgotten.\n• Personality traits reset.\n• Recommendations go back to default.\n\nThis cannot be undone.</string>
     <string name="settings_reset_everything">Reset Everything</string>
     <string name="settings_analyzing_interactions">Analyzing your interactions...</string>
     <string name="settings_view_analytics">View Analytics</string>
@@ -728,7 +728,7 @@
     <string name="settings_header_about">About</string>
     <string name="settings_header_notifications">Notifications</string>
     <string name="settings_item_notifications">Notification Preferences</string>
-    <string name="settings_item_notifications_subtitle">Control which notifications Flow can send</string>
+    <string name="settings_item_notifications_subtitle">Control which notifications JM Tube can send</string>
     <string name="notif_settings_title">Notification Preferences</string>
     <string name="notif_type_new_videos">New Videos</string>
     <string name="notif_type_new_videos_subtitle">Notify when subscribed channels upload new videos</string>
@@ -739,22 +739,22 @@
     <string name="notif_type_reminders">Screen Time Reminders</string>
     <string name="notif_type_reminders_subtitle">Bedtime and break reminders from Time Management</string>
     <string name="notif_type_updates">App Updates</string>
-    <string name="notif_type_updates_subtitle">Get notified when a new version of Flow is available</string>
+    <string name="notif_type_updates_subtitle">Get notified when a new version of JM Tube is available</string>
     <string name="notif_type_general">General Notifications</string>
     <string name="notif_type_general_subtitle">Miscellaneous app alerts and announcements</string>
     <string name="notif_system_settings">System Notification Settings</string>
     <string name="notif_system_settings_subtitle">Open Android settings to manage per-channel permissions</string>
     <string name="notif_check_interval_section_header">Feed Check Schedule</string>
     <string name="notif_master_toggle">Enable notifications</string>
-    <string name="notif_master_toggle_subtitle">Let Flow check for new videos in the background</string>
+    <string name="notif_master_toggle_subtitle">Let JM Tube check for new videos in the background</string>
     <string name="notif_background_restricted_title">Background checks are restricted</string>
-    <string name="notif_background_restricted_subtitle">Android blocks checks while Flow is closed. Tap to allow background activity.</string>
+    <string name="notif_background_restricted_subtitle">Android blocks checks while JM Tube is closed. Tap to allow background activity.</string>
     <string name="notif_check_interval">New Video Check Interval</string>
     <string name="notif_check_interval_subtitle_template">Check every %s</string>
     <string name="notif_check_interval_disabled">Background notification checks are disabled</string>
     <string name="notif_check_interval_off_new_videos">Off while New Videos is off</string>
     <string name="notif_check_interval_dialog_title">Check Interval</string>
-    <string name="notif_check_interval_dialog_body">How often Flow checks your subscriptions for new videos.</string>
+    <string name="notif_check_interval_dialog_body">How often JM Tube checks your subscriptions for new videos.</string>
     <string name="notif_interval_15m">15 minutes</string>
     <string name="notif_interval_30m">30 minutes</string>
     <string name="notif_interval_1h">1 hour</string>
@@ -791,10 +791,10 @@
     <string name="settings_item_export_data_subtitle">Backup your data</string>
     <string name="settings_item_import_data">Import Data</string>
     <string name="settings_item_import_data_subtitle">Restore from backup or import from other apps</string>
-    <string name="settings_item_about_flow">About Flow</string>
-    <string name="settings_item_about_flow_subtitle">Version, License, Contributors</string>
+    <string name="settings_item_about_flow">About JM Tube</string>
+    <string name="settings_item_about_flow_subtitle">Version, License, Information</string>
     <string name="settings_item_support">Support &amp; Donations</string>
-    <string name="settings_item_support_subtitle">Help support the development of Flow</string>
+    <string name="settings_item_support_subtitle">Help support the development of JM Tube</string>
     <string name="settings_region_dialog_title">Select Region</string>
     <string name="settings_language_dialog_title">Select App Language</string>
     <string name="settings_language_system_default">System default</string>
@@ -802,7 +802,7 @@
     <string name="settings_export_failed">Export failed: %1$s</string>
     <!-- Appearance Screen -->
     <string name="appearance_title">Appearance</string>
-    <string name="appearance_subtitle">Personalize your Flow experience</string>
+    <string name="appearance_subtitle">Personalize your JM Tube experience</string>
     <string name="appearance_current_theme">CURRENT THEME</string>
     <string name="appearance_category_all">All</string>
     <string name="appearance_category_light">Light</string>
@@ -1027,8 +1027,8 @@
     <string name="theme_desc_sky_blue">A light, airy palette with open sky blues.</string>
     <string name="theme_name_cream_paper">Cream Paper</string>
     <string name="theme_desc_cream_paper">Warm paper tones for cosy daytime reading.</string>
-    <string name="theme_name_classic_dark">Flow Default</string>
-    <string name="theme_desc_classic_dark">The original Flow palette with the YouTube red accent.</string>
+    <string name="theme_name_classic_dark">JM Tube Default</string>
+    <string name="theme_desc_classic_dark">The original JM Tube palette with the YouTube red accent.</string>
     <string name="theme_name_true_black">True Black</string>
     <string name="theme_desc_true_black">Pure OLED</string>
     <string name="theme_name_monochrome">Monochrome</string>
@@ -1278,8 +1278,8 @@
     <string name="proxy_settings_saved">Proxy settings saved</string>
     <string name="player_settings_background_play">Background Play</string>
     <string name="player_settings_background_play_subtitle">Continue playing when app is in background</string>
-    <string name="player_settings_keep_playing_after_swipe">Keep playing after closing Flow</string>
-    <string name="player_settings_keep_playing_after_swipe_subtitle">Playback continues when you swipe Flow away from recent apps</string>
+    <string name="player_settings_keep_playing_after_swipe">Keep playing after closing JM Tube</string>
+    <string name="player_settings_keep_playing_after_swipe_subtitle">Playback continues when you swipe JM Tube away from recent apps</string>
     <string name="player_settings_shorts_background_play">Shorts Background Play</string>
     <string name="player_settings_shorts_background_play_subtitle">Continue playing Shorts when app is in background</string>
     <string name="player_settings_shorts_pip">Shorts Picture-in-Picture</string>
@@ -1849,16 +1849,16 @@
     </plurals>
     <!-- Donations Screen -->
     <string name="support_donations_title">Support &amp; Donations</string>
-    <string name="support_flow_dev_title">Support Flow Development</string>
-    <string name="support_flow_dev_desc">If Flow is useful to you, you can support it on Open Collective, Patreon or with crypto below. Thank you!</string>
-    <string name="support_flow_open_collective">Support Flow on Open Collective</string>
-    <string name="support_flow_patreon">Support Flow on Patreon</string>
+    <string name="support_flow_dev_title">Support JM Tube Development</string>
+    <string name="support_flow_dev_desc">If JM Tube is useful to you, you can support its development below. Thank you!</string>
+    <string name="support_flow_open_collective">Support JM Tube on Open Collective</string>
+    <string name="support_flow_patreon">Support JM Tube on Patreon</string>
     <string name="thank_you_support_message">Thank you for your support! ❤️</string>
     <string name="address_copied_toast">Address copied to clipboard</string>
     <string name="donation_address_clip_label">Donation Address</string>
     <!-- One-time support prompt -->
     <string name="donation_prompt_title">Enjoying JM Tube?</string>
-    <string name="donation_prompt_message">Flow is free, open source and ad-free. If it earned a spot on your phone, a little support keeps it going.</string>
+    <string name="donation_prompt_message">JM Tube is free, open source and ad-free. If it earned a spot on your phone, a little support keeps it going.</string>
     <string name="donation_method_open_collective" translatable="false">Open Collective</string>
     <string name="donation_method_patreon" translatable="false">Patreon</string>
     <string name="donation_prompt_methods">Open Collective · Patreon · Bitcoin · Ethereum · Solana · USDT · Monero</string>
@@ -1880,7 +1880,7 @@
     <string name="about_notices_summary">Word lists and code from other projects</string>
     <string name="about_license_name">GNU GPL v3</string>
     <string name="about_changelog">Changelog</string>
-    <string name="whats_new_in_flow">What\'s new in Flow</string>
+    <string name="whats_new_in_flow">What\'s new in JM Tube</string>
     <string name="about_device_info">Device Info</string>
     <string name="gnu_license_full_title">GNU General Public License</string>
     <string name="loading_ellipsis">Loading...</string>

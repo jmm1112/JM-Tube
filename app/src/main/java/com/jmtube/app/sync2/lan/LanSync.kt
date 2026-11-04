@@ -100,6 +100,17 @@ class LanSync
         /** Devices of this group met on this network while this process runs, and when. */
         val nearby: StateFlow<Map<String, Long>> = seen.asStateFlow()
 
+        private fun pruneStalePeers() {
+            val cutoff = System.currentTimeMillis() - 45_000L
+            seen.update { current -> current.filterValues { timestamp -> timestamp > cutoff } }
+        }
+
+        fun evictPeer(peerId: String) {
+            seen.update { current -> current - peerId }
+            dialed.remove(peerId)
+            devices.lanPeers { current -> current - peerId }
+        }
+
         /**
          * Serves the group this device is in, starting over when it joins another one, the epoch moves
          * on or the network changes. Runs until every [start] has had its [stop].
@@ -111,6 +122,12 @@ class LanSync
             Log.i(TAG, "LAN sync started")
             running =
                 scope.launch {
+                    launch {
+                        while (true) {
+                            delay(15_000L)
+                            pruneStalePeers()
+                        }
+                    }
                     try {
                         db
                             .groups()
@@ -154,6 +171,8 @@ class LanSync
          * before it forgets the group (spec/live.md, LAN groups). [session] is from before the leave.
          */
         suspend fun farewell(session: Session) {
+            val myDid = SyncBytes.toHex(session.device.did)
+            evictPeer(myDid)
             withTimeoutOrNull(FAREWELL_MS) {
                 coroutineScope {
                     for (row in db.lan().addresses()) {
@@ -173,6 +192,7 @@ class LanSync
                     }
                 }
             }
+            seen.value = emptyMap()
         }
 
         private suspend fun session(): Session? {

@@ -223,6 +223,8 @@ class LinkedProfiles
             }.getOrDefault(System.currentTimeMillis())
         }
 
+        private val exportedSignatures = java.util.concurrent.ConcurrentHashMap<String, String>()
+
         /** This device's `profiles` records, after naming each link it syncs that has no record, or whose profile was renamed here. */
         suspend fun export(): Map<String, CollectionWire> {
             val names = dao.names().associateBy { it.link }
@@ -230,16 +232,18 @@ class LinkedProfiles
             for (row in dao.links()) {
                 val profile = currentProfiles[row.profile] ?: continue
                 val current = names[row.link]
-                if (current == null || (!current.deleted && current.name != profile.name)) {
+                val sig = "${profile.name}_${profile.colorKey}_${profile.avatar.kind}_${profile.avatar.emoji}_${profile.avatar.photoVersion}"
+                val lastSig = exportedSignatures[row.link]
+                if (current == null || (!current.deleted && (current.name != profile.name || sig != lastSig))) {
+                    exportedSignatures[row.link] = sig
                     record(row.link, profile, deleted = false)
                 }
             }
             val lines =
                 dao.names().map { nameRow ->
                     val profile = dao.links().firstOrNull { it.link == nameRow.link }?.let { currentProfiles[it.profile] }
-                    val photoBase64 = if (profile?.avatar?.kind == com.jmtube.app.data.profile.ProfileAvatar.PHOTO) {
-                        readProfilePhotoBase64(profile.id)
-                    } else null
+                    val pid = profile?.id ?: dao.links().firstOrNull { it.link == nameRow.link }?.profile
+                    val photoBase64 = if (pid != null) readProfilePhotoBase64(pid) else null
                     SyncSerialization.canonicalJson(
                         records.encodeToJsonElement(
                             ProfileRecord.serializer(),
@@ -282,6 +286,7 @@ class LinkedProfiles
                     ),
                 )
                 val profileId = dao.links().firstOrNull { it.link == record.link }?.profile ?: continue
+                val existingProfile = profiles.state.first().profiles.firstOrNull { it.id == profileId }
                 if (record.deleted) {
                     unlink(profileId, record.link)
                 } else {
@@ -293,6 +298,8 @@ class LinkedProfiles
                             var photoVersion = record.photoVersion
                             if (!record.photoBase64.isNullOrBlank()) {
                                 photoVersion = saveProfilePhotoBase64(profileId, record.photoBase64)
+                            } else if (existingProfile?.avatar?.kind == com.jmtube.app.data.profile.ProfileAvatar.PHOTO) {
+                                photoVersion = existingProfile.avatar.photoVersion
                             }
                             com.jmtube.app.data.profile.ProfileAvatar(kind = com.jmtube.app.data.profile.ProfileAvatar.PHOTO, photoVersion = photoVersion)
                         }
@@ -300,10 +307,14 @@ class LinkedProfiles
                             com.jmtube.app.data.profile.ProfileAvatar(kind = com.jmtube.app.data.profile.ProfileAvatar.EMOJI, emoji = record.avatarEmoji)
                         }
                         else -> {
-                            com.jmtube.app.data.profile.ProfileAvatar(kind = com.jmtube.app.data.profile.ProfileAvatar.INITIAL)
+                            if (existingProfile?.avatar?.kind == com.jmtube.app.data.profile.ProfileAvatar.PHOTO && record.photoBase64.isNullOrBlank()) {
+                                existingProfile.avatar
+                            } else {
+                                com.jmtube.app.data.profile.ProfileAvatar(kind = com.jmtube.app.data.profile.ProfileAvatar.INITIAL)
+                            }
                         }
                     }
-                    profiles.setAppearance(profileId, record.colorKey, avatar)
+                    profiles.setAppearance(profileId, record.colorKey.ifBlank { existingProfile?.colorKey ?: "" }, avatar)
                 }
             }
         }

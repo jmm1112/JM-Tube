@@ -109,8 +109,8 @@
     <string name="settings_item_time_management_subtitle">Statistik penggunaan, pengingat waktu tidur</string>
     <string name="settings_item_export_data">Ekspor Data</string>
     <string name="settings_item_import_data">Impor Data</string>
-    <string name="settings_item_about_flow">Tentang Flow</string>
-    <string name="settings_item_about_flow_subtitle">Versi, Lisensi, Kontributor</string>
+    <string name="settings_item_about_flow">Tentang JM Tube</string>
+    <string name="settings_item_about_flow_subtitle">Versi, Lisensi, Informasi</string>
     <string name="settings_item_support">Dukungan &amp; Donasi</string>
     <string name="settings_item_support_subtitle">Bantu dukung pengembangan Flow</string>
     <string name="settings_export_success">Data berhasil diekspor</string>
@@ -961,7 +961,7 @@
     <string name="newpipe_extractor_subtitle">Pustaka ekstraksi inti</string>
     <string name="about_license">Lisensi</string>
     <string name="about_changelog">Catatan Perubahan</string>
-    <string name="whats_new_in_flow">Yang baru di Flow</string>
+    <string name="whats_new_in_flow">Yang baru di JM Tube</string>
     <string name="about_device_info">Info Perangkat</string>
     <string name="gnu_license_full_title">Lisensi Publik Umum GNU</string>
     <string name="loading_ellipsis">Memuat...</string>

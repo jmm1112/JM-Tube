@@ -297,8 +297,8 @@
     <string name="settings_item_export_data_subtitle">Sauvegardez vos données</string>
     <string name="settings_item_import_data">Importer des données</string>
     <string name="settings_item_import_data_subtitle">Restaurer depuis une sauvegarde ou importer depuis d\'autres applications</string>
-    <string name="settings_item_about_flow">À propos de Flow</string>
-    <string name="settings_item_about_flow_subtitle">Version, Licence, Contributeurs</string>
+    <string name="settings_item_about_flow">À propos de JM Tube</string>
+    <string name="settings_item_about_flow_subtitle">Version, Licence, Informations</string>
     <string name="settings_item_support">Soutien et dons</string>
     <string name="settings_item_support_subtitle">Aidez à soutenir le développement de Flow</string>
     <string name="settings_region_dialog_title">Sélectionner la région</string>
@@ -593,7 +593,7 @@
     <string name="newpipe_extractor_subtitle">Bibliothèque d\'extraction principale</string>
     <string name="about_license">Licence</string>
     <string name="about_changelog">Journal des modifications</string>
-    <string name="whats_new_in_flow">Quoi de neuf dans Flow</string>
+    <string name="whats_new_in_flow">Quoi de neuf dans JM Tube</string>
     <string name="about_device_info">Informations sur l\'appareil</string>
     <string name="gnu_license_full_title">Licence Publique Générale GNU</string>
     <string name="loading_ellipsis">Chargement...</string>

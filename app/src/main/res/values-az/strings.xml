@@ -476,8 +476,8 @@
     <string name="settings_item_export_data_subtitle">Məlumatlarınızın ehtiyat nüsxəsini yaradın</string>
     <string name="settings_item_import_data">Məlumatları idxal et</string>
     <string name="settings_item_import_data_subtitle">Ehtiyat nüsxədən bərpa edin və ya başqa tətbiqdən idxal edin</string>
-    <string name="settings_item_about_flow">Flow haqqında</string>
-    <string name="settings_item_about_flow_subtitle">Versiya, lisenziya, töhfə verənlər</string>
+    <string name="settings_item_about_flow">JM Tube haqqında</string>
+    <string name="settings_item_about_flow_subtitle">Versiya, lisenziya, məlumat</string>
     <string name="settings_item_support">Dəstək və ianələr</string>
     <string name="settings_item_support_subtitle">Flow-un hazırlanmasına dəstək olun</string>
     <string name="settings_region_dialog_title">Region seç</string>
@@ -1208,7 +1208,7 @@
     <string name="newpipe_extractor_subtitle">Əsas çıxarış kitabxanası</string>
     <string name="about_license">Lisenziya</string>
     <string name="about_changelog">Dəyişiklik jurnalı</string>
-    <string name="whats_new_in_flow">Flow-da yeniliklər</string>
+    <string name="whats_new_in_flow">JM Tube-da yeniliklər</string>
     <string name="about_device_info">Cihaz məlumatı</string>
     <string name="gnu_license_full_title">GNU Ümumi İctimai Lisenziyası</string>
     <string name="loading_ellipsis">Yüklənir...</string>

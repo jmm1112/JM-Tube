@@ -44,6 +44,8 @@ interface AutoBackupEntryPoint {
     fun backupRepository(): BackupRepository
 
     fun profileSlices(): ProfileSlices
+
+    fun profileRepository(): com.jmtube.app.data.profile.ProfileRepository
 }
 
 class AutoBackupWorker(

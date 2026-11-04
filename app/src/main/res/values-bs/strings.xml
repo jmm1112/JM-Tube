@@ -347,7 +347,7 @@
     <string name="settings_item_export_data_subtitle">Napravite sigurnosnu kopiju svojih podataka</string>
     <string name="settings_item_import_data">Uvoz podataka</string>
     <string name="settings_item_import_data_subtitle">Obnovite iz sigurnosne kopije ili uvezite iz drugih aplikacija</string>
-    <string name="settings_item_about_flow">O Flow-u</string>
+    <string name="settings_item_about_flow">O JM Tube-u</string>
     <string name="settings_item_about_flow_subtitle">Verzija, Licenca, Doprinosioci</string>
     <string name="settings_item_support">Podrška i donacije</string>
     <string name="settings_item_support_subtitle">Podržite razvoj Flow-a</string>

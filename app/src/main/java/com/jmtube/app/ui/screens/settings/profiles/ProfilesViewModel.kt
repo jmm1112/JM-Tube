@@ -49,7 +49,7 @@ internal class ProfilesViewModel
         @ApplicationContext context: Context,
         private val profiles: ProfileRepository,
         private val switcher: ProfileSwitcher,
-        linked: LinkedProfiles,
+        private val linked: LinkedProfiles,
     ) : ViewModel() {
         val state: StateFlow<ProfileRegistryState?> = profiles.state.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
@@ -132,6 +132,7 @@ internal class ProfilesViewModel
                     profiles.setAppearance(profile.id, draft.colorKey, draft.avatar)
                 }
             }
+            linked.export()
             onSaved()
         }
 

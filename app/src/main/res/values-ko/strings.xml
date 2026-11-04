@@ -475,7 +475,7 @@
     <string name="settings_item_export_data_subtitle">데이터를 백업합니다</string>
     <string name="settings_item_import_data">데이터 가져오기</string>
     <string name="settings_item_import_data_subtitle">백업을 복원하거나 다른 앱에서 가져옵니다</string>
-    <string name="settings_item_about_flow">Flow 정보</string>
+    <string name="settings_item_about_flow">JM Tube 정보</string>
     <string name="settings_item_about_flow_subtitle">버전, 라이선스, 기여자</string>
     <string name="settings_item_support">후원 및 기부</string>
     <string name="settings_item_support_subtitle">Flow 개발을 후원합니다</string>
@@ -1207,7 +1207,7 @@
     <string name="newpipe_extractor_subtitle">핵심 추출 라이브러리</string>
     <string name="about_license">라이선스</string>
     <string name="about_changelog">변경 기록</string>
-    <string name="whats_new_in_flow">Flow의 새로운 기능</string>
+    <string name="whats_new_in_flow">JM Tube의 새로운 기능</string>
     <string name="about_device_info">기기 정보</string>
     <string name="gnu_license_full_title">GNU 일반 공중 사용 허가서</string>
     <string name="loading_ellipsis">불러오는 중...</string>

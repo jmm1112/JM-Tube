@@ -223,8 +223,8 @@
     <string name="settings_item_export_data_subtitle">قم بعمل نسخة احتياطية لبياناتك</string>
     <string name="settings_item_import_data">إسترداد البيانات</string>
     <string name="settings_item_import_data_subtitle">استعادة من نسخة احتياطية أو استيراد من تطبيقات أخرى</string>
-    <string name="settings_item_about_flow">عن Flow</string>
-    <string name="settings_item_about_flow_subtitle">الإصدار، الترخيص، المساهمون</string>
+    <string name="settings_item_about_flow">عن JM Tube</string>
+    <string name="settings_item_about_flow_subtitle">الإصدار، الترخيص والمعلومات</string>
     <string name="settings_item_support">الدعم و التبرعات</string>
     <string name="settings_item_support_subtitle">ساهم في دعم تطوير Flow</string>
     <string name="settings_region_dialog_title">إختر البلد</string>
@@ -676,7 +676,7 @@
     <string name="newpipe_extractor_subtitle">مكتبة الاستخراج الأساسية</string>
     <string name="about_license">رخصة</string>
     <string name="about_changelog">سجل التغييرات</string>
-    <string name="whats_new_in_flow">ما الجديد في Flow</string>
+    <string name="whats_new_in_flow">ما الجديد في JM Tube</string>
     <string name="about_device_info">معلومات الجهاز</string>
     <string name="gnu_license_full_title">رخصة GNU General Public</string>
     <string name="loading_ellipsis">تحميل…</string>

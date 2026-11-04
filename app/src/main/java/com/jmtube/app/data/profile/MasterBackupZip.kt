@@ -94,7 +94,7 @@ internal object MasterBackupZip {
         ZipInputStream(zip.inputStream().buffered()).use { input ->
             var entry = input.nextEntry
             while (entry != null) {
-                if (entry.name == "$AVATARS_DIR$profileId.webp") {
+                if (entry.name == "$AVATARS_DIR$profileId.webp" || entry.name == "$AVATARS_DIR$profileId.png") {
                     target.parentFile?.mkdirs()
                     target.outputStream().use { input.copyTo(it) }
                     return@use true

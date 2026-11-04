@@ -168,6 +168,11 @@ private fun DeviceList(
     onConsent: (id: String, allowed: Boolean?) -> Unit,
 ) {
     var open by rememberSaveable { mutableStateOf<String?>(null) }
+    val activeMemberIds = remember(devices) { devices.map { it.id }.toSet() }
+    val filteredNearby = remember(nearby, activeMemberIds) {
+        val cutoff = System.currentTimeMillis() - 45_000L
+        nearby.filter { (id, time) -> id in activeMemberIds && time > cutoff }
+    }
     Text(stringResource(R.string.linked_devices), Modifier.fillMaxWidth(), style = MaterialTheme.typography.titleMedium)
     SyncRowGroup(count = devices.size) { index, shape ->
         val device = devices[index]
@@ -180,11 +185,11 @@ private fun DeviceList(
                         stringResource(R.string.linked_this_device)
                     }
 
-                    device.id in nearby -> {
+                    device.id in filteredNearby -> {
                         stringResource(
                             R.string.linked_device_nearby,
                             device.platform,
-                            synced(nearby.getValue(device.id)),
+                            synced(filteredNearby.getValue(device.id)),
                         )
                     }
 

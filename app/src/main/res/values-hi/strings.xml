@@ -331,7 +331,7 @@
     <string name="settings_item_export_data_subtitle">अपने डेटा का बैकअप लें</string>
     <string name="settings_item_import_data">डेटा आयात करें</string>
     <string name="settings_item_import_data_subtitle">बैकअप से पुनर्स्थापित करें या अन्य ऐप्स से आयात करें</string>
-    <string name="settings_item_about_flow">फ्लो के बारे में</string>
+    <string name="settings_item_about_flow">JM Tube के बारे में</string>
     <string name="settings_item_about_flow_subtitle">संस्करण, लाइसेंस, योगदानकर्ता</string>
     <string name="settings_item_support">सहायता और दान</string>
     <string name="settings_item_support_subtitle">फ्लो के विकास में सहायता करें</string>
@@ -789,7 +789,7 @@
     <string name="newpipe_extractor_subtitle">कोर निष्कर्षण लाइब्रेरी</string>
     <string name="about_license">लाइसेंस</string>
     <string name="about_changelog">परिवर्तन सूची</string>
-    <string name="whats_new_in_flow">फ्लो में नया क्या है</string>
+    <string name="whats_new_in_flow">JM Tube में नया क्या है</string>
     <string name="about_device_info">डिवाइस जानकारी</string>
     <string name="gnu_license_full_title">GNU जनरल पब्लिक लाइसेंस</string>
     <string name="loading_ellipsis">लोड हो रहा है..।</string>
