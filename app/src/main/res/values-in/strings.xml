@@ -3628,7 +3628,7 @@
     <string name="downloads_sort_largest">Terbesar</string>
     <string name="downloads_sort_title">Judul</string>
     <string name="downloads_sort_channel">Channel</string>
-    <string name="downloads_storage_used">%1$s di JM Tube</string>
+    <string name="downloads_storage_used">%1$s di Flow</string>
     <string name="downloads_storage_free">%1$s tersedia</string>
     <string name="downloads_storage_videos">Video %1$s</string>
     <string name="downloads_storage_music">Musik %1$s</string>

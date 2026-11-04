@@ -2,6 +2,8 @@ package com.jmtube.app.sync2.data
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,7 +23,11 @@ object LinkedDatabaseModule {
     @Singleton
     fun provideLinkedDatabase(
         @ApplicationContext context: Context,
-    ): LinkedDatabase = Room.databaseBuilder(context, LinkedDatabase::class.java, "linked_devices").build()
+    ): LinkedDatabase =
+        Room.databaseBuilder(context, LinkedDatabase::class.java, "linked_devices")
+            .fallbackToDestructiveMigrationOnDowngrade(true)
+            .fallbackToDestructiveMigration(true)
+            .build()
 
     @Provides
     @Singleton

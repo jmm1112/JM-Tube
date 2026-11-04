@@ -169,7 +169,7 @@ fun EnhancedMusicScreen(
                 title = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         YouTubeMusicLogoIcon(
                             iconSuffix = selectedAppIcon,

@@ -157,7 +157,7 @@ internal fun YouTubeStartupAnimation(
         val isCustomIcon = iconSuffix != AppIcons.DARK_SUFFIX
         if (isCustomIcon && (morph < 0.2f || lockup > 0.01f)) {
             val iconScale = if (lockup > 0f) lerp(1f, 0.65f, lockup) else (1f - morph * 2.5f).coerceAtLeast(0f)
-            val lockupX = -62.dp * lockup
+            val lockupX = -54.dp * lockup
             val sizeDp = (78 * iconScale).dp
             if (iconScale > 0.01f) {
                 Box(
@@ -199,7 +199,7 @@ internal fun YouTubeStartupAnimation(
             val seekCorner = 3.dp.toPx()
 
             // When resolving into the lockup, the icon shifts left so the icon + wordmark lockup is centered
-            val lockupShiftX = -58.dp.toPx() * lockup
+            val lockupShiftX = -54.dp.toPx() * lockup
 
             // Base pill dimensions (interpolating from initial big center pill to lockup pill size)
             val targetPillW = lerp(startPillW, lockupPillW, lockup)
@@ -304,12 +304,12 @@ internal fun YouTubeStartupAnimation(
                     Modifier
                         .offset {
                             val slidePx = ((1f - lockup) * (-18).dp.toPx()).roundToInt()
-                            IntOffset(x = 30.dp.roundToPx() + slidePx, y = 0)
+                            IntOffset(x = 24.dp.roundToPx() + slidePx, y = 0)
                         }.graphicsLayer {
                             alpha = lockup.coerceIn(0f, 1f)
                         },
             ) {
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(2.dp))
                 Text(
                     text = "JM Tube",
                     color = contentColor,

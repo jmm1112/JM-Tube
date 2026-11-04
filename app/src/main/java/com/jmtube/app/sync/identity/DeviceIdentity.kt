@@ -40,7 +40,13 @@ class DeviceIdentity
             return store.edit { it[KEY_DEVICE_ID] = it[KEY_DEVICE_ID] ?: generated }[KEY_DEVICE_ID]!!
         }
 
-        suspend fun deviceName(): String = store.data.first()[KEY_DEVICE_NAME]?.takeIf { it.isNotBlank() } ?: defaultDeviceName()
+        suspend fun deviceName(): String {
+            val saved = store.data.first()[KEY_DEVICE_NAME]
+            if (saved.isNullOrBlank() || saved.startsWith("Flow (") || saved.startsWith("JM Tube (")) {
+                return defaultDeviceName()
+            }
+            return saved
+        }
 
         suspend fun setDeviceName(name: String) {
             store.edit { it[KEY_DEVICE_NAME] = name.trim().take(64) }
@@ -65,7 +71,7 @@ class DeviceIdentity
 
         private fun defaultDeviceName(): String {
             val model = Build.MODEL?.trim().orEmpty()
-            return if (model.isEmpty()) "Flow (Android)" else "Flow ($model)"
+            return if (model.isEmpty()) "Android Device" else model
         }
 
         companion object {

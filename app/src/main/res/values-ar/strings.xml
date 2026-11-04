@@ -649,8 +649,8 @@
     <string name="location_dialog_subtitle">اختر مكان حفظ الملفات التي تم تنزيلها على جهازك.</string>
     <string name="location_preset_header">المواقع المحددة مسبقًا</string>
     <string name="location_custom_header">موقع تخزين مخصص</string>
-    <string name="location_downloads_label">Downloads / JM Video</string>
-    <string name="location_movies_label">Movies / JM Video</string>
+    <string name="location_downloads_label">Downloads / Flow</string>
+    <string name="location_movies_label">Movies / Flow</string>
     <string name="location_internal_app_label">التخزين الداخلي للتطبيق</string>
     <string name="location_internal_app_desc">خاص بـ Flow. يُحذف عند إلغاء تثبيت التطبيق.</string>
     <string name="location_custom_saf_label">تصفح…</string>
@@ -3421,7 +3421,7 @@
     <string name="downloads_sort_largest">الأكبر</string>
     <string name="downloads_sort_title">العنوان</string>
     <string name="downloads_sort_channel">القناة</string>
-    <string name="downloads_storage_used">%1$s في JM Tube</string>
+    <string name="downloads_storage_used">%1$s في Flow</string>
     <string name="downloads_storage_free">%1$s متاح</string>
     <string name="downloads_storage_videos">فيديوهات %1$s</string>
     <string name="downloads_storage_music">موسيقى %1$s</string>
@@ -3643,7 +3643,7 @@
     <string name="settings_storage_access_summary">يتيح أيضًا لقائمة الوسائط المحلية عرض الملفات المحفوظة بواسطة التطبيقات الأخرى</string>
     <string name="settings_storage_usage">%1$s متاحة من %2$s</string>
     <string name="settings_location_default">افتراضي</string>
-    <string name="settings_music_folder_label">الموسيقى / JM Music</string>
+    <string name="settings_music_folder_label">الموسيقى / Flow</string>
     <string name="settings_keywords_downloads">حفظ بلا إنترنت، مجلد، مساحة التخزين، بطاقة SD</string>
     <string name="settings_section_notification_types">أبلغني بشأن</string>
     <string name="settings_keywords_notifications">‎التنبيهات، الإشعارات الفورية، التحميلات الجديدة، التحقق في الخلفية، Shorts</string>
@@ -4446,7 +4446,7 @@
     <string name="taste_learning_paused">Deep Flow مفعّل، والتعلّم متوقف مؤقتًا</string>
     <string name="deep_flow_scrobble_subtitle">الاستمرار في إرسال ما تستمع إليه إلى Last.fm وLibre.fm وListenBrainz</string>
     <string name="downloads_recover_title">البحث عن التنزيلات من تثبيت سابق</string>
-    <string name="downloads_recover_body">يحفظ JM Tube التنزيلات في المجلدين Download/JM Video و Music/JM Music. لعرض الملفات التي حفظها إصدار سابق من التطبيق فيهما، اسمح بالوصول إلى ملفات الفيديو والصوت.</string>
+    <string name="downloads_recover_body">يحفظ Flow التنزيلات في المجلدين Download/Flow و Music/Flow. لعرض الملفات التي حفظها إصدار سابق من التطبيق فيهما، اسمح بالوصول إلى ملفات الفيديو والصوت.</string>
     <string name="downloads_recover_allow">السماح بالوصول</string>
     <string name="downloads_recover_dismiss">ليس الآن</string>
     <plurals name="downloads_recovered_count">
@@ -4951,11 +4951,11 @@
     <string name="linked_error_unexpected">أرسل الجهاز الآخر بيانات غير متوقعة. حاول مرة أخرى.</string>
     <string name="linked_where_title">أين تريد مزامنة أجهزتك؟</string>
     <string name="linked_restore_where_title">أين توجد المجموعة؟</string>
-    <string name="linked_where_server">خادم مزامنة Flow</string>
+    <string name="linked_where_server">خادم مزامنة JM Tube</string>
     <string name="linked_where_server_body">خادمك الخاص: يوفّر تحديثات فورية وأسرع مزامنة. يتطلب عنوان الخادم ورمز المسؤول</string>
     <string name="linked_where_webdav">مجلد WebDAV</string>
     <string name="linked_where_webdav_body">Nextcloud أو خادم WebDAV آخر. يحتاج إلى عنوان المجلد واسم المستخدم وكلمة المرور</string>
-    <string name="linked_webdav_body">استخدم مجلدًا فارغًا مخصصًا لـ Flow فقط. تُحفَظ بيانات تسجيل الدخول في وحدة التخزين الآمنة على هذا الجهاز فقط، وتُنقَل إلى الأجهزة التي تربطها.</string>
+    <string name="linked_webdav_body">استخدم مجلدًا فارغًا مخصصًا لـ JM Tube فقط. تُحفَظ بيانات تسجيل الدخول في وحدة التخزين الآمنة على هذا الجهاز فقط، وتُنقَل إلى الأجهزة التي تربطها.</string>
     <string name="linked_webdav_url">عنوان المجلد</string>
     <string name="linked_webdav_url_hint">https://cloud.example.org/remote.php/dav/files/you/flow-sync/</string>
     <string name="linked_webdav_user">اسم المستخدم</string>

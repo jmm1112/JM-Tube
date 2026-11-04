@@ -477,7 +477,7 @@
     <string name="you">You</string>
     <string name="empty_downloads">No downloads yet</string>
     <string name="downloads_recover_title">Find downloads from an earlier install</string>
-    <string name="downloads_recover_body">JM Tube saves downloads in Download/JM Video, Movies/JM Video, and Music/JM Music. To list the files an earlier install saved there, allow access to videos and audio.</string>
+    <string name="downloads_recover_body">Flow saves downloads in Download/Flow and Music/Flow. To list the files an earlier install saved there, allow access to videos and audio.</string>
     <string name="downloads_recover_allow">Allow access</string>
     <string name="downloads_recover_dismiss">Not now</string>
     <plurals name="downloads_recovered_count">
@@ -1597,7 +1597,7 @@
     <!-- Time Management Screen -->
     <string name="time_management_title">Time management</string>
     <string name="time_management_subtitle">Track and control your screen time</string>
-    <string name="stats_disclaimer">Based on your watch history in JM Tube. Actual use may differ.</string>
+    <string name="stats_disclaimer">Based on your watch history in Flow. Actual use may differ.</string>
     <string name="tools_to_manage_time">Tools to manage your time</string>
     <string name="remind_bedtime">Remind me when it\'s bedtime</string>
     <string name="start_time">Start time</string>
@@ -1827,8 +1827,8 @@
     <string name="location_dialog_subtitle">Choose where downloaded files are saved on your device.</string>
     <string name="location_preset_header">Preset Locations</string>
     <string name="location_custom_header">Custom Location</string>
-    <string name="location_downloads_label">Downloads / JM Video</string>
-    <string name="location_movies_label">Movies / JM Video</string>
+    <string name="location_downloads_label">Downloads / Flow</string>
+    <string name="location_movies_label">Movies / Flow</string>
     <string name="location_internal_app_label">Internal App Storage</string>
     <string name="location_internal_app_desc">Private to Flow. Removed if you uninstall.</string>
     <string name="location_custom_saf_label">Browse…</string>
@@ -1879,7 +1879,7 @@
     <string name="about_notices_summary">Word lists and code from other projects</string>
     <string name="about_license_name">GNU GPL v3</string>
     <string name="about_changelog">Changelog</string>
-    <string name="whats_new_in_flow">What\'s new in JM Tube</string>
+    <string name="whats_new_in_flow">What\'s new in Flow</string>
     <string name="about_device_info">Device Info</string>
     <string name="gnu_license_full_title">GNU General Public License</string>
     <string name="loading_ellipsis">Loading...</string>
@@ -2623,16 +2623,16 @@
     <!-- Device Sync (FLOW-SYNC/1) -->
     <string name="sync_devices_title">Sync devices</string>
     <string name="linked_title">Linked devices</string>
-    <string name="linked_intro">Keep this device in sync with your other devices through your own Flow sync server, a WebDAV folder, or your Wi-Fi network. Everything is encrypted on your devices; no server can read it.</string>
+    <string name="linked_intro">Keep this device in sync with your other devices through your own JM Tube sync server, a WebDAV folder, or your Wi-Fi network. Everything is encrypted on your devices; no server can read it.</string>
     <string name="linked_create_title">Create a group</string>
-    <string name="linked_create_body">Start linking on a Flow sync server, in a WebDAV folder, or on this network</string>
+    <string name="linked_create_body">Start linking on a JM Tube sync server, in a WebDAV folder, or on this network</string>
     <string name="linked_where_title">Where should your devices sync?</string>
     <string name="linked_restore_where_title">Where is the group?</string>
-    <string name="linked_where_server">A Flow sync server</string>
+    <string name="linked_where_server">A JM Tube sync server</string>
     <string name="linked_where_server_body">Your own server: live updates and the fastest sync. Needs its address and admin token</string>
     <string name="linked_where_webdav">A WebDAV folder</string>
     <string name="linked_where_webdav_body">Nextcloud or another WebDAV server. Needs the folder\'s address, user name and password</string>
-    <string name="linked_webdav_body">Use an empty folder just for Flow. The login is kept only in this device\'s secure storage, and is handed to devices you link.</string>
+    <string name="linked_webdav_body">Use an empty folder just for JM Tube. The login is kept only in this device\'s secure storage, and is handed to devices you link.</string>
     <string name="linked_webdav_url">Folder address</string>
     <string name="linked_webdav_url_hint">https://cloud.example.org/remote.php/dav/files/you/flow-sync/</string>
     <string name="linked_webdav_user">User name</string>
@@ -2935,7 +2935,7 @@
     <string name="error_not_available">Video not available</string>
     <string name="error_not_available_hint">This video may have been deleted, made private, or removed by YouTube.</string>
     <string name="error_not_supported">Content type not supported</string>
-    <string name="error_not_supported_hint">This format or content type cannot be played in JM Tube.</string>
+    <string name="error_not_supported_hint">This format or content type cannot be played in Flow.</string>
     <string name="error_no_internet">No internet connection</string>
     <string name="error_no_internet_hint">Check your Wi-Fi or mobile data and try again.</string>
     <string name="error_timeout">Connection timed out</string>
@@ -3336,7 +3336,7 @@
     <string name="discord_error_heartbeat_unacknowledged">Discord Gateway heartbeat was not acknowledged.</string>
     <string name="discord_error_heartbeat_failed">Discord Gateway heartbeat failed.</string>
     <string name="discord_account_fallback">Discord user</string>
-    <string name="discord_presence_playing_fallback">Playing in JM Tube</string>
+    <string name="discord_presence_playing_fallback">Playing in Flow</string>
     <string name="discord_presence_by_creator">by %1$s</string>
     <!-- Android TV -->
     <string name="settings_item_interface_mode">Interface mode</string>
@@ -3383,7 +3383,7 @@
     <string name="tv_guide_player_back">Close a panel or the controls first; press again to leave the player.</string>
     <!-- Home-screen widgets -->
     <string name="widget_now_playing_label">Now Playing</string>
-    <string name="widget_now_playing_description">Control the music that\'s playing in JM Tube</string>
+    <string name="widget_now_playing_description">Control the music that\'s playing in Flow</string>
     <string name="widget_quick_actions_label">Quick actions</string>
     <string name="widget_quick_actions_description">Search Flow and jump to downloads, history, or recognition</string>
     <string name="widget_recognize_label">Recognize music</string>
@@ -3755,7 +3755,7 @@
     <string name="downloads_sort_largest">Largest</string>
     <string name="downloads_sort_title">Title</string>
     <string name="downloads_sort_channel">Channel</string>
-    <string name="downloads_storage_used">%1$s in JM Tube</string>
+    <string name="downloads_storage_used">%1$s in Flow</string>
     <string name="downloads_storage_free">%1$s free</string>
     <string name="downloads_storage_videos">Videos %1$s</string>
     <string name="downloads_storage_music">Music %1$s</string>
@@ -3999,7 +3999,7 @@
     <string name="settings_section_watched">Watched videos</string>
     <string name="settings_section_sharing">Sharing</string>
     <string name="settings_section_links">Links</string>
-    <string name="content_settings_open_links_title">Open YouTube links in JM Tube</string>
+    <string name="content_settings_open_links_title">Open YouTube links in Flow</string>
     <string name="content_settings_open_links_subtitle">Choose which links open here</string>
     <string name="content_settings_open_links_all">On for every YouTube address</string>
     <string name="content_settings_open_links_some">On for %1$d of %2$d addresses</string>
@@ -4065,7 +4065,7 @@
     <string name="settings_storage_access_summary">Also lets Local media list files saved by other apps</string>
     <string name="settings_storage_usage">%1$s free of %2$s</string>
     <string name="settings_location_default">Default</string>
-    <string name="settings_music_folder_label">Music / JM Music</string>
+    <string name="settings_music_folder_label">Music / Flow</string>
     <string name="settings_keywords_downloads">save offline, folder, storage, sd card</string>
     <string name="settings_section_notification_types">Notify me about</string>
     <string name="settings_keywords_notifications">alerts, push, new uploads, background checks, shorts</string>

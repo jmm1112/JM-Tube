@@ -1,5 +1,6 @@
 package com.jmtube.app.sync2.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Entity
 import androidx.room.Index

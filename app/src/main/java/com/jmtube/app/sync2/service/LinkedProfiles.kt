@@ -57,6 +57,11 @@ private data class ProfileRecord(
     val hlc: String,
     val link: String,
     val name: String,
+    val colorKey: String = "",
+    val avatarKind: String = "initial",
+    val avatarEmoji: String = "",
+    val photoVersion: Long = 0L,
+    val photoBase64: String? = null,
 )
 
 private val records = Json { ignoreUnknownKeys = true }
@@ -168,7 +173,13 @@ class LinkedProfiles
         suspend fun stopEverywhere(profile: String) {
             val link = dao.linkOf(profile) ?: return
             check(dao.links().size > 1)
-            record(link, dao.names().firstOrNull { it.link == link }?.name ?: nameOf(profile).orEmpty(), deleted = true)
+            val currentProfile = profiles.state.first().profiles.firstOrNull { it.id == profile }
+            if (currentProfile != null) {
+                record(link, currentProfile, deleted = true)
+            } else {
+                val linkName = dao.names().firstOrNull { it.link == link }?.name ?: nameOf(profile).orEmpty()
+                dao.saveNames(listOf(ProfileNameRow(link, linkName, Hlc(identity.editTime(), 0, identity.hlcNode()).encode(), deleted = true)))
+            }
             unlink(profile, link)
         }
 
@@ -193,18 +204,57 @@ class LinkedProfiles
                 ?: throw LinkedException.NoProfileSynced()
         }
 
+        private fun readProfilePhotoBase64(profileId: String): String? {
+            return runCatching {
+                val file = com.jmtube.app.data.profile.ProfileAvatarPhotos.fileFor(context, profileId)
+                if (file.isFile && file.length() > 0) {
+                    android.util.Base64.encodeToString(file.readBytes(), android.util.Base64.NO_WRAP)
+                } else null
+            }.getOrNull()
+        }
+
+        private fun saveProfilePhotoBase64(profileId: String, base64: String): Long {
+            return runCatching {
+                val bytes = android.util.Base64.decode(base64, android.util.Base64.NO_WRAP)
+                val file = com.jmtube.app.data.profile.ProfileAvatarPhotos.fileFor(context, profileId)
+                file.parentFile?.mkdirs()
+                file.writeBytes(bytes)
+                System.currentTimeMillis()
+            }.getOrDefault(System.currentTimeMillis())
+        }
+
         /** This device's `profiles` records, after naming each link it syncs that has no record, or whose profile was renamed here. */
         suspend fun export(): Map<String, CollectionWire> {
             val names = dao.names().associateBy { it.link }
+            val currentProfiles = profiles.state.first().profiles.associateBy { it.id }
             for (row in dao.links()) {
-                val name = nameOf(row.profile) ?: continue
+                val profile = currentProfiles[row.profile] ?: continue
                 val current = names[row.link]
-                if (current == null || (!current.deleted && current.name != name)) record(row.link, name, deleted = false)
+                if (current == null || (!current.deleted && current.name != profile.name)) {
+                    record(row.link, profile, deleted = false)
+                }
             }
             val lines =
-                dao.names().map {
+                dao.names().map { nameRow ->
+                    val profile = dao.links().firstOrNull { it.link == nameRow.link }?.let { currentProfiles[it.profile] }
+                    val photoBase64 = if (profile?.avatar?.kind == com.jmtube.app.data.profile.ProfileAvatar.PHOTO) {
+                        readProfilePhotoBase64(profile.id)
+                    } else null
                     SyncSerialization.canonicalJson(
-                        records.encodeToJsonElement(ProfileRecord.serializer(), ProfileRecord(it.deleted, it.hlc, it.link, it.name)),
+                        records.encodeToJsonElement(
+                            ProfileRecord.serializer(),
+                            ProfileRecord(
+                                deleted = nameRow.deleted,
+                                hlc = nameRow.hlc,
+                                link = nameRow.link,
+                                name = profile?.name ?: nameRow.name,
+                                colorKey = profile?.colorKey ?: "",
+                                avatarKind = profile?.avatar?.kind ?: "initial",
+                                avatarEmoji = profile?.avatar?.emoji ?: "",
+                                photoVersion = profile?.avatar?.photoVersion ?: 0L,
+                                photoBase64 = photoBase64,
+                            ),
+                        ),
                     )
                 }
             return mapOf(PROFILES to CollectionWire(lines, lines.size, ""))
@@ -221,21 +271,57 @@ class LinkedProfiles
                 val current = dao.names().firstOrNull { it.link == record.link }
                 if (current != null && Hlc.compareEncoded(record.hlc, current.hlc) <= 0) continue
                 identity.observe(Hlc.decode(record.hlc).physicalMs)
-                dao.saveNames(listOf(ProfileNameRow(record.link, record.name, record.hlc, record.deleted)))
-                val profile = dao.links().firstOrNull { it.link == record.link }?.profile ?: continue
+                dao.saveNames(
+                    listOf(
+                        ProfileNameRow(
+                            link = record.link,
+                            name = record.name,
+                            hlc = record.hlc,
+                            deleted = record.deleted,
+                        ),
+                    ),
+                )
+                val profileId = dao.links().firstOrNull { it.link == record.link }?.profile ?: continue
                 if (record.deleted) {
-                    unlink(profile, record.link)
-                } else if (record.name.isNotBlank()) {
-                    profiles.rename(profile, record.name)
+                    unlink(profileId, record.link)
+                } else {
+                    if (record.name.isNotBlank()) {
+                        profiles.rename(profileId, record.name)
+                    }
+                    val avatar = when (record.avatarKind) {
+                        com.jmtube.app.data.profile.ProfileAvatar.PHOTO -> {
+                            var photoVersion = record.photoVersion
+                            if (!record.photoBase64.isNullOrBlank()) {
+                                photoVersion = saveProfilePhotoBase64(profileId, record.photoBase64)
+                            }
+                            com.jmtube.app.data.profile.ProfileAvatar(kind = com.jmtube.app.data.profile.ProfileAvatar.PHOTO, photoVersion = photoVersion)
+                        }
+                        com.jmtube.app.data.profile.ProfileAvatar.EMOJI -> {
+                            com.jmtube.app.data.profile.ProfileAvatar(kind = com.jmtube.app.data.profile.ProfileAvatar.EMOJI, emoji = record.avatarEmoji)
+                        }
+                        else -> {
+                            com.jmtube.app.data.profile.ProfileAvatar(kind = com.jmtube.app.data.profile.ProfileAvatar.INITIAL)
+                        }
+                    }
+                    profiles.setAppearance(profileId, record.colorKey, avatar)
                 }
             }
         }
 
         private suspend fun record(
             link: String,
-            name: String,
+            profile: com.jmtube.app.data.profile.Profile,
             deleted: Boolean,
-        ) = dao.saveNames(listOf(ProfileNameRow(link, name, Hlc(identity.editTime(), 0, identity.hlcNode()).encode(), deleted)))
+        ) = dao.saveNames(
+            listOf(
+                ProfileNameRow(
+                    link = link,
+                    name = profile.name,
+                    hlc = Hlc(identity.editTime(), 0, identity.hlcNode()).encode(),
+                    deleted = deleted,
+                ),
+            ),
+        )
 
         /** The name a `profiles` record carries: the registry's own, blank for a default profile never renamed. */
         private suspend fun nameOf(profile: String): String? =
