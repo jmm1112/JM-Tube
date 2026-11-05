@@ -6,6 +6,7 @@
 
 <p align="center">
   <strong>JM Tube</strong> — A privacy-first, feature-rich YouTube and YouTube Music client for Android, Android TV, and Android Auto, built with 100% Kotlin, Jetpack Compose, Material Design 3 Expressive, and AndroidX Media3.
+<strong>Credits & Acknowledgements:</strong> JM Tube is a fork of Flow. The original project was developed by the Flow team. Full credit goes to the original developers and contributors for their work. JM Tube builds upon their foundation with its own modifications and enhancements.
 </p>
 
 ---
