@@ -61,7 +61,7 @@ private const val REDDIT_URL = "https://www.reddit.com/u/Jasus12"
 private const val CREATOR_URL = "https://github.com/jmm1112"
 private const val NEWPIPE_URL = "https://github.com/TeamNewPipe/NewPipeExtractor"
 private const val CREATOR_AVATAR_URL = "https://github.com/jmm1112.png?size=144"
-private const val LICENSE_URL = "https://github.com/jmm1112/JM-Tube/blob/main/License"
+private const val LICENSE_URL = "https://github.com/jmm1112/JM-Tube/blob/main/License.md"
 
 private val LogoSize = 72.dp
 private val HeaderPadding = 24.dp
