@@ -27,6 +27,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.jmtube.app.MainActivity
 import com.jmtube.app.data.local.PlayerPreferences
+import com.jmtube.app.notification.NotificationHelper
 import com.jmtube.app.data.profile.PendingSlice
 import com.jmtube.app.data.recommendation.FlowNeuroEngine
 import com.jmtube.app.player.DeepFlowManager
@@ -616,6 +617,7 @@ fun FlowApp(
                     },
         )
 
-        UpdateLaunchEffect(needsOnboarding = needsOnboarding, onOpenUpdate = { navController.navigate(UPDATE_ROUTE) })
+        val openUpdate = activity?.intent?.getBooleanExtra(NotificationHelper.EXTRA_OPEN_UPDATE, false) == true
+        UpdateLaunchEffect(needsOnboarding = needsOnboarding, onOpenUpdate = openUpdate, onNavigateToUpdate = { navController.navigate(UPDATE_ROUTE) })
     }
 }

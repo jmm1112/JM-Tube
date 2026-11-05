@@ -157,6 +157,11 @@ fun OnboardingScreen(
                                 haptic.performHapticFeedback(if (selecting) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff)
                                 viewModel.toggleTopic(topic)
                             },
+                            onCategoryAllToggle = { categoryTopics ->
+                                val allSelected = categoryTopics.isNotEmpty() && categoryTopics.all { it in state.topics }
+                                haptic.performHapticFeedback(if (allSelected) HapticFeedbackType.ToggleOff else HapticFeedbackType.ToggleOn)
+                                viewModel.toggleCategoryAll(categoryTopics)
+                            },
                             onInterestsRevealed = { interestsRevealed = true },
                         ),
                 )

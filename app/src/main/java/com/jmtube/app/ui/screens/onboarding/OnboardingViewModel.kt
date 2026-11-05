@@ -125,6 +125,17 @@ class OnboardingViewModel
                 state.copy(topics = if (topic in state.topics) state.topics - topic else state.topics + topic)
             }
 
+        fun toggleCategoryAll(categoryTopics: Collection<String>) =
+            edit { state ->
+                val allSelected = categoryTopics.isNotEmpty() && categoryTopics.all { it in state.topics }
+                val updatedTopics = if (allSelected) {
+                    state.topics - categoryTopics.toSet()
+                } else {
+                    state.topics + categoryTopics.toSet()
+                }
+                state.copy(topics = updatedTopics)
+            }
+
         fun search(query: String) {
             edit { it.copy(query = query) }
             searchJob?.cancel()

@@ -1,40 +1,27 @@
 package com.jmtube.app.data.update
 
-import java.time.Instant
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-/** A published Flow release that is newer than the running build. */
+@Serializable
 data class AppRelease(
-    val version: String,
-    val tag: String,
-    val notes: String,
-    val publishedAt: Instant?,
-    val pageUrl: String,
-    val apk: ReleaseApk?,
+    val versionName: String,
+    val versionCode: Int = 0,
+    val downloadUrl: String,
+    val releaseNotes: String = "",
+    val publishedAt: String = "",
 )
 
-/** The APK this device should install: the build for its ABI, with the size and digest GitHub reports. */
-data class ReleaseApk(
-    val name: String,
-    val url: String,
-    val sizeBytes: Long,
-    val sha256: String?,
+@Serializable
+data class GitHubRelease(
+    @SerialName("tag_name") val tagName: String = "",
+    @SerialName("body") val body: String = "",
+    @SerialName("published_at") val publishedAt: String = "",
+    @SerialName("assets") val assets: List<GitHubAsset> = emptyList(),
 )
 
-/** Orders dotted version names, ignoring a leading `v` and anything after the first `-`. */
-object AppVersions {
-    fun normalize(version: String): String = version.trim().removePrefix("v").substringBefore('-')
-
-    fun isNewer(
-        candidate: String,
-        current: String,
-    ): Boolean {
-        val candidateParts = normalize(candidate).split('.').map { it.toIntOrNull() ?: 0 }
-        val currentParts = normalize(current).split('.').map { it.toIntOrNull() ?: 0 }
-        for (i in 0 until maxOf(candidateParts.size, currentParts.size)) {
-            val a = candidateParts.getOrElse(i) { 0 }
-            val b = currentParts.getOrElse(i) { 0 }
-            if (a != b) return a > b
-        }
-        return false
-    }
-}
+@Serializable
+data class GitHubAsset(
+    @SerialName("name") val name: String = "",
+    @SerialName("browser_download_url") val downloadUrl: String = "",
+)

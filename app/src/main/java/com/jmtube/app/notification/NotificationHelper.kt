@@ -743,7 +743,7 @@ object NotificationHelper {
             NotificationCompat
                 .Builder(context, CHANNEL_UPDATES)
                 .setSmallIcon(R.drawable.ic_notification_logo)
-                .setContentTitle(context.getString(R.string.notification_update_available, release.version))
+                .setContentTitle(context.getString(R.string.notification_update_available, release.versionName))
                 .setContentText(context.getString(R.string.notification_tap_to_update))
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)

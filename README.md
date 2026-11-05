@@ -138,10 +138,10 @@ Gradle 9.3.1 and AGP 9.1.1 run best on **JDK 21 LTS** (while `app/build.gradle.k
 You can install the required Android SDK packages either through **Android Studio -> SDK Manager** or via the **Android SDK Command-Line Tools (`sdkmanager`)**:
 
 1. **Required SDK Components:**
-   - `platform-tools` (ADB, fastboot)
-   - `platforms;android-37` (Required by `compileSdk = 37`)
-   - `platforms;android-36` (Target SDK 36)
-   - `build-tools;36.0.0` (or `35.0.0`+)
+    - `platform-tools` (ADB, fastboot)
+    - `platforms;android-37` (Required by `compileSdk = 37`)
+    - `platforms;android-36` (Target SDK 36)
+    - `build-tools;36.0.0` (or `35.0.0`+)
 
 2. **Install via `sdkmanager` (CLI):**
    ```bash
@@ -158,15 +158,15 @@ You can install the required Android SDK packages either through **Android Studi
 
 Defined in `settings.gradle.kts`:
 - **Plugin Repositories:**
-  - `google()` (filtered for `com.android.*`, `com.google.*`, `androidx.*`)
-  - `mavenCentral()`
-  - `gradlePluginPortal()`
+    - `google()` (filtered for `com.android.*`, `com.google.*`, `androidx.*`)
+    - `mavenCentral()`
+    - `gradlePluginPortal()`
 - **Dependency Repositories (`FAIL_ON_PROJECT_REPOS`):**
-  - `google()`
-  - `mavenCentral()`
-  - `https://jitpack.io` (Required for `com.github.TeamNewPipe:NewPipeExtractor:v0.26.5`)
+    - `google()`
+    - `mavenCentral()`
+    - `https://jitpack.io` (Required for `com.github.TeamNewPipe:NewPipeExtractor:v0.26.5`)
 - **Toolchain Resolver:**
-  - `org.gradle.toolchains.foojay-resolver-convention` version `1.0.0`
+    - `org.gradle.toolchains.foojay-resolver-convention` version `1.0.0`
 
 ### 3.4 Complete Library & Plugin Catalog (`gradle/libs.versions.toml`)
 
@@ -366,9 +366,9 @@ JM-Tube/
    ```text
    app/build/outputs/apk/debug/app-debug.apk
    ```
-   - **Application ID:** `com.jmtube.app`
-   - **Version:** `1.0.0` (`versionCode = 1`)
-   - **Signing Config:** Signed automatically with `debugConfig` (`debug.keystore`, alias `androiddebugkey`).
+    - **Application ID:** `com.jmtube.app`
+    - **Version:** `1.0.0` (`versionCode = 1`)
+    - **Signing Config:** Signed automatically with `debugConfig` (`debug.keystore`, alias `androiddebugkey`).
 
 ### 6.2 Installing and Testing the Debug APK on a Physical Device or Local Emulator
 
@@ -494,21 +494,21 @@ gradle :app:assembleRelease
 If you are an AI coding agent (such as Google AI Studio Build, Gemini, Claude, Cursor, or GitHub Copilot) working on this repository, adhere strictly to the following rules:
 
 1. **Inspect Before Modifying:**
-   - Always inspect the actual files (`app/build.gradle.kts`, `gradle/libs.versions.toml`, `AndroidManifest.xml`, `FlowRoot.kt`, `MainActivity.kt`, and `res/values/strings.xml`) before proposing or applying edits.
-   - Never invent file paths, package names, or dependencies. The root Kotlin package is `com.jmtube.app` under `app/src/main/java/com/jmtube/app/`.
+    - Always inspect the actual files (`app/build.gradle.kts`, `gradle/libs.versions.toml`, `AndroidManifest.xml`, `FlowRoot.kt`, `MainActivity.kt`, and `res/values/strings.xml`) before proposing or applying edits.
+    - Never invent file paths, package names, or dependencies. The root Kotlin package is `com.jmtube.app` under `app/src/main/java/com/jmtube/app/`.
 2. **Preserve Build & Signing Configurations:**
-   - **Never** modify `debug.keystore` or `debug.keystore.base64`.
-   - **Never** remove or alter `signingConfigs` (`release` and `debugConfig`) or their assignments in `buildTypes` inside `app/build.gradle.kts`.
-   - **Never** downgrade or arbitrarily upgrade `agp` (`9.1.1`), `kotlin` (`2.4.10`), `ksp` (`2.3.11`), `compileSdk` (`37`), `targetSdk` (`36`), or `minSdk` (`26`) in `gradle/libs.versions.toml` or `app/build.gradle.kts`.
-   - **Never** create or use a `local.properties` file in the cloud container environment.
+    - **Never** modify `debug.keystore` or `debug.keystore.base64`.
+    - **Never** remove or alter `signingConfigs` (`release` and `debugConfig`) or their assignments in `buildTypes` inside `app/build.gradle.kts`.
+    - **Never** downgrade or arbitrarily upgrade `agp` (`9.1.1`), `kotlin` (`2.4.10`), `ksp` (`2.3.11`), `compileSdk` (`37`), `targetSdk` (`36`), or `minSdk` (`26`) in `gradle/libs.versions.toml` or `app/build.gradle.kts`.
+    - **Never** create or use a `local.properties` file in the cloud container environment.
 3. **Respect Existing Architecture & Patterns:**
-   - **Settings System:** New settings pages must be added to `SettingsDestination.kt`, indexed in `DestinationIndex.kt` and `SettingsIndex.kt` (for searchability), given an icon in `SettingsHomeIcons.kt`, linked in `SettingsHomeContent.kt`, and routed in `SettingsDetail.kt`.
-   - **Data Persistence:** Device-wide preferences (such as `AppLockPreferences`) belong in `context.devicePreferencesDataStore` (`StoreScope.DEVICE`), whereas profile-specific settings belong in profile-scoped stores (`StoreScope.PROFILE_SETTINGS`).
-   - **Launcher Icons (`AppIcons.kt`):** Any change to launcher icon aliases must be kept in 1:1 sync across `AndroidManifest.xml`, `AppIcons.kt`, `SplashThemes.kt`, and `AppIconDialog.kt`.
-   - **Lifecycle State Collection:** Note that with Lifecycle `2.11.0`, `Flow<T>.collectAsStateWithLifecycle(initialValue = ...)` requires the named parameter `initialValue` (while `StateFlow<T>.collectAsStateWithLifecycle()` requires no initial value parameter).
+    - **Settings System:** New settings pages must be added to `SettingsDestination.kt`, indexed in `DestinationIndex.kt` and `SettingsIndex.kt` (for searchability), given an icon in `SettingsHomeIcons.kt`, linked in `SettingsHomeContent.kt`, and routed in `SettingsDetail.kt`.
+    - **Data Persistence:** Device-wide preferences (such as `AppLockPreferences`) belong in `context.devicePreferencesDataStore` (`StoreScope.DEVICE`), whereas profile-specific settings belong in profile-scoped stores (`StoreScope.PROFILE_SETTINGS`).
+    - **Launcher Icons (`AppIcons.kt`):** Any change to launcher icon aliases must be kept in 1:1 sync across `AndroidManifest.xml`, `AppIcons.kt`, `SplashThemes.kt`, and `AppIconDialog.kt`.
+    - **Lifecycle State Collection:** Note that with Lifecycle `2.11.0`, `Flow<T>.collectAsStateWithLifecycle(initialValue = ...)` requires the named parameter `initialValue` (while `StateFlow<T>.collectAsStateWithLifecycle()` requires no initial value parameter).
 4. **Verify With Real Builds:**
-   - Always verify changes using `compile_applet` (in AI Studio) or `gradle :app:assembleDebug` (via CLI).
-   - Never claim a build or test succeeded without actually running the build tool and confirming a zero-error exit status.
+    - Always verify changes using `compile_applet` (in AI Studio) or `gradle :app:assembleDebug` (via CLI).
+    - Never claim a build or test succeeded without actually running the build tool and confirming a zero-error exit status.
 
 ---
 
@@ -521,11 +521,11 @@ Use this checklist to verify a complete setup and build from scratch:
 - [ ] **Gradle Version Verified:** `gradle --version` outputs `Gradle 9.3.1`.
 - [ ] **Debug Keystore Ready:** `debug.keystore` is present at the repository root.
 - [ ] **Debug APK Compiled & Verified:**
-  - Command: `gradle :app:assembleDebug`
-  - Verified Output: `app/build/outputs/apk/debug/app-debug.apk`
+    - Command: `gradle :app:assembleDebug`
+    - Verified Output: `app/build/outputs/apk/debug/app-debug.apk`
 - [ ] **Release APK Compiled & Verified:**
-  - Command: `gradle :app:assembleRelease`
-  - Verified Output: `app/build/outputs/apk/release/app-release.apk`
+    - Command: `gradle :app:assembleRelease`
+    - Verified Output: `app/build/outputs/apk/release/app-release.apk`
 - [ ] **APK Signature Verified:** `keytool -printcert -jarfile app/build/outputs/apk/release/app-release.apk` (or `apksigner verify`) confirms a valid v2/v3 APK signature.
 - [ ] **Unit / Robolectric Tests Verified (Optional):** `gradle :app:testDebugUnitTest` executes local JVM unit tests cleanly.
 

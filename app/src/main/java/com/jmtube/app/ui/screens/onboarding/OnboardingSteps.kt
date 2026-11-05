@@ -41,6 +41,7 @@ internal class StepActions(
     val viewModel: OnboardingViewModel,
     val onPick: (ImportKind) -> Unit,
     val onTopicToggle: (String) -> Unit,
+    val onCategoryAllToggle: (Collection<String>) -> Unit,
     val onInterestsRevealed: () -> Unit,
 )
 
@@ -143,6 +144,7 @@ private fun StepBody(
             InterestsStep(
                 selectedTopics = state.topics,
                 onTopicToggle = actions.onTopicToggle,
+                onCategoryAllToggle = actions.onCategoryAllToggle,
                 header = header,
                 revealed = interestsRevealed,
                 onRevealed = actions.onInterestsRevealed,

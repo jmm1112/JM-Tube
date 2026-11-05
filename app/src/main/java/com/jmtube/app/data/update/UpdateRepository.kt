@@ -1,53 +1,19 @@
 package com.jmtube.app.data.update
 
-import android.os.Build
+import android.util.Log
 import com.jmtube.app.BuildConfig
 import com.jmtube.app.data.local.LocalDataManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import okhttp3.CacheControl
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.IOException
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val STABLE_RELEASE_API = "https://api.github.com/repos/Flow-Tube/Flow/releases/latest"
-private const val NIGHTLY_RELEASE_API = "https://api.github.com/repos/Flow-Tube/Flow/releases/tags/nightly"
-private const val NIGHTLY_CHANNEL = "nightly"
-private const val GITHUB_JSON = "application/vnd.github+json"
+private const val TAG = "UpdateRepository"
+private const val GITHUB_LATEST_RELEASE_URL = "https://api.github.com/repos/jmm1112/JM-Tube/releases/latest"
 
-/** Where an automatic check may surface a release; each announces a version once. */
-enum class UpdateAnnouncement { LAUNCH_PAGE, NOTIFICATION }
-
-/** How the automatic checks space themselves out and which releases they may show. */
-internal object UpdateSchedule {
-    val COOLDOWN_MS: Long = TimeUnit.HOURS.toMillis(12)
-
-    fun isDue(
-        lastCheckMs: Long,
-        nowMs: Long,
-    ): Boolean = nowMs < lastCheckMs || nowMs - lastCheckMs >= COOLDOWN_MS
-
-    fun mayAnnounce(
-        version: String,
-        skippedVersion: String?,
-        announcedVersion: String?,
-    ): Boolean = version != skippedVersion && version != announcedVersion
-}
-
-/**
- * The one place Flow asks GitHub about releases. The launch check, the background worker and the
- * Settings button all come through here, so a cold start never fetches twice and a skipped version
- * stays skipped everywhere.
- */
 @Singleton
 class UpdateRepository
     @Inject
@@ -55,68 +21,51 @@ class UpdateRepository
         private val client: OkHttpClient,
         private val dataManager: LocalDataManager,
     ) {
-        private val mutex = Mutex()
-        private val isNightly = BuildConfig.UPDATE_CHANNEL == NIGHTLY_CHANNEL
-        private val _latest = MutableStateFlow<AppRelease?>(null)
+        private val json = Json { ignoreUnknownKeys = true }
 
-        /** The newest release found this process, or null when none is known or this build is current. */
-        val latest: StateFlow<AppRelease?> = _latest.asStateFlow()
+        suspend fun fetch(): AppRelease? = withContext(Dispatchers.IO) {
+            if (!BuildConfig.UPDATER_ENABLED) return@withContext null
+            try {
+                val request = Request.Builder()
+                    .url(GITHUB_LATEST_RELEASE_URL)
+                    .header("Accept", "application/vnd.github.v3+json")
+                    .build()
 
-        /** Asks GitHub now. Throws when the request fails, so a check the user started can say so. */
-        suspend fun fetch(): AppRelease? = mutex.withLock { fetchLocked() }
+                client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) return@withContext null
+                    val responseBody = response.body?.string() ?: return@withContext null
+                    val release = json.decodeFromString<GitHubRelease>(responseBody)
 
-        /**
-         * For the automatic checks: fetches only once the cooldown has passed, and returns a release
-         * only if [announcement] has not shown this version before and the user has not skipped it.
-         */
-        suspend fun releaseToAnnounce(
-            announcement: UpdateAnnouncement,
-            nowMs: Long = System.currentTimeMillis(),
-        ): AppRelease? =
-            mutex.withLock {
-                if (!UpdateSchedule.isDue(dataManager.lastUpdateCheck.first(), nowMs)) return@withLock null
-                val release = runCatching { fetchLocked() }.getOrNull() ?: return@withLock null
-                val announced =
-                    when (announcement) {
-                        UpdateAnnouncement.LAUNCH_PAGE -> dataManager.promptedUpdateVersion.first()
-                        UpdateAnnouncement.NOTIFICATION -> dataManager.notifiedUpdateVersion.first()
+                    val tagName = release.tagName.removePrefix("v").trim()
+                    if (isNewerVersion(tagName, BuildConfig.VERSION_NAME)) {
+                        val apkAsset = release.assets.firstOrNull { it.name.endsWith(".apk") }
+                        val downloadUrl = apkAsset?.downloadUrl ?: "https://github.com/jmm1112/JM-Tube/releases/latest"
+                        dataManager.setLastUpdateCheck(System.currentTimeMillis())
+                        AppRelease(
+                            versionName = tagName,
+                            downloadUrl = downloadUrl,
+                            releaseNotes = release.body,
+                            publishedAt = release.publishedAt,
+                        )
+                    } else {
+                        null
                     }
-                if (!UpdateSchedule.mayAnnounce(release.version, dataManager.skippedUpdateVersion.first(), announced)) {
-                    return@withLock null
                 }
-                when (announcement) {
-                    UpdateAnnouncement.LAUNCH_PAGE -> dataManager.setPromptedUpdateVersion(release.version)
-                    UpdateAnnouncement.NOTIFICATION -> dataManager.setNotifiedUpdateVersion(release.version)
-                }
-                release
+            } catch (e: Exception) {
+                Log.e(TAG, "Update check failed", e)
+                null
             }
+        }
 
-        suspend fun skip(version: String) = dataManager.setSkippedUpdateVersion(version)
-
-        private suspend fun fetchLocked(): AppRelease? {
-            val body =
-                withContext(Dispatchers.IO) {
-                    val request =
-                        Request
-                            .Builder()
-                            .url(if (isNightly) NIGHTLY_RELEASE_API else STABLE_RELEASE_API)
-                            .header("Accept", GITHUB_JSON)
-                            .cacheControl(CacheControl.FORCE_NETWORK)
-                            .build()
-                    client.newCall(request).execute().use { response ->
-                        if (!response.isSuccessful) throw IOException("Update check failed: HTTP ${response.code}")
-                        response.body.string()
-                    }
-                }
-            val parsed = parseGitHubRelease(body)
-            val release =
-                if (isNightly) {
-                    parsed.toNightlyReleaseIfNewer(BuildConfig.NIGHTLY_RUN)
-                } else {
-                    parsed.toAppReleaseIfNewer(BuildConfig.VERSION_NAME, Build.SUPPORTED_ABIS.toList())
-                }
-            dataManager.setLastUpdateCheck(System.currentTimeMillis())
-            _latest.value = release
-            return release
+        private fun isNewerVersion(remote: String, current: String): Boolean {
+            val remoteParts = remote.split(".").mapNotNull { it.toIntOrNull() }
+            val currentParts = current.split(".").mapNotNull { it.toIntOrNull() }
+            for (i in 0 until maxOf(remoteParts.size, currentParts.size)) {
+                val r = remoteParts.getOrElse(i) { 0 }
+                val c = currentParts.getOrElse(i) { 0 }
+                if (r > c) return true
+                if (r < c) return false
+            }
+            return false
         }
     }

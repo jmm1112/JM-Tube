@@ -1,44 +1,31 @@
-@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
-
 package com.jmtube.app.ui.screens.update
 
-import android.text.format.Formatter
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.OpenInNew
-import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Download
-import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.NotificationsOff
-import androidx.compose.material.icons.outlined.Shield
-import androidx.compose.material.icons.outlined.SyncAlt
-import androidx.compose.material.icons.outlined.Verified
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material.icons.outlined.SystemUpdate
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,199 +35,136 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jmtube.app.BuildConfig
 import com.jmtube.app.R
 import com.jmtube.app.data.update.AppRelease
-import com.jmtube.app.data.update.AppVersions
-import com.jmtube.app.data.update.UpdateFailure
+import com.jmtube.app.data.update.UpdateRepository
 import com.jmtube.app.ui.components.layout.topbar.FlowTopBar
-import com.jmtube.app.ui.components.shared.FlowEmptyState
-import com.jmtube.app.ui.components.shared.FlowLoadingIndicator
-import com.jmtube.app.ui.components.shared.FlowLogo
-import com.jmtube.app.ui.components.shared.FlowMaxContentWidth
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
-private val ContentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)
-private val HeroSize = 96.dp
-private val HeroLogoWidth = 44.dp
-private val HeaderSpacing = 12.dp
-private val FactSpacing = 8.dp
-private val NoticePadding = 16.dp
+const val UPDATE_ROUTE = "update"
 
-/**
- * A new release and the path to installing it. Downloads keep going when the page is closed, so
- * reopening it shows where the download got to.
- */
+@Composable
+fun UpdateLaunchEffect(
+    needsOnboarding: Boolean? = false,
+    onOpenUpdate: Boolean = false,
+    onNavigateToUpdate: () -> Unit = {},
+) {
+    LaunchedEffect(needsOnboarding, onOpenUpdate) {
+        if (needsOnboarding == false && onOpenUpdate) {
+            onNavigateToUpdate()
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateScreen(
-    onClose: () -> Unit,
-    viewModel: UpdateViewModel = hiltViewModel(),
+    onNavigateBack: () -> Unit = {},
+    onClose: () -> Unit = onNavigateBack,
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val handleBack = {
+        onClose()
+    }
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.onResume() }
-    val release = state.release
+    var isChecking by remember { mutableStateOf(true) }
+    var release by remember { mutableStateOf<AppRelease?>(null) }
+    var isUpToDate by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        val updates = UpdateRepository(okhttp3.OkHttpClient(), com.jmtube.app.data.local.LocalDataManager(context))
+        val result = runCatching { updates.fetch() }.getOrNull()
+        if (result != null) {
+            release = result
+        } else {
+            isUpToDate = true
+        }
+        isChecking = false
+    }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        contentWindowInsets = WindowInsets(0.dp),
         topBar = {
             FlowTopBar(
-                title = "",
-                onBack = onClose,
-                actions = {
-                    if (release != null) {
-                        UpdateMenu(
-                            onSkip = {
-                                viewModel.skip()
-                                onClose()
-                            },
-                            onOpenGitHub = { uriHandler.openUri(release.pageUrl) },
-                        )
-                    }
-                },
+                title = stringResource(R.string.check_for_updates),
+                onBack = onNavigateBack,
             )
-        },
-        bottomBar = {
-            if (release != null) {
-                UpdateActionBar(
-                    stage = state.stage,
-                    onPrimary = {
-                        if (state.stage == UpdateStage.NeedsPermission) {
-                            runCatching { context.startActivity(viewModel.installPermissionIntent()) }
-                        } else {
-                            viewModel.primaryAction()
-                        }
-                    },
-                    onSecondary = { if (state.stage is UpdateStage.Downloading) viewModel.cancelDownload() else onClose() },
-                )
-            }
         },
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
-            when {
-                state.loading -> {
-                    FlowLoadingIndicator()
-                }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(24.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Icon(
+                Icons.Outlined.SystemUpdate,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
 
-                release == null -> {
-                    FlowEmptyState(title = stringResource(R.string.flow_is_up_to_date), icon = Icons.Outlined.Verified)
-                }
+            Spacer(modifier = Modifier.height(16.dp))
 
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier.widthIn(max = FlowMaxContentWidth).fillMaxWidth(),
-                        contentPadding = ContentPadding,
-                    ) {
-                        item(key = "header") { ReleaseHeader(release) }
-                        item(key = "notice") { StageNotice(state.stage) }
-                        state.notes?.let { releaseNotes(it) }
+            Text(
+                text = "JM Tube " + BuildConfig.VERSION_NAME,
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (isChecking) {
+                CircularProgressIndicator()
+                Spacer(modifier = Modifier.height(12.dp))
+                Text("Checking for updates...")
+            } else if (release != null) {
+                val item = release!!
+                Surface(
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "New Update Available: v${item.versionName}",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        if (item.releaseNotes.isNotBlank()) {
+                            Text(
+                                text = item.releaseNotes,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
                     }
                 }
-            }
-        }
-    }
-}
 
-@Composable
-private fun ReleaseHeader(release: AppRelease) {
-    val context = LocalContext.current
-    val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
-    Column(verticalArrangement = Arrangement.spacedBy(HeaderSpacing), modifier = Modifier.padding(bottom = HeaderSpacing)) {
-        Surface(
-            shape = MaterialShapes.SoftBurst.toShape(),
-            color = MaterialTheme.colorScheme.primaryContainer,
-            modifier = Modifier.size(HeroSize),
-        ) {
-            Box(contentAlignment = Alignment.Center) { FlowLogo(Modifier.width(HeroLogoWidth)) }
-        }
-        Text(
-            text = stringResource(R.string.update_title, release.version),
-            style = MaterialTheme.typography.headlineMediumEmphasized,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(FactSpacing), verticalArrangement = Arrangement.spacedBy(FactSpacing)) {
-            ReleaseFact(
-                Icons.Outlined.SyncAlt,
-                stringResource(R.string.update_version_change, AppVersions.normalize(BuildConfig.VERSION_NAME), release.version),
-            )
-            release.apk?.sizeBytes?.takeIf { it > 0 }?.let {
-                ReleaseFact(
-                    Icons.Outlined.Download,
-                    Formatter.formatShortFileSize(context, it),
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = { runCatching { uriHandler.openUri(item.downloadUrl) } },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(Icons.Outlined.Download, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Download Update (v${item.versionName})")
+                }
+            } else {
+                Text(
+                    text = "JM Tube is up to date!",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
                 )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedButton(onClick = onNavigateBack) {
+                    Text("OK")
+                }
             }
-            release.publishedAt?.let {
-                ReleaseFact(Icons.Outlined.CalendarToday, it.atZone(ZoneId.systemDefault()).toLocalDate().format(dateFormatter))
-            }
-        }
-    }
-}
-
-@Composable
-private fun StageNotice(stage: UpdateStage) {
-    val (icon, text) =
-        when (stage) {
-            UpdateStage.NeedsPermission -> Icons.Outlined.Shield to R.string.update_permission_notice
-            is UpdateStage.Failed -> Icons.Outlined.ErrorOutline to stage.reason.messageRes()
-            else -> return
-        }
-    val failed = stage is UpdateStage.Failed
-    Surface(
-        shape = MaterialTheme.shapes.large,
-        color = if (failed) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = if (failed) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSecondaryContainer,
-        modifier = Modifier.fillMaxWidth().padding(bottom = HeaderSpacing),
-    ) {
-        Row(Modifier.padding(NoticePadding), horizontalArrangement = Arrangement.spacedBy(HeaderSpacing)) {
-            Icon(icon, contentDescription = null)
-            Text(stringResource(text), style = MaterialTheme.typography.bodyMedium)
-        }
-    }
-}
-
-private fun UpdateFailure.messageRes(): Int =
-    when (this) {
-        UpdateFailure.NETWORK -> R.string.update_failed_network
-        UpdateFailure.STORAGE -> R.string.update_failed_storage
-        UpdateFailure.CHECKSUM -> R.string.update_failed_checksum
-        UpdateFailure.PACKAGE -> R.string.update_failed_package
-        UpdateFailure.INSTALL -> R.string.update_failed_install
-    }
-
-@Composable
-private fun UpdateMenu(
-    onSkip: () -> Unit,
-    onOpenGitHub: () -> Unit,
-) {
-    var open by remember { mutableStateOf(false) }
-    Box {
-        IconButton(onClick = { open = true }) { Icon(Icons.Outlined.MoreVert, contentDescription = stringResource(R.string.more_options)) }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.update_skip_version)) },
-                leadingIcon = { Icon(Icons.Outlined.NotificationsOff, contentDescription = null) },
-                onClick = {
-                    open = false
-                    onSkip()
-                },
-            )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.update_open_github)) },
-                leadingIcon = { Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null) },
-                onClick = {
-                    open = false
-                    onOpenGitHub()
-                },
-            )
         }
     }
 }

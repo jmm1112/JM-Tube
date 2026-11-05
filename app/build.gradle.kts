@@ -60,7 +60,7 @@ android {
         buildConfigField("String", "APP_LANGUAGE_TAGS", "\"${(listOf("en") + translatedLocaleTags()).joinToString(",")}\"")
         buildConfigField("String", "LASTFM_API_KEY", "\"${secretValue("lastfmApiKey", "lastfm.apiKey", "LASTFM_API_KEY")}\"")
         buildConfigField("String", "LASTFM_API_SECRET", "\"${secretValue("lastfmApiSecret", "lastfm.apiSecret", "LASTFM_API_SECRET")}\"")
-        buildConfigField("Boolean", "UPDATER_ENABLED", "false")
+        buildConfigField("Boolean", "UPDATER_ENABLED", "true")
         buildConfigField("String", "DISCORD_APPLICATION_ID", "\"1526515771021328514\"")
         buildConfigField("String", "UPDATE_CHANNEL", "\"stable\"")
         buildConfigField("String", "FLAVOR", "\"jmtube\"")

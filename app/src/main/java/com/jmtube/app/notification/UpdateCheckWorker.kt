@@ -2,87 +2,60 @@ package com.jmtube.app.notification
 
 import android.content.Context
 import android.util.Log
-import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import androidx.work.WorkerParameters
-import dagger.hilt.android.EntryPointAccessors
 import com.jmtube.app.BuildConfig
-import com.jmtube.app.data.local.PlayerPreferences
-import com.jmtube.app.data.update.UpdateAnnouncement
-import com.jmtube.app.data.update.UpdateEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
+import com.jmtube.app.data.local.LocalDataManager
+import com.jmtube.app.data.update.UpdateRepository
+import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
-/**
- * Worker that checks for application updates in the background.
- */
+private const val TAG = "UpdateCheckWorker"
+private const val WORK_NAME = "update_check_work"
+
 class UpdateCheckWorker(
-    context: Context,
+    private val appContext: Context,
     params: WorkerParameters,
-) : CoroutineWorker(context, params) {
+) : CoroutineWorker(appContext, params) {
+
+    private val updates = UpdateRepository(OkHttpClient(), LocalDataManager(appContext))
+
     companion object {
-        const val WORK_NAME = "update_check_work"
-        private const val TAG = "UpdateCheckWorker"
+        fun schedulePeriodicCheck(context: Context, reschedule: Boolean = false) {
+            if (!BuildConfig.UPDATER_ENABLED) return
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
 
-        /** Schedules the 12-hour check; [BackgroundCheckScheduler] decides whether it should run at all. */
-        fun schedulePeriodicCheck(
-            context: Context,
-            reschedule: Boolean,
-        ) {
-            val constraints =
-                Constraints
-                    .Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
-                    .build()
+            val request = PeriodicWorkRequestBuilder<UpdateCheckWorker>(24, TimeUnit.HOURS)
+                .setConstraints(constraints)
+                .build()
 
-            val workRequest =
-                PeriodicWorkRequestBuilder<UpdateCheckWorker>(
-                    12,
-                    TimeUnit.HOURS,
-                ).setConstraints(constraints)
-                    .setBackoffCriteria(
-                        BackoffPolicy.EXPONENTIAL,
-                        WorkRequest.MIN_BACKOFF_MILLIS,
-                        TimeUnit.MILLISECONDS,
-                    ).build()
-
-            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                WORK_NAME,
-                periodicWorkPolicy(reschedule),
-                workRequest,
-            )
-            Log.d(TAG, "Scheduled update check every 12 hours")
+            val policy = if (reschedule) ExistingPeriodicWorkPolicy.UPDATE else ExistingPeriodicWorkPolicy.KEEP
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK_NAME, policy, request)
         }
 
         fun cancelScheduledChecks(context: Context) {
             WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
-            Log.d(TAG, "Cancelled scheduled update checks")
         }
     }
 
-    override suspend fun doWork(): Result =
-        withContext(Dispatchers.IO) {
-            if (!BuildConfig.UPDATER_ENABLED || BuildConfig.DEBUG) return@withContext Result.success()
-            val preferences = PlayerPreferences(applicationContext)
-            if (!BackgroundCheckScheduler.updateCheckWanted(
-                    preferences.notificationsEnabled.first(),
-                    preferences.notifUpdatesEnabled.first(),
-                )
-            ) {
-                Log.d(TAG, "Update notifications are off, skipping update check")
-                return@withContext Result.success()
+    override suspend fun doWork(): Result {
+        if (!BuildConfig.UPDATER_ENABLED) return Result.success()
+        return try {
+            val release = updates.fetch()
+            if (release != null) {
+                NotificationHelper.showUpdateNotification(appContext, release)
             }
-            val updates = EntryPointAccessors.fromApplication(applicationContext, UpdateEntryPoint::class.java).updateRepository()
-            val release = updates.releaseToAnnounce(UpdateAnnouncement.NOTIFICATION)
-            if (release != null) NotificationHelper.showUpdateNotification(applicationContext, release)
             Result.success()
+        } catch (e: Exception) {
+            Log.e(TAG, "Periodic update check failed", e)
+            Result.retry()
         }
+    }
 }

@@ -38,6 +38,7 @@ private val SectionSpacing = 28.dp
 internal fun InterestsStep(
     selectedTopics: Set<String>,
     onTopicToggle: (String) -> Unit,
+    onCategoryAllToggle: (Collection<String>) -> Unit,
     header: LazyListScope.() -> Unit,
     revealed: Boolean,
     onRevealed: () -> Unit,
@@ -73,6 +74,7 @@ internal fun InterestsStep(
                     category = category,
                     selectedTopics = selectedTopics,
                     onTopicToggle = onTopicToggle,
+                    onCategoryAllToggle = onCategoryAllToggle,
                 )
             }
         }
@@ -84,12 +86,23 @@ private fun InterestCategorySection(
     category: TopicCategory,
     selectedTopics: Set<String>,
     onTopicToggle: (String) -> Unit,
+    onCategoryAllToggle: (Collection<String>) -> Unit,
 ) {
+    val allCategorySelected = remember(category.topics, selectedTopics) {
+        category.topics.isNotEmpty() && category.topics.all { it in selectedTopics }
+    }
+
     FlowPillSection(
         title = stringResource(topicCategoryNameRes(category.name)),
         icon = topicCategoryIcon(category.icon),
         selectedCount = category.topics.count(selectedTopics::contains),
     ) {
+        FlowPillChip(
+            label = stringResource(com.jmtube.app.R.string.home_chip_all),
+            selected = allCategorySelected,
+            onClick = { onCategoryAllToggle(category.topics) },
+        )
+
         category.topics.forEach { topic ->
             FlowPillChip(
                 label = topic,
