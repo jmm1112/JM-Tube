@@ -410,7 +410,6 @@ fun YouProfileHeaderCard(
     val running = state?.profiles?.firstOrNull { it.id == viewModel.runningId }
     val syncedProfiles by viewModel.synced.collectAsStateWithLifecycle()
     var openSheet by rememberSaveable { mutableStateOf(false) }
-    var openPhotoPreview by rememberSaveable { mutableStateOf(false) }
 
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -428,7 +427,7 @@ fun YouProfileHeaderCard(
                         size = 60.dp,
                         modifier = Modifier
                             .clip(CircleShape)
-                            .clickable { openPhotoPreview = true },
+                            .clickable { openSheet = true },
                     )
                 } else {
                     Icon(
@@ -437,12 +436,16 @@ fun YouProfileHeaderCard(
                         modifier = Modifier
                             .size(60.dp)
                             .clip(CircleShape)
-                            .clickable { openPhotoPreview = true },
+                            .clickable { openSheet = true },
                         tint = MaterialTheme.colorScheme.primary,
                     )
                 }
 
-                Column(modifier = Modifier.weight(1f)) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { openSheet = true },
+                ) {
                     Text(
                         text = running?.displayName(context) ?: stringResource(R.string.profile_default_name),
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
@@ -495,67 +498,6 @@ fun YouProfileHeaderCard(
                         modifier = Modifier.size(18.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Quick Action Buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                OutlinedButton(
-                    onClick = { openSheet = true },
-                    modifier = Modifier.weight(1f),
-                    shape = CircleShape,
-                ) {
-                    Icon(Icons.Outlined.SwitchAccount, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(stringResource(R.string.profiles_switch), style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold))
-                }
-
-                OutlinedButton(
-                    onClick = { onOpenSettings(SettingsTarget(SettingsDestination.PROFILE_EDIT)) },
-                    modifier = Modifier.weight(1f),
-                    shape = CircleShape,
-                ) {
-                    Icon(Icons.Outlined.PersonAdd, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(stringResource(R.string.profiles_add), style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold))
-                }
-            }
-        }
-    }
-
-    if (openPhotoPreview && running != null) {
-        Dialog(onDismissRequest = { openPhotoPreview = false }) {
-            Surface(
-                shape = RoundedCornerShape(24.dp),
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.padding(16.dp),
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    ProfileAvatar(profile = running, size = 160.dp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = running.displayName(context),
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(R.string.profiles_in_use),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                    TextButton(onClick = { openPhotoPreview = false }) {
-                        Text(stringResource(R.string.close))
-                    }
                 }
             }
         }

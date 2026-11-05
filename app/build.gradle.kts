@@ -161,6 +161,18 @@ android {
     }
 }
 
+androidComponents {
+    onVariants { variant ->
+        val versionName = android.defaultConfig.versionName ?: "1.0.0"
+        val buildType = variant.buildType ?: "release"
+        variant.outputs.forEach { output ->
+            if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
+                output.outputFileName.set("JM-Tube-v${versionName}-${buildType}.apk")
+            }
+        }
+    }
+}
+
 configurations.matching { it.name.endsWith("UnitTestRuntimeClasspath") }.configureEach {
     exclude(group = "org.conscrypt", module = "conscrypt-android")
 }

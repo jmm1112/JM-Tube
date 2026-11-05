@@ -577,6 +577,10 @@
     <string name="settings_home_shorts_shelf_subtitle">Tampilkan rak shorts horizontal di layar beranda.</string>
     <string name="settings_shorts_nav_tab_title">Tab Shorts di navigasi</string>
     <string name="settings_shorts_nav_tab_subtitle">Tampilkan tab Shorts di bilah navigasi bawah.</string>
+    <string name="settings_hide_nav_bar_labels_title">Sembunyikan Label Bilah Navigasi</string>
+    <string name="settings_hide_nav_bar_labels_subtitle">Tampilkan ikon saja di bilah navigasi bawah</string>
+    <string name="settings_hide_nav_on_shorts_title">Sembunyikan Bilah Navigasi di Shorts</string>
+    <string name="settings_hide_nav_on_shorts_subtitle">Sembunyikan bilah navigasi saat menonton Shorts untuk tampilan layar penuh</string>
     <string name="settings_music_nav_tab_title">Tab Musik di navigasi</string>
     <string name="settings_music_nav_tab_subtitle">Tampilkan tab Musik di bilah navigasi bawah.</string>
     <string name="settings_search_nav_tab_title">Tab Cari di navigasi</string>

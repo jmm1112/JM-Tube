@@ -6,11 +6,13 @@ STATUS: stable
 HIGHLIGHTS
 - Initial release of JM Tube (v1.0.0)
 - Official YouTube and YouTube Music aesthetics with YouTube play button logo and JM Music header
-- Google Account Sign-In & YouTube/YouTube Music Realtime Account Data Synchronization
+- Rebranded Incognito Mode with standalone theme-adaptive header icon and 100% anonymous watch & search history
+- Redesigned "You" tab Profile Card with large centered avatar image and full-height slide-up Profile Sheet
 - Multi-profile management with real-time LAN Device Sync for Name, Color, Avatar Emoji, and Custom Photo images
 - Master Backup & App Data Backup support with full profile, photo, and settings archive
-- Time Management, Deep Mode, Equalizer, Offline Downloads, and Background Play
-- Custom developer profile integration for JM (jmm1112) with GitHub repository linking
+- Custom Navigation Bar settings: "Hide Navigation Bar Labels" and "Hide Navigation Bar on Shorts" for full-screen viewing
+- Smart Home feed back gesture: pressing Back smoothly scrolls to top before exiting
+- Smart dynamic app logo on About JM Tube screen with updated website (jmtube.netlify.app) and Reddit links
 - Released under GNU General Public License v3.0
 
 JM TUBE DESIGN & FEATURES

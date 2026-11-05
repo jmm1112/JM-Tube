@@ -62,6 +62,7 @@ fun FlowNavigationChrome(
     barVisible: Boolean,
     railVisible: Boolean,
     modifier: Modifier = Modifier,
+    hideLabels: Boolean = false,
     onBarHeightChanged: (Dp) -> Unit = {},
     onRailWidthChanged: (Dp) -> Unit = {},
     content: @Composable BoxScope.() -> Unit,
@@ -103,6 +104,7 @@ fun FlowNavigationChrome(
                     selectedTab = selectedTab,
                     onTabSelected = onTabSelected,
                     visible = barVisible,
+                    hideLabels = hideLabels,
                     onHeightChanged = onBarHeightChanged,
                 )
             }
@@ -116,6 +118,7 @@ private fun BoxScope.NavigationBarSlot(
     selectedTab: FlowTab?,
     onTabSelected: (FlowTab) -> Unit,
     visible: Boolean,
+    hideLabels: Boolean,
     onHeightChanged: (Dp) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -131,6 +134,7 @@ private fun BoxScope.NavigationBarSlot(
             tabs = tabs,
             selectedTab = selectedTab,
             onTabSelected = onTabSelected,
+            hideLabels = hideLabels,
             modifier =
                 Modifier
                     .testTag(FLOW_NAV_BAR_TAG)

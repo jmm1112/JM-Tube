@@ -8,6 +8,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -57,12 +58,17 @@ fun SmartAppHeaderLogoIcon(
     isDeepFlowActive: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
+    if (isDeepFlowActive && !isMusic) {
+        IncognitoHeaderLogoIcon(modifier = modifier)
+        return
+    }
+
     val suffix = iconSuffix ?: AppIcons.DEFAULT_SUFFIX
     if (suffix == AppIcons.DARK_SUFFIX) {
         if (isMusic) {
             YouTubeMusicLogoIcon(modifier = modifier)
         } else {
-            YouTubeLogoIcon(isDeepFlowActive = isDeepFlowActive, modifier = modifier)
+            YouTubeLogoIcon(isDeepFlowActive = false, modifier = modifier)
         }
     } else {
         Box(modifier = modifier, contentAlignment = Alignment.Center) {
@@ -72,6 +78,29 @@ fun SmartAppHeaderLogoIcon(
                 modifier = Modifier.fillMaxSize(),
             )
         }
+    }
+}
+
+/**
+ * Clean, standalone theme-adaptive Incognito icon.
+ * Dynamically adapts color (`onSurface`) for maximum contrast in both Light and Dark themes.
+ */
+@Composable
+fun IncognitoHeaderLogoIcon(
+    modifier: Modifier = Modifier,
+) {
+    val incognitoPath = remember { PathParser().parsePathString(FLOW_INCOGNITO_GLYPH_PATH).toPath() }
+    val tintColor = MaterialTheme.colorScheme.onSurface
+
+    Canvas(modifier = modifier) {
+        val scale = minOf(size.width / 24f, size.height / 24f) * 0.72f
+        val dx = (size.width - 24f * scale) / 2f
+        val dy = (size.height - 24f * scale) / 2f
+        drawContext.canvas.save()
+        drawContext.canvas.translate(dx, dy)
+        drawContext.canvas.scale(scale, scale)
+        drawPath(path = incognitoPath, color = tintColor)
+        drawContext.canvas.restore()
     }
 }
 

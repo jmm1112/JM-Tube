@@ -64,7 +64,7 @@ internal enum class LibrarySection(
                 addAll(listOf(WATCH_LATER, LIKED_VIDEOS, LIKED_MUSIC, DOWNLOADS, SAVED_SHORTS))
             }
 
-        val settingsAndData: List<LibrarySection> = listOf(LOCAL_MEDIA, NOTES, SETTINGS)
+        val settingsAndData: List<LibrarySection> = listOf(LOCAL_MEDIA, NOTES)
 
         fun fromStored(names: Set<String>): Set<LibrarySection> = entries.filterTo(HashSet()) { it.name in names }
     }

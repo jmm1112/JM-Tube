@@ -379,6 +379,10 @@
     <string name="settings_subs_shorts_shelf_subtitle">إظهار قسم Shorts في خلاصة الاشتراكات</string>
     <string name="settings_shorts_nav_tab_title">علامة تبويب \"الفيديوهات القصيرة\" في شريط التنقل</string>
     <string name="settings_shorts_nav_tab_subtitle">اعرض تبويب \"المقاطع القصيرة\" في شريط التنقل السفلي.</string>
+    <string name="settings_hide_nav_bar_labels_title">إخفاء تسميات شريط التنقل</string>
+    <string name="settings_hide_nav_bar_labels_subtitle">إظهار الأيقونات فقط في شريط التنقل السفلي</string>
+    <string name="settings_hide_nav_on_shorts_title">إخفاء شريط التنقل في Shorts</string>
+    <string name="settings_hide_nav_on_shorts_subtitle">إخفاء شريط التنقل أثناء مشاهدة فيديوهات Shorts للعرض بملء الشاشة</string>
     <string name="settings_music_nav_tab_title">علامة تبويب الموسيقى في شريط التنقل</string>
     <string name="settings_music_nav_tab_subtitle">اعرض علامة تبويب الموسيقى في شريط التنقل السفلي.</string>
     <string name="settings_search_nav_tab_title">علامة تبويب البحث في شريط التنقل</string>

@@ -635,6 +635,10 @@
     <string name="settings_shorts_nav_tab_title">Pestaña de Shorts en la navegación</string>
     <string name="settings_home_shorts_shelf_subtitle">Mostrar estantería horizontal de Shorts en pantalla de Inicio.</string>
     <string name="settings_shorts_nav_tab_subtitle">Muestra la pestaña Shorts en la barra de navegación inferior.</string>
+    <string name="settings_hide_nav_bar_labels_title">Ocultar etiquetas de la barra de navegación</string>
+    <string name="settings_hide_nav_bar_labels_subtitle">Mostrar solo iconos en la barra de navegación inferior</string>
+    <string name="settings_hide_nav_on_shorts_title">Ocultar barra de navegación en Shorts</string>
+    <string name="settings_hide_nav_on_shorts_subtitle">Ocultar la barra de navegación al ver Shorts para una vista de pantalla completa</string>
     <string name="settings_music_nav_tab_title">Pestaña de música en la navegación</string>
     <string name="nav_search">Buscar</string>
     <string name="settings_music_nav_tab_subtitle">Muestra la pestaña Música en la barra de navegación inferior.</string>

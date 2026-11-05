@@ -400,6 +400,10 @@
     <string name="settings_home_shorts_shelf_subtitle">Afficher la section des Shorts sur l\'écran d\'accueil.</string>
     <string name="settings_shorts_nav_tab_title">Onglet Shorts dans la navigation</string>
     <string name="settings_shorts_nav_tab_subtitle">Afficher l\'onglet Shorts dans la barre de navigation inférieure.</string>
+    <string name="settings_hide_nav_bar_labels_title">Masquer les libellés de la barre de navigation</string>
+    <string name="settings_hide_nav_bar_labels_subtitle">Afficher uniquement les icônes dans la barre de navigation inférieure</string>
+    <string name="settings_hide_nav_on_shorts_title">Masquer la barre de navigation sur les Shorts</string>
+    <string name="settings_hide_nav_on_shorts_subtitle">Masquer la barre de navigation pendant le visionnage des Shorts pour un affichage plein écran</string>
     <!-- Paramètres du Lecteur -->
     <string name="player_settings_title">Paramètres du lecteur</string>
     <string name="player_settings_background_play">Lecture en Arrière-plan</string>

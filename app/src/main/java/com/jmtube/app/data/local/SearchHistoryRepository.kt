@@ -8,6 +8,7 @@ import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.jmtube.app.data.profile.StoreScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.util.UUID
@@ -78,6 +79,8 @@ class SearchHistoryRepository
                 }
         }
 
+        private val playerPreferences by lazy { PlayerPreferences(context) }
+
         // Save search query
         suspend fun saveSearchQuery(
             query: String,
@@ -87,6 +90,7 @@ class SearchHistoryRepository
         ) {
             if (!isSearchHistoryEnabled()) return
             if (query.isBlank()) return
+            if (playerPreferences.deepFlowActive.first()) return
 
             context.searchDataStore.edit { preferences ->
                 val updated =
@@ -103,12 +107,12 @@ class SearchHistoryRepository
 
         // Get search history as Flow
         fun getSearchHistoryFlow(scope: SearchHistoryScope = SearchHistoryScope.VIDEO): Flow<List<SearchHistoryItem>> =
-            context.searchDataStore.data.map { preferences ->
-                if (preferences[SEARCH_HISTORY_ENABLED_KEY] != false) {
+            combine(context.searchDataStore.data, playerPreferences.deepFlowActive) { preferences, isIncognito ->
+                if (isIncognito || preferences[SEARCH_HISTORY_ENABLED_KEY] == false) {
+                    emptyList()
+                } else {
                     val history = getSearchHistoryList(preferences, scope)
                     filterExpiredHistory(history, preferences)
-                } else {
-                    emptyList()
                 }
             }
 

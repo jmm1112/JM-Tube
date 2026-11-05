@@ -1,5 +1,6 @@
 package com.jmtube.app.ui.screens.home
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
@@ -112,6 +113,18 @@ fun HomeScreen(
         homeFeedEnabled = homeFeedEnabled,
         refreshHomeOnReselect = refreshHomeOnReselect,
     )
+
+    val activeGridState = gridStates.forChips(chips)
+    val isScrolledDown by remember(activeGridState) {
+        androidx.compose.runtime.derivedStateOf {
+            activeGridState.firstVisibleItemIndex > 0 || activeGridState.firstVisibleItemScrollOffset > 0
+        }
+    }
+    BackHandler(enabled = isScrolledDown) {
+        coroutineScope.launch {
+            activeGridState.animateScrollToItem(0)
+        }
+    }
 
     val haptic = LocalHapticFeedback.current
     val homeLabel = stringResource(R.string.nav_home)

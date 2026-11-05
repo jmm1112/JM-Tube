@@ -38,6 +38,7 @@ internal fun FlowNavigationBar(
     selectedTab: FlowTab?,
     onTabSelected: (FlowTab) -> Unit,
     modifier: Modifier = Modifier,
+    hideLabels: Boolean = false,
 ) {
     val horizontalItems = LocalWindowSizeClass.current.isMediumWidth
     val iconPosition = if (horizontalItems) NavigationItemIconPosition.Start else NavigationItemIconPosition.Top
@@ -55,8 +56,8 @@ internal fun FlowNavigationBar(
             ShortNavigationBarItem(
                 selected = selected,
                 onClick = { onTabSelected(tab) },
-                icon = { Icon(imageVector = tab.icon(selected), contentDescription = null) },
-                label = { Text(text = stringResource(tab.labelRes)) },
+                icon = { Icon(imageVector = tab.icon(selected), contentDescription = stringResource(tab.labelRes)) },
+                label = if (hideLabels) null else ({ Text(text = stringResource(tab.labelRes)) }),
                 iconPosition = iconPosition,
             )
         }

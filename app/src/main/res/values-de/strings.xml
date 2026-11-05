@@ -547,6 +547,10 @@
     <string name="content_settings_hide_watched_title">Angesehene Videos Ausblenden</string>
     <string name="content_settings_hide_watched_subtitle">Filtern Sie Videos, die Sie bereits von Ihrem Home-Feed und Abonnements angesehen haben</string>
     <string name="settings_shorts_nav_tab_subtitle">„Shorts“-Tab in der unteren Navigationsleiste Anzeigen.</string>
+    <string name="settings_hide_nav_bar_labels_title">Navigationsleisten-Beschriftungen ausblenden</string>
+    <string name="settings_hide_nav_bar_labels_subtitle">Nur Symbole in der unteren Navigationsleiste anzeigen</string>
+    <string name="settings_hide_nav_on_shorts_title">Navigationsleiste bei Shorts ausblenden</string>
+    <string name="settings_hide_nav_on_shorts_subtitle">Navigationsleiste beim Ansehen von Shorts für eine Vollbildansicht ausblenden</string>
     <string name="settings_music_nav_tab_title">„Musik“-Tab in der Navigation</string>
     <string name="settings_music_nav_tab_subtitle">„Musik“-Tab in der unteren Navigationsleiste Anzeigen.</string>
     <string name="settings_search_nav_tab_title">„Suchen“-Tab in der Navigation</string>

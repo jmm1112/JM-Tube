@@ -41,6 +41,7 @@ import com.jmtube.app.ui.components.layout.LocalFlowBottomInsets
 import com.jmtube.app.ui.components.layout.LocalFlowSnackbarHostState
 import com.jmtube.app.ui.components.layout.navigation.FlowNavigationChrome
 import com.jmtube.app.ui.components.layout.navigation.FlowNavigationDefaults
+import com.jmtube.app.ui.components.layout.navigation.FlowTab
 import com.jmtube.app.ui.components.layout.navigation.NavigationVisibility
 import com.jmtube.app.ui.components.layout.navigation.flowUsesNavigationRail
 import com.jmtube.app.ui.components.layout.navigation.rememberFlowNavigationScrollState
@@ -194,6 +195,8 @@ fun FlowApp(
     val usesNavigationRail = flowUsesNavigationRail()
     var navigationRailWidth by remember { mutableStateOf(0.dp) }
     var navigationBarHeight by remember { mutableStateOf(FlowNavigationDefaults.BarHeight) }
+    val hideNavBarLabels by preferences.hideNavBarLabels.collectAsStateWithLifecycle(false)
+    val hideNavOnShorts by preferences.hideNavOnShorts.collectAsStateWithLifecycle(false)
 
     FlowStartTabEffects(
         navController = navController,
@@ -389,7 +392,8 @@ fun FlowApp(
         val isPlayerCoveringContent =
             (playerVisible && playerSheetState.currentValue == PlayerSheetValue.Expanded) ||
                 (isMusicSheetShown && musicPlayerSheetState.isExpanded)
-        val showBottomNav = !isInPipMode && currentTab.showsNavigationBar() && !isPlayerCoveringContent
+        val isShortsRoute = currentTab == FlowTab.Shorts || currentEntry?.destination?.route?.startsWith("shorts") == true
+        val showBottomNav = !isInPipMode && currentTab.showsNavigationBar() && !isPlayerCoveringContent && !(isShortsRoute && hideNavOnShorts)
         val isBottomNavShown = !usesNavigationRail && showBottomNav && navScrollState.isBarVisible
         // The rail is hidden only where content goes truly full screen; the expanded players cover
         // it instead, so opening them never re-lays out the page beneath.
@@ -468,6 +472,7 @@ fun FlowApp(
                 }
             },
             barVisible = showBottomNav && navScrollState.isBarVisible,
+            hideLabels = hideNavBarLabels,
             railVisible = isNavigationRailVisible,
             onBarHeightChanged = { navigationBarHeight = it },
             onRailWidthChanged = { navigationRailWidth = it },

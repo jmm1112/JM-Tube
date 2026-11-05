@@ -152,6 +152,8 @@ class PlayerPreferences(
         val HOME_NAVIGATION_ENABLED = booleanPreferencesKey("home_navigation_enabled")
         val SHORTS_NAVIGATION_ENABLED = booleanPreferencesKey("shorts_navigation_enabled")
         val BOTTOM_NAV_HIDE_ON_SCROLL = booleanPreferencesKey("bottom_nav_hide_on_scroll")
+        val HIDE_NAV_BAR_LABELS = booleanPreferencesKey("hide_nav_bar_labels")
+        val HIDE_NAV_ON_SHORTS = booleanPreferencesKey("hide_nav_on_shorts")
         val MUSIC_NAVIGATION_ENABLED = booleanPreferencesKey("music_navigation_enabled")
         val SEARCH_NAV_TAB_ENABLED = booleanPreferencesKey("search_nav_tab_enabled")
         val CATEGORIES_NAV_TAB_ENABLED = booleanPreferencesKey("categories_nav_tab_enabled")
@@ -1257,6 +1259,30 @@ class PlayerPreferences(
     suspend fun setBottomNavHideOnScroll(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.BOTTOM_NAV_HIDE_ON_SCROLL] = enabled
+        }
+    }
+
+    val hideNavBarLabels: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences ->
+                preferences[Keys.HIDE_NAV_BAR_LABELS] ?: false
+            }
+
+    suspend fun setHideNavBarLabels(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.HIDE_NAV_BAR_LABELS] = enabled
+        }
+    }
+
+    val hideNavOnShorts: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences ->
+                preferences[Keys.HIDE_NAV_ON_SHORTS] ?: false
+            }
+
+    suspend fun setHideNavOnShorts(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.HIDE_NAV_ON_SHORTS] = enabled
         }
     }
 

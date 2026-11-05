@@ -41,8 +41,11 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.jmtube.app.R
+import com.jmtube.app.data.local.PlayerPreferences
+import com.jmtube.app.ui.screens.home.SmartAppHeaderLogoIcon
 import com.jmtube.app.ui.components.settings.SettingsDestination
 import com.jmtube.app.ui.components.settings.SettingsPage
 import com.jmtube.app.ui.components.settings.SettingsTarget
@@ -52,9 +55,9 @@ import com.jmtube.app.ui.screens.settings.index.DestinationIndex
 
 private enum class AboutDialog { CHANGELOG, DEVICE, NOTICES }
 
-private const val WEBSITE_URL = ""
+private const val WEBSITE_URL = "https://jmtube.netlify.app"
 private const val GITHUB_URL = "https://github.com/jmm1112/JM-Tube"
-private const val REDDIT_URL = ""
+private const val REDDIT_URL = "https://www.reddit.com/u/Jasus12"
 private const val CREATOR_URL = "https://github.com/jmm1112"
 private const val NEWPIPE_URL = "https://github.com/TeamNewPipe/NewPipeExtractor"
 private const val CREATOR_AVATAR_URL = "https://github.com/jmm1112.png?size=144"
@@ -129,6 +132,8 @@ internal fun AboutScreen(
 @Composable
 private fun AboutHeader() {
     val context = LocalContext.current
+    val preferences = remember(context) { PlayerPreferences(context) }
+    val selectedAppIcon by preferences.selectedAppIcon.collectAsStateWithLifecycle(initialValue = null)
     val unknown = stringResource(R.string.unknown)
     val version =
         remember {
@@ -141,9 +146,8 @@ private fun AboutHeader() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(HeaderSpacing),
     ) {
-        Image(
-            painter = painterResource(R.drawable.ic_flow_logo),
-            contentDescription = stringResource(R.string.app_name),
+        SmartAppHeaderLogoIcon(
+            iconSuffix = selectedAppIcon,
             modifier = Modifier.size(LogoSize),
         )
         Text(

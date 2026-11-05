@@ -68,6 +68,8 @@ class AppearanceViewModel
             }.combine(preferences.downloadsNavigationEnabled) { visibility, downloads -> visibility.copy(downloads = downloads) }
                 .asState(NavigationVisibility())
         val hideNavOnScroll = preferences.bottomNavHideOnScroll.asState(true)
+        val hideNavBarLabels = preferences.hideNavBarLabels.asState(false)
+        val hideNavOnShorts = preferences.hideNavOnShorts.asState(false)
         val navTabOrder = preferences.navTabOrder.asState(DEFAULT_NAV_TAB_ORDER)
         val defaultNavTabIndex = preferences.defaultNavTabIndex.asState(0)
 
@@ -124,6 +126,10 @@ class AppearanceViewModel
         fun setDownloadsTab(enabled: Boolean) = write { preferences.setDownloadsNavigationEnabled(enabled) }
 
         fun setHideNavOnScroll(enabled: Boolean) = write { preferences.setBottomNavHideOnScroll(enabled) }
+
+        fun setHideNavBarLabels(enabled: Boolean) = write { preferences.setHideNavBarLabels(enabled) }
+
+        fun setHideNavOnShorts(enabled: Boolean) = write { preferences.setHideNavOnShorts(enabled) }
 
         fun setNavTabOrder(order: List<Int>) = write { preferences.setNavTabOrder(order) }
 
