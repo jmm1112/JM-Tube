@@ -551,6 +551,26 @@
     <string name="settings_hide_nav_bar_labels_subtitle">Nur Symbole in der unteren Navigationsleiste anzeigen</string>
     <string name="settings_hide_nav_on_shorts_title">Navigationsleiste bei Shorts ausblenden</string>
     <string name="settings_hide_nav_on_shorts_subtitle">Navigationsleiste beim Ansehen von Shorts für eine Vollbildansicht ausblenden</string>
+    <string name="settings_show_nav_on_search_title">Navigationsleiste bei Suche anzeigen</string>
+    <string name="settings_show_nav_on_search_subtitle">Navigationsleiste während der Suche und bei Ergebnissen sichtbar halten</string>
+    <string name="settings_section_general">Allgemein</string>
+    <string name="settings_highlight_new_title">Neue Einstellungen hervorheben</string>
+    <string name="settings_highlight_new_summary">Zeigt einen Punkt bei neuen Einstellungsoptionen an</string>
+    <string name="settings_highlight_new_days_title">Punkt behalten für</string>
+    <string name="player_appearance_paid_promotion_title">Label für kostenpflichtige Promotion anzeigen</string>
+    <string name="player_appearance_paid_promotion_subtitle">Ein Label anzeigen, wenn ein Video kostenpflichtige Promotion enthält</string>
+    <plurals name="settings_highlight_new_days">
+        <item quantity="one">%d Tag</item>
+        <item quantity="other">%d Tage</item>
+    </plurals>
+    <string name="profile_status_quote_header">Status / Bio</string>
+    <string name="profile_status_quote_label">Persönliche Statuszeile</string>
+    <string name="profile_banner_style_header">Titelbanner-Farbverlauf</string>
+    <string name="profile_show_milestones_title">Erfolgs-Badges anzeigen</string>
+    <string name="profile_show_milestones_subtitle">Wiedergabe- und Musik-Meilensteine auf der Profilkarte anzeigen</string>
+    <string name="downloads_storage_used_video">%1$s in Videos</string>
+    <string name="downloads_storage_used_music">%1$s in Music</string>
+    <string name="profile_remove_avatar">Avatar entfernen</string>
     <string name="settings_music_nav_tab_title">„Musik“-Tab in der Navigation</string>
     <string name="settings_music_nav_tab_subtitle">„Musik“-Tab in der unteren Navigationsleiste Anzeigen.</string>
     <string name="settings_search_nav_tab_title">„Suchen“-Tab in der Navigation</string>

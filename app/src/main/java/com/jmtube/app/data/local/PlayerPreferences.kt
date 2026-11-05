@@ -156,8 +156,12 @@ class PlayerPreferences(
         val HIDE_NAV_ON_SHORTS = booleanPreferencesKey("hide_nav_on_shorts")
         val MUSIC_NAVIGATION_ENABLED = booleanPreferencesKey("music_navigation_enabled")
         val SEARCH_NAV_TAB_ENABLED = booleanPreferencesKey("search_nav_tab_enabled")
+        val SEARCH_NAV_BAR_ENABLED = booleanPreferencesKey("search_nav_bar_enabled")
         val CATEGORIES_NAV_TAB_ENABLED = booleanPreferencesKey("categories_nav_tab_enabled")
         val DOWNLOADS_NAV_TAB_ENABLED = booleanPreferencesKey("downloads_nav_tab_enabled")
+        val PAID_PROMOTION_LABEL = booleanPreferencesKey("paid_promotion_label")
+        val HIGHLIGHT_NEW_SETTINGS = booleanPreferencesKey("highlight_new_settings")
+        val HIGHLIGHT_NEW_SETTINGS_DAYS = intPreferencesKey("highlight_new_settings_days")
         val PREFERRED_LYRICS_PROVIDER = stringPreferencesKey("preferred_lyrics_provider")
         val LYRICS_PROVIDER_ORDER = stringPreferencesKey("lyrics_provider_order")
         val LYRICS_TEXT_ALIGN = stringPreferencesKey("lyrics_text_align")
@@ -1283,6 +1287,46 @@ class PlayerPreferences(
     suspend fun setHideNavOnShorts(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.HIDE_NAV_ON_SHORTS] = enabled
+        }
+    }
+
+    val showNavOnSearch: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SEARCH_NAV_BAR_ENABLED] ?: true }
+
+    suspend fun setShowNavOnSearch(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.SEARCH_NAV_BAR_ENABLED] = enabled
+        }
+    }
+
+    val newSettingsHighlight: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.HIGHLIGHT_NEW_SETTINGS] ?: true }
+
+    suspend fun setNewSettingsHighlight(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.HIGHLIGHT_NEW_SETTINGS] = enabled
+        }
+    }
+
+    val newSettingsHighlightDays: Flow<Int> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.HIGHLIGHT_NEW_SETTINGS_DAYS] ?: 7 }
+
+    suspend fun setNewSettingsHighlightDays(days: Int) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.HIGHLIGHT_NEW_SETTINGS_DAYS] = days
+        }
+    }
+
+    val paidPromotionLabel: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.PAID_PROMOTION_LABEL] ?: false }
+
+    suspend fun setPaidPromotionLabel(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.PAID_PROMOTION_LABEL] = enabled
         }
     }
 

@@ -404,6 +404,26 @@
     <string name="settings_hide_nav_bar_labels_subtitle">Afficher uniquement les icônes dans la barre de navigation inférieure</string>
     <string name="settings_hide_nav_on_shorts_title">Masquer la barre de navigation sur les Shorts</string>
     <string name="settings_hide_nav_on_shorts_subtitle">Masquer la barre de navigation pendant le visionnage des Shorts pour un affichage plein écran</string>
+    <string name="settings_show_nav_on_search_title">Afficher la barre de navigation lors de la recherche</string>
+    <string name="settings_show_nav_on_search_subtitle">Garder la barre de navigation visible pendant la recherche et les résultats</string>
+    <string name="settings_section_general">Général</string>
+    <string name="settings_highlight_new_title">Mettre en évidence les nouveaux paramètres</string>
+    <string name="settings_highlight_new_summary">Afficher un point sur les nouvelles options de configuration</string>
+    <string name="settings_highlight_new_days_title">Conserver le point pendant</string>
+    <string name="player_appearance_paid_promotion_title">Afficher le libellé de promotion payante</string>
+    <string name="player_appearance_paid_promotion_subtitle">Afficher un badge lorsqu\'une vidéo contient une promotion payante</string>
+    <plurals name="settings_highlight_new_days">
+        <item quantity="one">%d jour</item>
+        <item quantity="other">%d jours</item>
+    </plurals>
+    <string name="profile_status_quote_header">Statut / Bio</string>
+    <string name="profile_status_quote_label">Ligne de statut personnel</string>
+    <string name="profile_banner_style_header">Dégradé de la bannière</string>
+    <string name="profile_show_milestones_title">Afficher les badges de succès</string>
+    <string name="profile_show_milestones_subtitle">Afficher les étapes de visionnage et de musique sur la carte de profil</string>
+    <string name="downloads_storage_used_video">%1$s dans Videos</string>
+    <string name="downloads_storage_used_music">%1$s dans Music</string>
+    <string name="profile_remove_avatar">Supprimer l\'avatar</string>
     <!-- Paramètres du Lecteur -->
     <string name="player_settings_title">Paramètres du lecteur</string>
     <string name="player_settings_background_play">Lecture en Arrière-plan</string>

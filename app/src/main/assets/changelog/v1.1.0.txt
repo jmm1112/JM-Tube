@@ -1,0 +1,16 @@
+JM TUBE CHANGE LOG
+VERSION: 1.1.0
+DATE: 2026-11-05
+STATUS: stable
+
+HIGHLIGHTS
+- Enhanced Profile Customizations: Personal status quote/bio line, custom color palette presets, and permanent "Remove Avatar" button
+- Updated download storage structure: Organized downloads into "Download/JM Tube/Videos" and "Music/JM Tube/Music"
+- Rebranded storage usage metrics: Displaying breakdown as "%1$s in Videos" & "%1$s in Music"
+- Optimised Keyboard IME Padding on Profile Edit/Add screen for smooth typing
+- Highlight New Settings toggle with customizable dot duration (3, 7, 14, 30 days)
+- Added "Show navigation bar on search" option in Navigation Bar settings
+- Added "Show paid promotion label" switch in Player Appearance settings
+- Explicit Contact links on About JM Tube screen (Website, GitHub, Reddit)
+- Real-time LAN Device Sync and Master Backup integration for all profile status quotes and custom colors
+- General performance, stability and UI refinements

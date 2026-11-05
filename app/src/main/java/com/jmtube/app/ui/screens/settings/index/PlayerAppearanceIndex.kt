@@ -145,6 +145,13 @@ internal object PlayerAppearanceIndex {
             R.string.player_appearance_gesture_overlay_subtitle,
             R.string.settings_section_video_player,
         )
+    val paidPromotion =
+        entry(
+            "paid_promotion",
+            R.string.player_appearance_paid_promotion_title,
+            R.string.player_appearance_paid_promotion_subtitle,
+            R.string.settings_section_video_player,
+        )
     val shortsUi =
         entry(
             "shorts_ui",

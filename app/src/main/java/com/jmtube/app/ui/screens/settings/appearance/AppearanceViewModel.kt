@@ -70,6 +70,9 @@ class AppearanceViewModel
         val hideNavOnScroll = preferences.bottomNavHideOnScroll.asState(true)
         val hideNavBarLabels = preferences.hideNavBarLabels.asState(false)
         val hideNavOnShorts = preferences.hideNavOnShorts.asState(false)
+        val showNavOnSearch = preferences.showNavOnSearch.asState(true)
+        val newSettingsHighlight = preferences.newSettingsHighlight.asState(true)
+        val newSettingsDays = preferences.newSettingsHighlightDays.asState(7)
         val navTabOrder = preferences.navTabOrder.asState(DEFAULT_NAV_TAB_ORDER)
         val defaultNavTabIndex = preferences.defaultNavTabIndex.asState(0)
 
@@ -130,6 +133,12 @@ class AppearanceViewModel
         fun setHideNavBarLabels(enabled: Boolean) = write { preferences.setHideNavBarLabels(enabled) }
 
         fun setHideNavOnShorts(enabled: Boolean) = write { preferences.setHideNavOnShorts(enabled) }
+
+        fun setShowNavOnSearch(enabled: Boolean) = write { preferences.setShowNavOnSearch(enabled) }
+
+        fun setNewSettingsHighlight(enabled: Boolean) = write { preferences.setNewSettingsHighlight(enabled) }
+
+        fun setNewSettingsDays(days: Int) = write { preferences.setNewSettingsHighlightDays(days) }
 
         fun setNavTabOrder(order: List<Int>) = write { preferences.setNavTabOrder(order) }
 

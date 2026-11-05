@@ -38,8 +38,10 @@ internal fun DownloadsStorageCard(
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                val videoText = stringResource(R.string.downloads_storage_used_video, Formatter.formatShortFileSize(context, videoBytes))
+                val musicText = stringResource(R.string.downloads_storage_used_music, Formatter.formatShortFileSize(context, musicBytes))
                 Text(
-                    text = stringResource(R.string.downloads_storage_used, Formatter.formatShortFileSize(context, used)),
+                    text = "$videoText · $musicText",
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.weight(1f),
                 )

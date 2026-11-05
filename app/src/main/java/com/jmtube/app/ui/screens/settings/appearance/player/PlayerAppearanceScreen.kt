@@ -72,6 +72,7 @@ internal fun PlayerAppearanceScreen(
     val sleepTimerButton by viewModel.sleepTimerButton.collectAsStateWithLifecycle()
     val adaptiveSize by viewModel.adaptivePlayerSize.collectAsStateWithLifecycle()
     val ambientMode by viewModel.ambientMode.collectAsStateWithLifecycle()
+    val paidPromotionLabel by viewModel.paidPromotionLabel.collectAsStateWithLifecycle()
     val groupedQuality by viewModel.groupedQualitySelector.collectAsStateWithLifecycle()
     val gestureOverlay by viewModel.gestureOverlay.collectAsStateWithLifecycle()
     val shortsUi by viewModel.shortsUiMode.collectAsStateWithLifecycle()
@@ -197,6 +198,7 @@ internal fun PlayerAppearanceScreen(
         group(key = "player_appearance.video", header = R.string.settings_section_video_player) {
             switch(PlayerAppearanceIndex.adaptiveSize, adaptiveSize, viewModel::setAdaptivePlayerSize)
             switch(PlayerAppearanceIndex.ambientMode, ambientMode, viewModel::setAmbientMode)
+            switch(PlayerAppearanceIndex.paidPromotion, paidPromotionLabel, viewModel::setPaidPromotionLabel)
             switch(PlayerAppearanceIndex.groupedQuality, groupedQuality, viewModel::setGroupedQualitySelector)
             nav(PlayerAppearanceIndex.gestureOverlay, value = gestureLabel, onClick = { sheet = PreviewSheet.GESTURE })
         }

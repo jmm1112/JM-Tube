@@ -101,9 +101,9 @@ internal fun AboutScreen(
             )
         }
         group(key = "about.contact", header = R.string.section_contact) {
-            nav(AboutIndex.website, icon = Icons.Outlined.Public, showChevron = false, onClick = { open(WEBSITE_URL) })
-            nav(AboutIndex.github, iconRes = R.drawable.ic_github, showChevron = false, onClick = { open(GITHUB_URL) })
-            nav(AboutIndex.reddit, icon = IconReddit, showChevron = false, onClick = { open(REDDIT_URL) })
+            nav(AboutIndex.website, value = WEBSITE_URL, icon = Icons.Outlined.Public, showChevron = false, onClick = { open(WEBSITE_URL) })
+            nav(AboutIndex.github, value = "jmm1112/JM-Tube", iconRes = R.drawable.ic_github, showChevron = false, onClick = { open(GITHUB_URL) })
+            nav(AboutIndex.reddit, value = "u/Jasus12", icon = IconReddit, showChevron = false, onClick = { open(REDDIT_URL) })
         }
         group(key = "about.legal", header = R.string.section_legal) {
             nav(AboutIndex.license, icon = Icons.Outlined.Description, showChevron = false, onClick = { open(LICENSE_URL) })

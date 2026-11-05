@@ -478,7 +478,7 @@
     <string name="you">You</string>
     <string name="empty_downloads">No downloads yet</string>
     <string name="downloads_recover_title">Find downloads from an earlier install</string>
-    <string name="downloads_recover_body">Flow saves downloads in Download/Flow and Music/Flow. To list the files an earlier install saved there, allow access to videos and audio.</string>
+    <string name="downloads_recover_body">JM Tube saves downloads in Download/JM Tube/Videos and Music/JM Tube/Music. To list downloads from an earlier install, allow access to videos and audio.</string>
     <string name="downloads_recover_allow">Allow access</string>
     <string name="downloads_recover_dismiss">Not now</string>
     <plurals name="downloads_recovered_count">
@@ -1218,6 +1218,25 @@
     <string name="settings_hide_nav_bar_labels_subtitle">Show icons only in the bottom navigation bar</string>
     <string name="settings_hide_nav_on_shorts_title">Hide Navigation Bar on Shorts</string>
     <string name="settings_hide_nav_on_shorts_subtitle">Hide navigation bar while watching Shorts for a full-screen view</string>
+    <string name="settings_show_nav_on_search_title">Show navigation bar on search</string>
+    <string name="settings_show_nav_on_search_subtitle">Keep navigation bar visible while searching and viewing results</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_keywords_appearance">appearance theme font colors icons</string>
+    <string name="settings_highlight_new_title">Highlight new settings</string>
+    <string name="settings_highlight_new_summary">Show a badge dot on new settings options</string>
+    <string name="settings_highlight_new_days_title">Keep the dot for</string>
+    <string name="player_appearance_paid_promotion_title">Show paid promotion label</string>
+    <string name="player_appearance_paid_promotion_subtitle">Show a label when a video contains paid promotion</string>
+    <string name="profile_remove_avatar">Remove Avatar</string>
+    <plurals name="settings_highlight_new_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <string name="profile_status_quote_header">Status / Bio</string>
+    <string name="profile_status_quote_label">Personal Status Line</string>
+    <string name="profile_banner_style_header">Cover Banner Gradient</string>
+    <string name="profile_show_milestones_title">Show Achievement Badges</string>
+    <string name="profile_show_milestones_subtitle">Display watch and music milestones on profile card</string>
     <string name="settings_subs_shorts_shelf_title">Subscriptions shorts shelf</string>
     <string name="settings_subs_shorts_shelf_subtitle">Show a Shorts shelf in the subscription feed</string>
     <string name="settings_home_shorts_shelf_title">Home screen shorts shelf</string>
@@ -3760,7 +3779,9 @@
     <string name="downloads_sort_largest">Largest</string>
     <string name="downloads_sort_title">Title</string>
     <string name="downloads_sort_channel">Channel</string>
-    <string name="downloads_storage_used">%1$s in Flow</string>
+    <string name="downloads_storage_used">%1$s in JM Tube</string>
+    <string name="downloads_storage_used_video">%1$s in Videos</string>
+    <string name="downloads_storage_used_music">%1$s in Music</string>
     <string name="downloads_storage_free">%1$s free</string>
     <string name="downloads_storage_videos">Videos %1$s</string>
     <string name="downloads_storage_music">Music %1$s</string>

@@ -3,9 +3,11 @@ package com.jmtube.app.ui.screens.settings.appearance
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ViewList
 import androidx.compose.material.icons.outlined.AppShortcut
+import androidx.compose.material.icons.outlined.FiberNew
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.TextFields
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.Tv
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -15,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,6 +29,7 @@ import com.jmtube.app.platform.AppUiMode
 import com.jmtube.app.ui.components.settings.SettingsDestination
 import com.jmtube.app.ui.components.settings.SettingsPage
 import com.jmtube.app.ui.components.settings.SettingsTarget
+import com.jmtube.app.ui.components.settings.choice
 import com.jmtube.app.ui.components.settings.nav
 import com.jmtube.app.ui.components.settings.switch
 import com.jmtube.app.ui.components.settings.toggleGroup
@@ -63,12 +67,15 @@ internal fun AppearanceScreen(
     val groupBadges by viewModel.groupBadges.collectAsStateWithLifecycle()
     val cardLikeButtons by viewModel.cardLikeButtons.collectAsStateWithLifecycle()
     val cardMarkWatched by viewModel.cardMarkWatched.collectAsStateWithLifecycle()
+    val highlightNewSettings by viewModel.newSettingsHighlight.collectAsStateWithLifecycle()
+    val newSettingsDays by viewModel.newSettingsDays.collectAsStateWithLifecycle()
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val iconAppliedMessage = stringResource(R.string.app_icon_apply_toast)
     var showIconDialog by rememberSaveable { mutableStateOf(false) }
     var showInterfaceDialog by rememberSaveable { mutableStateOf(false) }
+    var showNewSettingsDialog by rememberSaveable { mutableStateOf(false) }
 
     val themeSummary =
         if (themeMode == ThemeMode.SYSTEM) {
@@ -142,6 +149,17 @@ internal fun AppearanceScreen(
                 showChevron = false,
                 onClick = { showInterfaceDialog = true },
             )
+            switch(
+                AppearanceIndex.highlightNewSettings,
+                highlightNewSettings,
+                viewModel::setNewSettingsHighlight,
+                icon = Icons.Outlined.FiberNew,
+            )
+            if (highlightNewSettings) {
+                choice(AppearanceIndex.highlightNewSettingsDays, onClick = { showNewSettingsDialog = true }, icon = Icons.Outlined.Timer) {
+                    pluralStringResource(R.plurals.settings_highlight_new_days, newSettingsDays, newSettingsDays)
+                }
+            }
         }
         group(key = "appearance.layout", header = R.string.settings_section_layout) {
             toggleGroup(AppearanceIndex.homeViewMode, viewModeOptions, homeViewMode, viewModel::setHomeViewMode)
@@ -192,6 +210,18 @@ internal fun AppearanceScreen(
             selected = interfaceMode,
             onSelect = viewModel::setInterfaceMode,
             onDismiss = { showInterfaceDialog = false },
+        )
+    }
+
+    if (showNewSettingsDialog) {
+        FlowChoiceDialog(
+            title = stringResource(R.string.settings_highlight_new_days_title),
+            options = listOf(3, 7, 14, 30).map { days ->
+                FlowChoice(days, pluralStringResource(R.plurals.settings_highlight_new_days, days, days))
+            },
+            selected = newSettingsDays,
+            onSelect = viewModel::setNewSettingsDays,
+            onDismiss = { showNewSettingsDialog = false },
         )
     }
 }

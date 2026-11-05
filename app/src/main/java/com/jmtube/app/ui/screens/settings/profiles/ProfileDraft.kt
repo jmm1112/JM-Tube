@@ -13,6 +13,9 @@ internal data class ProfileDraft(
     val avatar: ProfileAvatar,
     val photo: Uri? = null,
     val copy: Set<SlicePart> = emptySet(),
+    val statusQuote: String = "",
+    val bannerStyle: String = "sunset",
+    val showMilestones: Boolean = true,
 )
 
 internal enum class NameIssue { BLANK, TAKEN }

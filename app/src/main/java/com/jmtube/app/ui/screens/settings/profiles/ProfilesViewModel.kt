@@ -132,6 +132,7 @@ internal class ProfilesViewModel
                     profiles.setAppearance(profile.id, draft.colorKey, draft.avatar)
                 }
             }
+            profiles.setCustomizations(profile.id, draft.statusQuote.trim(), draft.bannerStyle, draft.showMilestones)
             linked.export()
             onSaved()
         }

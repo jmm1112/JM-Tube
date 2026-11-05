@@ -42,6 +42,7 @@ class PlayerAppearanceViewModel
         val sleepTimerButton = preferences.musicSleepTimerButton.asState(false)
         val adaptivePlayerSize = preferences.adaptivePlayerSizeEnabled.asState(true)
         val ambientMode = preferences.videoAmbientModeEnabled.asState(false)
+        val paidPromotionLabel = preferences.paidPromotionLabel.asState(false)
         val groupedQualitySelector = preferences.groupedQualitySelectorEnabled.asState(false)
         val gestureOverlay = preferences.gestureOverlayStyle.asState(GestureOverlayStyle.CIRCULAR)
         val shortsUiMode = preferences.shortsPlayerUiMode.asState(ShortsPlayerUiMode.DEFAULT)
@@ -86,6 +87,8 @@ class PlayerAppearanceViewModel
         fun setAdaptivePlayerSize(value: Boolean) = write { preferences.setAdaptivePlayerSizeEnabled(value) }
 
         fun setAmbientMode(value: Boolean) = write { preferences.setVideoAmbientModeEnabled(value) }
+
+        fun setPaidPromotionLabel(value: Boolean) = write { preferences.setPaidPromotionLabel(value) }
 
         fun setGroupedQualitySelector(value: Boolean) = write { preferences.setGroupedQualitySelectorEnabled(value) }
 

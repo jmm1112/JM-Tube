@@ -62,6 +62,9 @@ private data class ProfileRecord(
     val avatarEmoji: String = "",
     val photoVersion: Long = 0L,
     val photoBase64: String? = null,
+    val statusQuote: String = "",
+    val bannerStyle: String = "sunset",
+    val showMilestones: Boolean = true,
 )
 
 private val records = Json { ignoreUnknownKeys = true }
@@ -232,7 +235,7 @@ class LinkedProfiles
             for (row in dao.links()) {
                 val profile = currentProfiles[row.profile] ?: continue
                 val current = names[row.link]
-                val sig = "${profile.name}_${profile.colorKey}_${profile.avatar.kind}_${profile.avatar.emoji}_${profile.avatar.photoVersion}"
+                val sig = "${profile.name}_${profile.colorKey}_${profile.avatar.kind}_${profile.avatar.emoji}_${profile.avatar.photoVersion}_${profile.statusQuote}_${profile.bannerStyle}_${profile.showMilestones}"
                 val lastSig = exportedSignatures[row.link]
                 if (current == null || (!current.deleted && (current.name != profile.name || sig != lastSig))) {
                     exportedSignatures[row.link] = sig
@@ -257,6 +260,9 @@ class LinkedProfiles
                                 avatarEmoji = profile?.avatar?.emoji ?: "",
                                 photoVersion = profile?.avatar?.photoVersion ?: 0L,
                                 photoBase64 = photoBase64,
+                                statusQuote = profile?.statusQuote ?: "",
+                                bannerStyle = profile?.bannerStyle ?: "sunset",
+                                showMilestones = profile?.showMilestones ?: true,
                             ),
                         ),
                     )
@@ -315,6 +321,7 @@ class LinkedProfiles
                         }
                     }
                     profiles.setAppearance(profileId, record.colorKey.ifBlank { existingProfile?.colorKey ?: "" }, avatar)
+                    profiles.setCustomizations(profileId, record.statusQuote, record.bannerStyle, record.showMilestones)
                 }
             }
         }

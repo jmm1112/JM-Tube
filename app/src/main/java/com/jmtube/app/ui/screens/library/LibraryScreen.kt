@@ -3,6 +3,7 @@ package com.jmtube.app.ui.screens.library
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -421,45 +422,56 @@ fun YouProfileHeaderCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                if (running != null) {
-                    ProfileAvatar(
-                        profile = running,
-                        size = 60.dp,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable { openSheet = true },
-                    )
-                } else {
-                    Icon(
-                        Icons.Outlined.AccountCircle,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(60.dp)
-                            .clip(CircleShape)
-                            .clickable { openSheet = true },
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                }
+                    if (running != null) {
+                        ProfileAvatar(
+                            profile = running,
+                            size = 60.dp,
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .clickable { openSheet = true },
+                        )
+                    } else {
+                        Icon(
+                            Icons.Outlined.AccountCircle,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(60.dp)
+                                .clip(CircleShape)
+                                .clickable { openSheet = true },
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
 
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { openSheet = true },
-                ) {
-                    Text(
-                        text = running?.displayName(context) ?: stringResource(R.string.profile_default_name),
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = stringResource(R.string.profiles_in_use),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { openSheet = true },
+                    ) {
+                        Text(
+                            text = running?.displayName(context) ?: stringResource(R.string.profile_default_name),
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        if (!running?.statusQuote.isNullOrBlank()) {
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = running.statusQuote,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = stringResource(R.string.profiles_in_use),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
                 }
-            }
 
             Spacer(modifier = Modifier.height(12.dp))
 

@@ -639,6 +639,26 @@
     <string name="settings_hide_nav_bar_labels_subtitle">Mostrar solo iconos en la barra de navegación inferior</string>
     <string name="settings_hide_nav_on_shorts_title">Ocultar barra de navegación en Shorts</string>
     <string name="settings_hide_nav_on_shorts_subtitle">Ocultar la barra de navegación al ver Shorts para una vista de pantalla completa</string>
+    <string name="settings_show_nav_on_search_title">Mostrar barra de navegación en búsqueda</string>
+    <string name="settings_show_nav_on_search_subtitle">Mantener la barra de navegación visible durante la búsqueda</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_highlight_new_title">Destacar ajustes nuevos</string>
+    <string name="settings_highlight_new_summary">Mostrar un punto de insignia en las nuevas opciones de configuración</string>
+    <string name="settings_highlight_new_days_title">Mantener el punto por</string>
+    <string name="player_appearance_paid_promotion_title">Mostrar etiqueta de promoción pagada</string>
+    <string name="player_appearance_paid_promotion_subtitle">Mostrar una etiqueta cuando un video contiene promoción pagada</string>
+    <plurals name="settings_highlight_new_days">
+        <item quantity="one">%d día</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <string name="profile_status_quote_header">Estado / Biografía</string>
+    <string name="profile_status_quote_label">Línea de estado personal</string>
+    <string name="profile_banner_style_header">Degradado del banner de portada</string>
+    <string name="profile_show_milestones_title">Mostrar insignias de logros</string>
+    <string name="profile_show_milestones_subtitle">Mostrar logros de reproducción y música en la tarjeta de perfil</string>
+    <string name="downloads_storage_used_video">%1$s en Videos</string>
+    <string name="downloads_storage_used_music">%1$s en Music</string>
+    <string name="profile_remove_avatar">Eliminar avatar</string>
     <string name="settings_music_nav_tab_title">Pestaña de música en la navegación</string>
     <string name="nav_search">Buscar</string>
     <string name="settings_music_nav_tab_subtitle">Muestra la pestaña Música en la barra de navegación inferior.</string>

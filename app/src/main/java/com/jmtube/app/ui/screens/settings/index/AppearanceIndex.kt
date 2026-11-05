@@ -106,6 +106,24 @@ internal object AppearanceIndex {
             section = R.string.settings_section_video_cards,
             destination = page,
         )
+    val highlightNewSettings =
+        SettingEntry(
+            key = "appearance.highlight_new_settings",
+            title = R.string.settings_highlight_new_title,
+            summary = R.string.settings_highlight_new_summary,
+            keywords = R.string.settings_keywords_appearance,
+            section = R.string.settings_section_general,
+            destination = page,
+        )
+    val highlightNewSettingsDays =
+        SettingEntry(
+            key = "appearance.highlight_new_settings_days",
+            title = R.string.settings_highlight_new_days_title,
+            keywords = R.string.settings_keywords_appearance,
+            section = R.string.settings_section_general,
+            revealVia = "appearance.highlight_new_settings",
+            destination = page,
+        )
 
     val all =
         listOf(
@@ -151,6 +169,15 @@ internal object NavigationBarIndex {
             key = "navigation_bar.hide_on_scroll",
             title = R.string.content_settings_navbar_hide_on_scroll_title,
             summary = R.string.content_settings_navbar_hide_on_scroll_subtitle,
+            keywords = R.string.settings_keywords_nav_bar,
+            section = R.string.settings_section_tabs,
+            destination = page,
+        )
+    val showNavOnSearch =
+        SettingEntry(
+            key = "navigation_bar.show_on_search",
+            title = R.string.settings_show_nav_on_search_title,
+            summary = R.string.settings_show_nav_on_search_subtitle,
             keywords = R.string.settings_keywords_nav_bar,
             section = R.string.settings_section_tabs,
             destination = page,

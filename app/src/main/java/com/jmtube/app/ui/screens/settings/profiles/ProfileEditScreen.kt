@@ -7,9 +7,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -68,6 +77,9 @@ internal fun ProfileEditScreen(
     var kind by rememberSaveable { mutableStateOf(ProfileAvatar.INITIAL) }
     var emoji by rememberSaveable { mutableStateOf("") }
     var photo by rememberSaveable { mutableStateOf<String?>(null) }
+    var statusQuote by rememberSaveable { mutableStateOf("") }
+    var bannerStyle by rememberSaveable { mutableStateOf("sunset") }
+    var showMilestones by rememberSaveable { mutableStateOf(true) }
     var copying by rememberSaveable { mutableStateOf(false) }
     var copySettings by rememberSaveable { mutableStateOf(true) }
     var copySubscriptions by rememberSaveable { mutableStateOf(true) }
@@ -80,6 +92,9 @@ internal fun ProfileEditScreen(
             colorKey = existing.colorKey
             kind = existing.avatar.kind
             emoji = existing.avatar.emoji
+            statusQuote = existing.statusQuote
+            bannerStyle = existing.bannerStyle
+            showMilestones = existing.showMilestones
             loaded = true
         } else if (state != null) {
             onBack?.invoke()
@@ -116,7 +131,16 @@ internal fun ProfileEditScreen(
                 SlicePart.RECOMMENDATIONS.takeIf { copyRecommendations },
             )
         }
-    val draft = ProfileDraft(name = name.trim(), colorKey = colorKey, avatar = avatar, photo = pendingPhoto, copy = copy)
+    val draft = ProfileDraft(
+        name = name.trim(),
+        colorKey = colorKey,
+        avatar = avatar,
+        photo = pendingPhoto,
+        copy = copy,
+        statusQuote = statusQuote.trim(),
+        bannerStyle = bannerStyle,
+        showMilestones = showMilestones,
+    )
     val canSave = loaded && issue == null && !busy
     val runningName =
         state
@@ -130,6 +154,7 @@ internal fun ProfileEditScreen(
         onBack = onBack,
         highlight = highlight,
         snackbarHostState = snackbarHostState,
+        modifier = Modifier.imePadding(),
     ) {
         item("profile_edit.preview") {
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -160,6 +185,44 @@ internal fun ProfileEditScreen(
                     kind = ProfileAvatar.EMOJI
                     emoji = it
                 },
+            )
+        }
+        item("profile_edit.remove_avatar_button") {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                androidx.compose.material3.OutlinedButton(
+                    onClick = {
+                        kind = ProfileAvatar.INITIAL
+                        emoji = ""
+                        photo = null
+                    },
+                ) {
+                    Icon(
+                        Icons.Outlined.Delete,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.error,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.profile_remove_avatar),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+        }
+        header("profile_edit.status_quote", R.string.profile_status_quote_header)
+        item("profile_edit.status_quote_input") {
+            androidx.compose.material3.OutlinedTextField(
+                value = statusQuote,
+                onValueChange = { if (it.length <= 80) statusQuote = it },
+                label = { Text(stringResource(R.string.profile_status_quote_label)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             )
         }
         if (isNew) {

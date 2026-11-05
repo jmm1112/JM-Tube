@@ -79,6 +79,9 @@ data class ProfileBackup(
     val avatarEmoji: String = "",
     val photoVersion: Long = 0L,
     val photoBase64: String? = null,
+    val statusQuote: String = "",
+    val bannerStyle: String = "sunset",
+    val showMilestones: Boolean = true,
 )
 
 data class BackupData(
@@ -332,6 +335,9 @@ class BackupRepository(
             avatarEmoji = running.avatar.emoji,
             photoVersion = running.avatar.photoVersion,
             photoBase64 = photoBase64,
+            statusQuote = running.statusQuote,
+            bannerStyle = running.bannerStyle,
+            showMilestones = running.showMilestones,
         )
     }
 
@@ -1919,6 +1925,7 @@ class BackupRepository(
                 }
             }
             profilesRepo.setAppearance(runningId, prof.colorKey, avatar)
+            profilesRepo.setCustomizations(runningId, prof.statusQuote, prof.bannerStyle, prof.showMilestones)
         }
         backupData.viewHistory?.let { entries ->
             if (entries.isNotEmpty()) viewHistory.bulkSaveHistoryEntries(entries)

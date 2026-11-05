@@ -38,6 +38,7 @@ internal fun NavigationBarScreen(
     val hideOnScroll by viewModel.hideNavOnScroll.collectAsStateWithLifecycle()
     val hideNavBarLabels by viewModel.hideNavBarLabels.collectAsStateWithLifecycle()
     val hideNavOnShorts by viewModel.hideNavOnShorts.collectAsStateWithLifecycle()
+    val showNavOnSearch by viewModel.showNavOnSearch.collectAsStateWithLifecycle()
     val order by viewModel.navTabOrder.collectAsStateWithLifecycle()
     val defaultIndex by viewModel.defaultNavTabIndex.collectAsStateWithLifecycle()
 
@@ -68,6 +69,7 @@ internal fun NavigationBarScreen(
             switch(NavigationBarIndex.hideOnScroll, hideOnScroll, viewModel::setHideNavOnScroll, icon = Icons.Outlined.UnfoldLess)
             switch(NavigationBarIndex.hideLabels, hideNavBarLabels, viewModel::setHideNavBarLabels, icon = Icons.Outlined.LabelOff)
             switch(NavigationBarIndex.hideOnShorts, hideNavOnShorts, viewModel::setHideNavOnShorts, icon = Icons.Outlined.Slideshow)
+            switch(NavigationBarIndex.showNavOnSearch, showNavOnSearch, viewModel::setShowNavOnSearch, icon = Icons.Outlined.Search)
         }
         group(
             key = NavigationBarIndex.order.key,

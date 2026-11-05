@@ -108,6 +108,13 @@ class ProfileRepository
                 collections.get().forgetProfile(id)
                 true
             }
+
+        suspend fun setCustomizations(
+            id: String,
+            statusQuote: String,
+            bannerStyle: String,
+            showMilestones: Boolean,
+        ): Boolean = registry.setCustomizations(id, statusQuote, bannerStyle, showMilestones)
     }
 
 sealed interface CreateResult {

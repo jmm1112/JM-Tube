@@ -32,6 +32,9 @@ data class Profile(
     val createdAt: Long = 0L,
     /** The tone this profile's theme last gave the splash, so a switch can open the next launch in it. */
     val splashTone: String = "",
+    val statusQuote: String = "",
+    val bannerStyle: String = "sunset",
+    val showMilestones: Boolean = true,
 )
 
 /** The name to show: Default's is blank until it is renamed, and shows the localized "Default". */
@@ -167,6 +170,32 @@ class ProfileRegistry internal constructor(
             if (complete.profiles.none { it.id == id }) return@updateData complete
             changed = true
             complete.copy(profiles = complete.profiles.map { if (it.id == id) it.copy(colorKey = colorKey, avatar = avatar) else it })
+        }
+        return changed
+    }
+
+    suspend fun setCustomizations(
+        id: String,
+        statusQuote: String,
+        bannerStyle: String,
+        showMilestones: Boolean,
+    ): Boolean {
+        var changed = false
+        store.updateData { stored ->
+            val complete = stored.completed(newId, now)
+            if (complete.profiles.none { it.id == id }) return@updateData complete
+            changed = true
+            complete.copy(
+                profiles = complete.profiles.map {
+                    if (it.id == id) {
+                        it.copy(
+                            statusQuote = statusQuote,
+                            bannerStyle = bannerStyle,
+                            showMilestones = showMilestones,
+                        )
+                    } else it
+                },
+            )
         }
         return changed
     }
