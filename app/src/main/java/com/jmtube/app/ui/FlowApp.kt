@@ -619,7 +619,6 @@ fun FlowApp(
                     },
         )
 
-        val openUpdate = activity?.intent?.getBooleanExtra(NotificationHelper.EXTRA_OPEN_UPDATE, false) == true
-        UpdateLaunchEffect(needsOnboarding = needsOnboarding, onOpenUpdate = openUpdate, onNavigateToUpdate = { navController.navigate(UPDATE_ROUTE) })
+        UpdateLaunchEffect(needsOnboarding = needsOnboarding, onOpenUpdate = { navController.navigate(UPDATE_ROUTE) })
     }
 }

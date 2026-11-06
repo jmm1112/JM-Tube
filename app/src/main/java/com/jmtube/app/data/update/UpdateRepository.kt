@@ -46,6 +46,7 @@ class UpdateRepository
                             downloadUrl = downloadUrl,
                             releaseNotes = release.body,
                             publishedAt = release.publishedAt,
+                            apkSizeBytes = apkAsset?.sizeBytes ?: 0L,
                         )
                     } else {
                         null

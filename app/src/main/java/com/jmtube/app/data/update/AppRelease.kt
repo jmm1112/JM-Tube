@@ -10,6 +10,7 @@ data class AppRelease(
     val downloadUrl: String,
     val releaseNotes: String = "",
     val publishedAt: String = "",
+    val apkSizeBytes: Long = 0L,
 )
 
 @Serializable
@@ -24,4 +25,5 @@ data class GitHubRelease(
 data class GitHubAsset(
     @SerialName("name") val name: String = "",
     @SerialName("browser_download_url") val downloadUrl: String = "",
+    @SerialName("size") val sizeBytes: Long = 0L,
 )
