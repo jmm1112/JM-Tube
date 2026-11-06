@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -107,6 +108,25 @@ internal fun UpdateActionBar(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Install update",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        )
+                    }
+                }
+
+                is UpdateStage.Failed -> {
+                    Button(
+                        onClick = onPrimary,
+                        colors = ButtonDefaults.buttonColors(containerColor = RedButtonColor, contentColor = Color.White),
+                        shape = CircleShape,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(54.dp)
+                            .padding(start = 16.dp),
+                    ) {
+                        Icon(Icons.Outlined.Refresh, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Retry",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         )
                     }

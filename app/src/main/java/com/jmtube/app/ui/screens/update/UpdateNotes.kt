@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -18,11 +17,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.jmtube.app.data.update.NoteSpan
+import com.jmtube.app.data.update.NoteText
+import com.jmtube.app.data.update.ReleaseNotes
+import com.jmtube.app.ui.components.shared.FlowSectionHeader
+import com.jmtube.app.ui.components.shared.FlowSegmentedGap
+import com.jmtube.app.ui.components.shared.flowSegmentShape
 
 private val LinePadding = 16.dp
 private val LineVerticalPadding = 12.dp
@@ -31,66 +39,73 @@ private val BadgeVerticalPadding = 6.dp
 private val BadgeSpacing = 6.dp
 private val BadgeIconSize = 16.dp
 
-/** The release notes as list items: category header, then rounded cards for each item. */
-internal fun LazyListScope.releaseNotes(notes: List<String>) {
-    item(key = "section-header") {
-        Text(
-            text = "New",
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            color = Color(0xFFFF0000),
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
-    }
-    itemsIndexed(notes, key = { index, _ -> "note-$index" }) { _, noteText ->
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-        ) {
-            NoteParagraph(noteText, Modifier.padding(horizontal = LinePadding, vertical = LineVerticalPadding))
+/** The release notes as list items: the intro paragraphs, then one segmented group per section. */
+internal fun LazyListScope.releaseNotes(notes: ReleaseNotes) {
+    notes.sections.forEachIndexed { sectionIndex, section ->
+        item(key = "section-$sectionIndex") {
+            Text(
+                text = section.title,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = Color(0xFFFF0000),
+                modifier = Modifier.padding(top = 12.dp, bottom = 8.dp),
+            )
+        }
+        itemsIndexed(section.items, key = { index, _ -> "section-$sectionIndex-$index" }) { index, text ->
+            Surface(
+                shape = flowSegmentShape(index, section.items.size),
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                modifier = Modifier.fillMaxWidth().padding(bottom = FlowSegmentedGap),
+            ) {
+                NoteParagraph(text, Modifier.padding(horizontal = LinePadding, vertical = LineVerticalPadding))
+            }
         }
     }
 }
 
 @Composable
 private fun NoteParagraph(
-    text: String,
+    text: NoteText,
     modifier: Modifier = Modifier,
 ) {
+    val linkColor = Color(0xFFFF0000)
     Text(
-        text = parseNoteWithHighlights(text),
+        text = text.toAnnotated(linkColor),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = modifier,
     )
 }
 
-private fun parseNoteWithHighlights(text: String): AnnotatedString =
+private fun NoteText.toAnnotated(linkColor: Color): AnnotatedString =
     buildAnnotatedString {
-        val regex = Regex("""(#\d+)""")
-        var lastIndex = 0
-        for (match in regex.findAll(text)) {
-            append(text.substring(lastIndex, match.range.first))
-            withStyle(SpanStyle(color = Color(0xFFFF0000), fontWeight = FontWeight.Bold)) {
-                append(match.value)
+        spans.forEach { span ->
+            when (span) {
+                is NoteSpan.Plain -> {
+                    append(span.text)
+                }
+
+                is NoteSpan.Strong -> {
+                    withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) { append(span.text) }
+                }
+
+                is NoteSpan.Link -> {
+                    val style = TextLinkStyles(SpanStyle(color = linkColor, fontWeight = FontWeight.Bold))
+                    withLink(LinkAnnotation.Url(span.url, style)) { append(span.text) }
+                }
             }
-            lastIndex = match.range.last + 1
-        }
-        if (lastIndex < text.length) {
-            append(text.substring(lastIndex))
         }
     }
 
-/** A small fact pill about the release: version change, size, date. */
+/** A small fact about the release: the version change, the download size, the date. */
 @Composable
 internal fun ReleaseFact(
     icon: ImageVector,
     text: String,
 ) {
     Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        contentColor = MaterialTheme.colorScheme.onSurface,
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = BadgePadding, vertical = BadgeVerticalPadding),
@@ -98,7 +113,7 @@ internal fun ReleaseFact(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(icon, contentDescription = null, modifier = Modifier.size(BadgeIconSize))
-            Text(text, style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium))
+            Text(text, style = MaterialTheme.typography.labelLarge)
         }
     }
 }

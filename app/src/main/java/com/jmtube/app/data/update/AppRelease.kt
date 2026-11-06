@@ -27,3 +27,21 @@ data class GitHubAsset(
     @SerialName("browser_download_url") val downloadUrl: String = "",
     @SerialName("size") val sizeBytes: Long = 0L,
 )
+
+sealed interface UpdateDownload {
+    data object Idle : UpdateDownload
+
+    data class Running(
+        val progress: Float?,
+    ) : UpdateDownload
+
+    data object Verifying : UpdateDownload
+
+    data object Ready : UpdateDownload
+
+    data class Failed(
+        val reason: UpdateFailure,
+    ) : UpdateDownload
+}
+
+enum class UpdateFailure { NETWORK, STORAGE, CHECKSUM, PACKAGE, INSTALL }

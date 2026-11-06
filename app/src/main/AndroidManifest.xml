@@ -47,6 +47,7 @@
 
     <!-- Microphone capture for music recognition (Shazam) -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     <!-- Device Sync (FLOW-SYNC/1): resolve the host LAN IP for the QR code. -->
@@ -255,6 +256,10 @@
 
         <receiver
             android:name=".data.video.downloader.work.DownloadActionReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".updater.UpdateInstallReceiver"
             android:exported="false" />
 
         <!-- Device Sync (FLOW-SYNC/1) foreground service: keeps the LAN WebSocket

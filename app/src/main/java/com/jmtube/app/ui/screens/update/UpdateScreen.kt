@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,19 +19,24 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.NotificationsOff
+import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.SyncAlt
 import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,24 +51,24 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jmtube.app.BuildConfig
 import com.jmtube.app.R
-import com.jmtube.app.data.local.LocalDataManager
 import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.data.update.AppRelease
-import com.jmtube.app.data.update.UpdateRepository
+import com.jmtube.app.data.update.parseReleaseNotes
 import com.jmtube.app.ui.components.layout.topbar.FlowTopBar
 import com.jmtube.app.ui.components.shared.FlowEmptyState
 import com.jmtube.app.ui.components.shared.FlowLoadingIndicator
 import com.jmtube.app.ui.components.shared.FlowMaxContentWidth
 import com.jmtube.app.ui.screens.home.SmartAppHeaderLogoIcon
-import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
 
 private val ContentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)
-private val HeroSize = 96.dp
-private val HeroLogoWidth = 44.dp
+private val HeroSize = 112.dp
+private val HeroLogoWidth = 56.dp
 private val HeaderSpacing = 12.dp
 private val FactSpacing = 8.dp
 
@@ -70,30 +76,15 @@ private val FactSpacing = 8.dp
 @Composable
 fun UpdateScreen(
     onClose: () -> Unit,
+    viewModel: UpdateViewModel = hiltViewModel(),
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     val preferences = remember(context) { PlayerPreferences(context) }
     val selectedAppIcon by preferences.selectedAppIcon.collectAsStateWithLifecycle(initialValue = null)
-
-    var isChecking by remember { mutableStateOf(true) }
-    var release by remember { mutableStateOf<AppRelease?>(null) }
-    var stage by remember { mutableStateOf<UpdateStage>(UpdateStage.Available) }
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        val updates = UpdateRepository(OkHttpClient(), LocalDataManager(context))
-        val result = runCatching { updates.fetch() }.getOrNull()
-        if (result != null) {
-            release = result
-            stage = UpdateStage.Available
-        } else {
-            release = null
-        }
-        isChecking = false
-    }
-
-    val currentRelease = release
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.onResume() }
+    val release = state.release
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -103,50 +94,38 @@ fun UpdateScreen(
                 title = "",
                 onBack = onClose,
                 actions = {
-                    if (currentRelease != null) {
+                    if (release != null) {
                         UpdateMenu(
                             onSkip = onClose,
-                            onOpenGitHub = { uriHandler.openUri(currentRelease.downloadUrl) },
+                            onOpenGitHub = { uriHandler.openUri(release.downloadUrl) },
                         )
                     }
                 },
             )
         },
         bottomBar = {
-            if (currentRelease != null) {
+            if (release != null) {
                 UpdateActionBar(
-                    stage = stage,
+                    stage = state.stage,
                     onPrimary = {
-                        when (stage) {
-                            UpdateStage.Available -> {
-                                scope.launch {
-                                    for (p in 1..100) {
-                                        stage = UpdateStage.Downloading(p / 100f)
-                                        kotlinx.coroutines.delay(30)
-                                    }
-                                    stage = UpdateStage.Ready
-                                }
-                            }
-                            UpdateStage.Ready, UpdateStage.NeedsPermission -> {
-                                runCatching { uriHandler.openUri(currentRelease.downloadUrl) }
-                            }
-                            else -> {
-                                runCatching { uriHandler.openUri(currentRelease.downloadUrl) }
-                            }
+                        if (state.stage == UpdateStage.NeedsPermission) {
+                            runCatching { context.startActivity(viewModel.installPermissionIntent()) }
+                        } else {
+                            viewModel.primaryAction()
                         }
                     },
-                    onSecondary = onClose,
+                    onSecondary = { if (state.stage is UpdateStage.Downloading) viewModel.cancelDownload() else onClose() },
                 )
             }
         },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
             when {
-                isChecking -> {
+                state.loading -> {
                     FlowLoadingIndicator()
                 }
 
-                currentRelease == null -> {
+                release == null -> {
                     FlowEmptyState(title = stringResource(R.string.flow_is_up_to_date), icon = Icons.Outlined.Verified)
                 }
 
@@ -156,12 +135,15 @@ fun UpdateScreen(
                         contentPadding = ContentPadding,
                     ) {
                         item(key = "header") {
-                            ReleaseHeader(currentRelease, selectedAppIcon)
+                            ReleaseHeader(release, selectedAppIcon)
                         }
-                        if (currentRelease.releaseNotes.isNotBlank()) {
-                            val notesList = currentRelease.releaseNotes.lines().filter { it.isNotBlank() }
-                            releaseNotes(notesList)
+                        item(key = "notice") {
+                            StageNotice(state.stage)
                         }
+                        state.notes?.let { releaseNotes(it) }
+                            ?: if (release.releaseNotes.isNotBlank()) {
+                                releaseNotes(parseReleaseNotes(release.releaseNotes))
+                            } else Unit
                     }
                 }
             }
@@ -169,6 +151,7 @@ fun UpdateScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ReleaseHeader(
     release: AppRelease,
@@ -193,7 +176,7 @@ private fun ReleaseHeader(
         modifier = Modifier.padding(bottom = HeaderSpacing),
     ) {
         Surface(
-            shape = RoundedCornerShape(28.dp),
+            shape = MaterialShapes.SoftBurst.toShape(),
             color = MaterialTheme.colorScheme.primaryContainer,
             modifier = Modifier.size(HeroSize),
         ) {
@@ -229,6 +212,32 @@ private fun ReleaseHeader(
                     formattedDate,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun StageNotice(stage: UpdateStage) {
+    val (icon, text) =
+        when (stage) {
+            UpdateStage.NeedsPermission -> Icons.Outlined.Shield to R.string.update_permission_notice
+            is UpdateStage.Failed -> Icons.Outlined.ErrorOutline to R.string.update_failed_install
+            else -> return
+        }
+    val failed = stage is UpdateStage.Failed
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = if (failed) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = if (failed) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(icon, contentDescription = null)
+            Text(stringResource(text), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
