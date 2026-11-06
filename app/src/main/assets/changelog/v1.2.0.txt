@@ -1,0 +1,14 @@
+JM TUBE CHANGE LOG
+VERSION: 1.2.0
+DATE: 2026-11-06
+STATUS: stable
+
+HIGHLIGHTS
+- Native In-App Updater & Installer: Complete in-app APK download with live progress and native system package installer integration
+- Automatic Startup Update Checks: Instant background release check on app launch to prompt new updates
+- Redesigned Update Available Screen: Styled emblem logo, version transition pill, size/date pills, and segmented note cards
+- Enhanced Profile Customization: Custom color palette presets, status quote/bio input, and permanent "Remove Avatar" button
+- Nested Download Directories: Organized downloads into "Download/JM Tube/Videos" and "Music/JM Tube/Music" with rebranded storage breakdown
+- Optimized Keyboard IME Padding: Smooth soft keyboard scrolling on Profile Edit/Add screens
+- Additional Settings: Added "Show navigation bar on search", "Show paid promotion label", and "Highlight new settings" toggles
+- Expanded ProGuard / R8 Rules: Complete obfuscation safety for updater, device sync, and DataStore serialization models

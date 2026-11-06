@@ -51,6 +51,9 @@
 -keep class com.jmtube.app.data.model.** { *; }
 -keep class com.jmtube.app.data.local.** { *; }
 -keep class com.jmtube.app.data.lyrics.** { *; }
+-keep class com.jmtube.app.data.update.** { *; }
+-keep class com.jmtube.app.updater.** { *; }
+-keep class com.jmtube.app.sync2.** { *; }
 -keep class com.jmtube.app.innertube.models.** { *; }
 
 ## Gson-persisted models that live OUTSIDE the packages above (issue #996): without an
