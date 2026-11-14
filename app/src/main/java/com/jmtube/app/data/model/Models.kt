@@ -51,6 +51,12 @@ data class Video(
     val addedAtInPlaylist: Long? = null,
 )
 
+val Video.displayTitle: String
+    get() = title.takeIf { it.isNotBlank() } ?: if (isMusic) "Music Track ($id)" else "Video ($id)"
+
+val Video.displayChannelName: String
+    get() = channelName.takeIf { it.isNotBlank() } ?: "YouTube"
+
 data class Channel(
     val id: String,
     val name: String,

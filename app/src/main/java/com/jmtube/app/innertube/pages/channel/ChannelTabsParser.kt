@@ -9,22 +9,23 @@ import com.jmtube.app.innertube.pages.youtubeText
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
-internal fun JsonElement.toChannelTabs(): List<ChannelTabDescriptor> =
-    objectOrNull()
-        ?.get("contents")
-        .objectOrNull()
-        ?.get("twoColumnBrowseResultsRenderer")
-        .objectOrNull()
-        ?.get("tabs")
-        .arrayOrNull()
-        .orEmpty()
-        .mapIndexedNotNull { index, tab ->
-            val renderer =
-                tab.objectOrNull()?.get("tabRenderer").objectOrNull()
-                    ?: tab.objectOrNull()?.get("expandableTabRenderer").objectOrNull()
-                    ?: return@mapIndexedNotNull null
-            renderer.toTabDescriptor(isFirst = index == 0)
-        }
+internal fun JsonElement.toChannelTabs(): List<ChannelTabDescriptor> {
+    val rootObj = objectOrNull() ?: return emptyList()
+    val contents = rootObj["contents"]?.objectOrNull()
+    val tabArray = contents?.get("twoColumnBrowseResultsRenderer")?.objectOrNull()?.get("tabs")?.arrayOrNull()
+        ?: contents?.get("singleColumnBrowseResultsRenderer")?.objectOrNull()?.get("tabs")?.arrayOrNull()
+        ?: rootObj["header"]?.objectOrNull()?.get("pageHeaderRenderer")?.objectOrNull()?.get("tabs")?.arrayOrNull()
+        ?: rootObj["header"]?.objectOrNull()?.get("c4TabbedHeaderRenderer")?.objectOrNull()?.get("tabs")?.arrayOrNull()
+        ?: emptyList()
+
+    return tabArray.mapIndexedNotNull { index, tab ->
+        val renderer =
+            tab.objectOrNull()?.get("tabRenderer")?.objectOrNull()
+                ?: tab.objectOrNull()?.get("expandableTabRenderer")?.objectOrNull()
+                ?: return@mapIndexedNotNull null
+        renderer.toTabDescriptor(isFirst = index == 0)
+    }
+}
 
 private fun JsonObject.toTabDescriptor(isFirst: Boolean): ChannelTabDescriptor? {
     val endpoint = this["endpoint"].objectOrNull()

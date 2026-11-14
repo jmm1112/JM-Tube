@@ -68,6 +68,7 @@ class HistoryViewModel
     constructor(
         private val viewHistory: ViewHistory,
         private val youTubeRepository: YouTubeRepository,
+        private val originalTitleRepository: com.jmtube.app.data.repository.OriginalTitleRepository,
         private val videoDao: VideoDao,
         private val watchHistoryDao: WatchHistoryDao,
         private val shortsContentFilter: ShortsContentFilter,
@@ -203,8 +204,14 @@ class HistoryViewModel
         private suspend fun enrichFromDatabase(history: List<VideoHistoryEntry>): List<VideoHistoryEntry> {
             val lookupIds =
                 history
-                    .filter { it.title.isEmpty() || it.channelName.isEmpty() || it.isShort }
-                    .map { it.videoId }
+                    .filter {
+                        it.title.isBlank() ||
+                        it.channelName.isBlank() ||
+                        it.title.startsWith("Video (") ||
+                        it.title.startsWith("Music Track (") ||
+                        it.channelName == "YouTube" ||
+                        it.isShort
+                    }.map { it.videoId }
                     .distinct()
             val cached =
                 if (lookupIds.isEmpty()) {
@@ -269,6 +276,40 @@ class HistoryViewModel
                     stubs.chunked(ENRICHMENT_CHUNK_SIZE).forEach { chunk ->
                         chunk.forEach { stub ->
                             try {
+                                val oembed = originalTitleRepository.fetchOEmbedDetails(stub.videoId)
+                                val title = oembed?.title ?: stub.title
+                                val channel = oembed?.authorName ?: stub.channelName
+                                if (title.isNotBlank() && !title.startsWith("Video (") && !title.startsWith("Music Track (")) {
+                                    videoDao.updateVideoMetadata(
+                                        id = stub.videoId,
+                                        title = title,
+                                        channelName = channel,
+                                        channelId = stub.channelId,
+                                        thumbnailUrl = stub.thumbnailUrl,
+                                        duration = (stub.duration / 1000L).toInt(),
+                                        viewCount = 0L,
+                                        uploadDate = "",
+                                        timestamp = stub.timestamp,
+                                        description = "",
+                                        channelThumbnailUrl = "",
+                                    )
+                                    watchHistoryDao.upsert(
+                                        WatchHistoryEntity(
+                                            videoId = stub.videoId,
+                                            position = stub.position,
+                                            duration = stub.duration,
+                                            timestamp = stub.timestamp,
+                                            title = title,
+                                            thumbnailUrl = stub.thumbnailUrl,
+                                            channelName = channel,
+                                            channelId = stub.channelId,
+                                            isMusic = stub.isMusic,
+                                            isShort = stub.isShort,
+                                        ),
+                                    )
+                                    return@forEach
+                                }
+
                                 val video = youTubeRepository.getVideo(stub.videoId) ?: return@forEach
                                 val entity = VideoEntity.fromDomain(video)
                                 videoDao.insertVideoOrIgnore(entity)

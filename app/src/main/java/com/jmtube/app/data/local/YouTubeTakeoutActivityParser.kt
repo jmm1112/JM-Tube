@@ -168,21 +168,30 @@ private fun MyActivityRecord.channelId(): String =
         ?.get(1)
         .orEmpty()
 
+private fun cleanTakeoutTitle(title: String): String {
+    var cleaned = title.trim()
+    val prefixes = listOf("Watched ", "Liked ", "Disliked ", "Visto ", "Me gustó ", "Angesehen ", "Gefällt ", "Regardé ", "J'ai aimé ")
+    for (p in prefixes) {
+        if (cleaned.startsWith(p, ignoreCase = true)) {
+            cleaned = cleaned.substring(p.length).trim()
+            break
+        }
+    }
+    return cleaned
+}
+
 private fun MyActivityRecord.toLike(
     videoId: String,
     title: String,
     likedAt: Long,
 ): TakeoutLike? {
-    val videoTitle = title.removePrefix(LIKED_PREFIX).trim().takeIf(String::isNotEmpty) ?: return null
+    val cleanTitle = cleanTakeoutTitle(title)
+    val finalTitle = cleanTitle.takeIf { it.isNotEmpty() } ?: "Music Track ($videoId)"
+    val channel = subtitles?.firstOrNull()?.name?.trim()?.takeIf { it.isNotEmpty() } ?: "YouTube"
     return TakeoutLike(
         videoId = videoId,
-        title = videoTitle,
-        channelName =
-            subtitles
-                ?.firstOrNull()
-                ?.name
-                ?.trim()
-                .orEmpty(),
+        title = finalTitle,
+        channelName = channel,
         channelId = channelId(),
         likedAt = likedAt,
         isMusic = isMusic(),
@@ -195,16 +204,13 @@ private fun MyActivityRecord.toWatch(
     watchedAt: Long,
 ): TakeoutWatch? {
     val videoId = videoId() ?: return null
-    val videoTitle = title.removePrefix(WATCHED_PREFIX).trim().takeIf(String::isNotEmpty) ?: return null
+    val cleanTitle = cleanTakeoutTitle(title)
+    val finalTitle = cleanTitle.takeIf { it.isNotEmpty() } ?: if (isMusic()) "Music Track ($videoId)" else "Video ($videoId)"
+    val channel = subtitles?.firstOrNull()?.name?.trim()?.takeIf { it.isNotEmpty() } ?: "YouTube"
     return TakeoutWatch(
         videoId = videoId,
-        title = videoTitle,
-        channelName =
-            subtitles
-                ?.firstOrNull()
-                ?.name
-                ?.trim()
-                .orEmpty(),
+        title = finalTitle,
+        channelName = channel,
         channelId = channelId(),
         watchedAt = watchedAt,
         isMusic = isMusic(),

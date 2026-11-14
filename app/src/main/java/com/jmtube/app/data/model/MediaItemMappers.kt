@@ -19,8 +19,8 @@ fun VideoHistoryEntry.toMusicTrack(): MusicTrack =
 fun VideoHistoryEntry.toVideo(): Video =
     Video(
         id = videoId,
-        title = title,
-        channelName = channelName,
+        title = title.takeIf { it.isNotBlank() } ?: if (isMusic) "Music Track ($videoId)" else "Video ($videoId)",
+        channelName = channelName.takeIf { it.isNotBlank() } ?: "YouTube",
         channelId = channelId,
         thumbnailUrl = thumbnailUrl,
         duration = (duration / MILLIS_PER_SECOND).toInt(),
@@ -33,8 +33,8 @@ fun VideoHistoryEntry.toVideo(): Video =
 fun LikedVideoInfo.toMusicTrack(): MusicTrack =
     MusicTrack(
         videoId = videoId,
-        title = title,
-        artist = channelName,
+        title = title.takeIf { it.isNotBlank() } ?: if (isMusic) "Music Track ($videoId)" else "Video ($videoId)",
+        artist = channelName.takeIf { it.isNotBlank() } ?: "YouTube",
         thumbnailUrl = thumbnail,
         duration = durationSeconds,
         channelId = channelId.orEmpty(),
@@ -43,8 +43,8 @@ fun LikedVideoInfo.toMusicTrack(): MusicTrack =
 fun LikedVideoInfo.toVideo(): Video =
     Video(
         id = videoId,
-        title = title,
-        channelName = channelName,
+        title = title.takeIf { it.isNotBlank() } ?: if (isMusic) "Music Track ($videoId)" else "Video ($videoId)",
+        channelName = channelName.takeIf { it.isNotBlank() } ?: "YouTube",
         channelId = channelId.orEmpty(),
         thumbnailUrl = thumbnail,
         duration = durationSeconds,

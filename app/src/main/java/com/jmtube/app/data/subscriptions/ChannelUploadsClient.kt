@@ -79,7 +79,10 @@ class ChannelUploadsClient internal constructor(
                 )
             // No tabs at all is a landing the parser could not read; tabs without an upload tab is
             // a channel that simply has nothing to list.
-            if (page.tabs.isEmpty()) error("Channel landing has no tabs")
+            if (page.tabs.isEmpty()) {
+                Log.w(TAG, "[$channelId] Channel landing has no tabs, returning empty uploads safely")
+                return@runCatching ChannelUploads(owner = owner)
+            }
             val tabs = page.tabs.filter { it.kind in UPLOAD_TABS }.associateBy { it.kind }
 
             coroutineScope {

@@ -35,13 +35,13 @@ internal fun LikedRow(
         track = track,
         video = remember(like) { like.toVideo() },
         isMusic = like.isMusic,
-        title = like.title,
+        title = like.title.ifBlank { if (like.isMusic) "Music Track (${like.videoId})" else "Video (${like.videoId})" },
         onVideoClick = { onVideoClick(track) },
         onMusicClick = { onMusicClick(track, musicQueue) },
         removeLabel = unlikeLabel,
         onRemove = onUnlike,
         modifier = modifier,
-        subtitle = like.channelName.takeIf { it.isNotBlank() },
+        subtitle = like.channelName.ifBlank { "YouTube" },
         thumbnailUrl = like.thumbnail,
     ) {
         MediaRowAction(

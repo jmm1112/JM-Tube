@@ -56,13 +56,14 @@ data class WatchHistoryEntity(
     fun toVideo() =
         Video(
             id = videoId,
-            title = title,
-            channelName = channelName,
+            title = title.takeIf { it.isNotBlank() } ?: if (isMusic) "Music Track ($videoId)" else "Video ($videoId)",
+            channelName = channelName.takeIf { it.isNotBlank() } ?: "YouTube",
             channelId = channelId,
             thumbnailUrl = thumbnailUrl,
             duration = if (duration > 0) (duration / 1000).toInt() else 0,
             viewCount = 0,
             uploadDate = "",
             isShort = isShort,
+            isMusic = isMusic,
         )
 }

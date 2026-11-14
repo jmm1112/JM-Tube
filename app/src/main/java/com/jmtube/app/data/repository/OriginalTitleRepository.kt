@@ -130,6 +130,35 @@ class OriginalTitleRepository
             }
         }
 
+        data class OEmbedInfo(
+            val title: String,
+            val authorName: String,
+        )
+
+        suspend fun fetchOEmbedDetails(videoId: String): OEmbedInfo? =
+            withContext(dispatcher) {
+                val url =
+                    OEMBED_URL
+                        .toHttpUrl()
+                        .newBuilder()
+                        .addQueryParameter("url", "https://www.youtube.com/watch?v=$videoId")
+                        .addQueryParameter("format", "json")
+                        .build()
+                try {
+                    client.newCall(Request.Builder().url(url).build()).execute().use { response ->
+                        if (!response.isSuccessful) return@withContext null
+                        val body = response.body.string()
+                        val parsed = json.decodeFromString<OEmbed>(body)
+                        val title = parsed.title?.trim()?.takeIf { it.isNotEmpty() } ?: return@withContext null
+                        val author = parsed.authorName?.trim()?.takeIf { it.isNotEmpty() } ?: "YouTube"
+                        store(videoId, title)
+                        OEmbedInfo(title, author)
+                    }
+                } catch (e: Exception) {
+                    null
+                }
+            }
+
         internal companion object {
             const val OEMBED_URL = "https://www.youtube.com/oembed"
             const val CAPACITY = 1_000
@@ -141,6 +170,7 @@ class OriginalTitleRepository
             @Serializable
             private data class OEmbed(
                 val title: String? = null,
+                @kotlinx.serialization.SerialName("author_name") val authorName: String? = null,
             )
 
             fun parseTitle(body: String): String? =

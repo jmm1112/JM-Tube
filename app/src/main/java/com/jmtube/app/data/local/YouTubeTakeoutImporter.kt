@@ -19,6 +19,8 @@ import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import kotlinx.serialization.SerializationException
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.InputStream
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.ZipInputStream
@@ -88,6 +90,7 @@ internal class YouTubeTakeoutImporter(
                     listOf(subscriptionsImported, found.watches, playlists.count, librarySongsImported, likesImported, searchesImported)
                 if (counts.all { it == 0 }) return@withContext Result.failure(Exception("no_content"))
                 if (found.watches > 0) runCatching { learnFromHistory(found.learnable.values) }
+                runCatching { enrichImportedTitles(database, onProgress) }
 
                 Result.success(
                     buildList {
@@ -390,9 +393,9 @@ private fun TakeoutWatch.toHistoryEntry() =
         position = 0L,
         duration = 0L,
         timestamp = watchedAt,
-        title = title,
+        title = title.takeIf { it.isNotBlank() } ?: if (isMusic) "Music Track ($videoId)" else "Video ($videoId)",
         thumbnailUrl = ThumbnailUrlResolver.buildHighQualityYoutubeThumbnail(videoId),
-        channelName = channelName,
+        channelName = channelName.takeIf { it.isNotBlank() } ?: "YouTube",
         channelId = channelId,
         isMusic = isMusic,
     )
@@ -404,8 +407,8 @@ private fun videoEntity(
     isMusic: Boolean,
 ) = VideoEntity(
     id = videoId,
-    title = title,
-    channelName = artists,
+    title = title.takeIf { it.isNotBlank() } ?: if (isMusic) "Music Track ($videoId)" else "Video ($videoId)",
+    channelName = artists.takeIf { it.isNotBlank() } ?: "YouTube",
     channelId = "",
     thumbnailUrl = ThumbnailUrlResolver.buildHighQualityYoutubeThumbnail(videoId),
     duration = 0,
@@ -414,4 +417,61 @@ private fun videoEntity(
     description = "",
     channelThumbnailUrl = "",
     isMusic = isMusic,
+)
+
+    private suspend fun enrichImportedTitles(
+        database: AppDatabase,
+        onProgress: ((String, Int, Int) -> Unit)?,
+    ) {
+        val videoDao = database.videoDao()
+        val stubs = videoDao.getAllVideos().filter {
+            it.title.isBlank() || it.title.startsWith("Video (") || it.title.startsWith("Music Track (") || it.channelName.isBlank() || it.channelName == "YouTube"
+        }
+        if (stubs.isEmpty()) return
+
+        onProgress?.invoke("Resolving song & video names...", 0, stubs.size)
+
+        val client = OkHttpClient()
+        val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+
+        stubs.chunked(10).forEachIndexed { chunkIndex, chunk ->
+            chunk.forEach { stub ->
+                runCatching {
+                    val url = "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${stub.id}&format=json"
+                    val request = Request.Builder().url(url).build()
+                    client.newCall(request).execute().use { response ->
+                        if (response.isSuccessful) {
+                            val body = response.body?.string()
+                            if (body != null) {
+                                val oembed = json.decodeFromString<TakeoutOEmbedSimple>(body)
+                                val realTitle = oembed.title?.trim()
+                                val realAuthor = oembed.authorName?.trim() ?: "YouTube"
+                                if (!realTitle.isNullOrBlank()) {
+                                    videoDao.updateVideoMetadata(
+                                        id = stub.id,
+                                        title = realTitle,
+                                        channelName = realAuthor,
+                                        channelId = stub.channelId,
+                                        thumbnailUrl = stub.thumbnailUrl,
+                                        duration = stub.duration,
+                                        viewCount = stub.viewCount,
+                                        uploadDate = stub.uploadDate,
+                                        timestamp = stub.timestamp,
+                                        description = stub.description,
+                                        channelThumbnailUrl = stub.channelThumbnailUrl,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            onProgress?.invoke("Resolving song & video names...", ((chunkIndex + 1) * 10).coerceAtMost(stubs.size), stubs.size)
+        }
+    }
+
+@kotlinx.serialization.Serializable
+private data class TakeoutOEmbedSimple(
+    val title: String? = null,
+    @kotlinx.serialization.SerialName("author_name") val authorName: String? = null,
 )

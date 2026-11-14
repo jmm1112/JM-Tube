@@ -1,0 +1,9 @@
+JM TUBE CHANGE LOG
+VERSION: 1.2.1
+DATE: 2026-11-06
+STATUS: stable
+
+HIGHLIGHTS
+- Google Takeout Import Fix: Fixed invisible/blank song titles and channel names on imported Takeout history and playlists
+- Multilingual Action Prefix Stripping: Improved Takeout parsing for non-English account exports (Spanish, German, French, Hindi, etc.)
+- Automatic Fallback Titles: Integrated fallback display titles ("Video" / "Music Track") and channel names ("YouTube") across all UI list rows

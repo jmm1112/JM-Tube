@@ -90,7 +90,7 @@ fun MediaRow(
             verticalArrangement = Arrangement.spacedBy(MediaRowDefaults.TextSpacing),
         ) {
             Text(
-                text = title,
+                text = title.ifBlank { "Untitled" },
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -98,10 +98,10 @@ fun MediaRow(
                 overflow = TextOverflow.Ellipsis,
             )
 
-            if (subtitle != null || subtitleLeading != null) {
+            if (!subtitle.isNullOrBlank() || subtitleLeading != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     subtitleLeading?.invoke()
-                    if (subtitle != null) {
+                    if (!subtitle.isNullOrBlank()) {
                         Text(
                             text = subtitle,
                             style = MaterialTheme.typography.bodySmall,
