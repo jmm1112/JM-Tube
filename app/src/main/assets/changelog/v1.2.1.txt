@@ -1,9 +1,11 @@
 JM TUBE CHANGE LOG
 VERSION: 1.2.1
-DATE: 2026-11-06
+DATE: 2026-11-14
 STATUS: stable
 
 HIGHLIGHTS
+- Media Player Notification Widget Like Button: Added Like/Favorite button directly to the Android notification panel's media player widget with real-time background sync, allowing users to like or unlike the currently playing track without opening the app
+- Shorts Auto-Scroll Support: Added auto-scroll capability for the Shorts section that automatically scrolls and transitions to the next video when playback ends, with seamless repeat mode handling and comment/description sheet pause protection
 - Google Takeout Import Fix: Fixed invisible/blank song titles and channel names on imported Takeout history and playlists
 - Multilingual Action Prefix Stripping: Improved Takeout parsing for non-English account exports (Spanish, German, French, Hindi, etc.)
 - Automatic Fallback Titles: Integrated fallback display titles ("Video" / "Music Track") and channel names ("YouTube") across all UI list rows
