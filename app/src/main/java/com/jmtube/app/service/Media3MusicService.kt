@@ -528,6 +528,18 @@ class Media3MusicService : MediaLibraryService() {
                         val title = item.mediaMetadata.title?.toString()
                         val artist = item.mediaMetadata.artist?.toString()
 
+                        if (!videoId.isNullOrBlank()) {
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                val isLiked = (likedVideosRepository.getLikeState(videoId).first() == "LIKED") || playlistRepository.isFavorite(videoId)
+                                withContext(Dispatchers.Main) {
+                                    com.jmtube.app.player.EnhancedMusicPlayerManager.setLiked(isLiked)
+                                    updateNotification()
+                                }
+                            }
+                        } else {
+                            updateNotification()
+                        }
+
                         if (!videoId.isNullOrBlank() && !LocalMediaIds.isLocal(videoId)) {
                             // Desktop radio semantics: only a genuinely NEW queue seeds a
                             // fresh radio. In-app skips also arrive as PLAYLIST_CHANGED
@@ -1699,28 +1711,31 @@ class Media3MusicService : MediaLibraryService() {
             }
     }
 
-    private fun updateNotification() {
-        if (!::mediaLibrarySession.isInitialized) return
+    private fun buildLikeButton(isLiked: Boolean): CommandButton {
+        return CommandButton
+            .Builder(if (isLiked) CommandButton.ICON_HEART_FILLED else CommandButton.ICON_HEART_UNFILLED)
+            .setDisplayName(getString(if (isLiked) R.string.unlike else R.string.like))
+            .setCustomIconResId(if (isLiked) R.drawable.ic_like_filled else R.drawable.ic_like)
+            .setSessionCommand(CommandToggleLike)
+            .setSlots(CommandButton.SLOT_BACK_SECONDARY)
+            .setEnabled(true)
+            .build()
+    }
 
-        val isLiked = com.jmtube.app.player.EnhancedMusicPlayerManager.isLiked.value
+    private fun buildCustomButtons(isLiked: Boolean): List<CommandButton> {
+        val likeButton = buildLikeButton(isLiked)
 
-        val likeButton =
-            CommandButton
-                .Builder(if (isLiked) CommandButton.ICON_HEART_FILLED else CommandButton.ICON_HEART_UNFILLED)
-                .setDisplayName(getString(if (isLiked) R.string.unlike else R.string.like))
-                .setCustomIconResId(if (isLiked) R.drawable.ic_like_filled else R.drawable.ic_like)
-                .setSessionCommand(CommandToggleLike)
-                .setSlots(CommandButton.SLOT_CENTRAL)
-                .setEnabled(true)
-                .build()
-
-        val shuffleOn = player.shuffleModeEnabled
+        val shuffleOn = if (::player.isInitialized) player.shuffleModeEnabled else false
 
         val (repeatIcon, repeatIconResId) =
-            when (player.repeatMode) {
-                Player.REPEAT_MODE_ONE -> CommandButton.ICON_REPEAT_ONE to R.drawable.ic_repeat_one_on
-                Player.REPEAT_MODE_ALL -> CommandButton.ICON_REPEAT_ALL to R.drawable.ic_repeat_on
-                else -> CommandButton.ICON_REPEAT_OFF to R.drawable.ic_repeat
+            if (::player.isInitialized) {
+                when (player.repeatMode) {
+                    Player.REPEAT_MODE_ONE -> CommandButton.ICON_REPEAT_ONE to R.drawable.ic_repeat_one_on
+                    Player.REPEAT_MODE_ALL -> CommandButton.ICON_REPEAT_ALL to R.drawable.ic_repeat_on
+                    else -> CommandButton.ICON_REPEAT_OFF to R.drawable.ic_repeat
+                }
+            } else {
+                CommandButton.ICON_REPEAT_OFF to R.drawable.ic_repeat
             }
 
         val shuffleButton =
@@ -1738,7 +1753,7 @@ class Media3MusicService : MediaLibraryService() {
                 .setDisplayName(getString(R.string.repeat))
                 .setCustomIconResId(repeatIconResId)
                 .setSessionCommand(CommandToggleRepeat)
-                .setSlots(CommandButton.SLOT_OVERFLOW)
+                .setSlots(CommandButton.SLOT_FORWARD_SECONDARY)
                 .build()
 
         val closeButton =
@@ -1751,8 +1766,13 @@ class Media3MusicService : MediaLibraryService() {
                 .setEnabled(true)
                 .build()
 
-        // Place likeButton FIRST so Android 13+ system notification cards show the Like button directly!
-        val customButtons = listOf(likeButton, shuffleButton, repeatButton, closeButton)
+        return listOf(likeButton, repeatButton, shuffleButton, closeButton)
+    }
+
+    private fun updateNotification() {
+        if (!::mediaLibrarySession.isInitialized) return
+        val isLiked = com.jmtube.app.player.EnhancedMusicPlayerManager.isLiked.value
+        val customButtons = buildCustomButtons(isLiked)
         mediaLibrarySession.setMediaButtonPreferences(customButtons)
         mediaLibrarySession.setCustomLayout(customButtons)
     }
@@ -1878,9 +1898,12 @@ class Media3MusicService : MediaLibraryService() {
                     .add(CommandToggleLike)
                     .add(CommandStop)
                     .build()
+            val isLiked = com.jmtube.app.player.EnhancedMusicPlayerManager.isLiked.value
+            val customButtons = buildCustomButtons(isLiked)
             return MediaSession.ConnectionResult
                 .AcceptedResultBuilder(session)
                 .setAvailableSessionCommands(validCommands)
+                .setCustomLayout(customButtons)
                 .build()
         }
 
@@ -1923,22 +1946,36 @@ class Media3MusicService : MediaLibraryService() {
         ): ListenableFuture<SessionResult> {
             if (customCommand.customAction == ACTION_TOGGLE_LIKE) {
                 val currentTrack = com.jmtube.app.player.EnhancedMusicPlayerManager.currentTrack.value
-                if (currentTrack != null && !currentTrack.videoId.isNullOrBlank()) {
+                val videoId = currentTrack?.videoId ?: player.currentMediaItem?.mediaId
+                if (!videoId.isNullOrBlank()) {
                     lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                        val isNowLiked = playlistRepository.toggleFavorite(currentTrack)
-                        com.jmtube.app.player.EnhancedMusicPlayerManager.setLiked(isNowLiked)
+                        val trackToLike = currentTrack ?: run {
+                            val mediaMetadata = player.currentMediaItem?.mediaMetadata
+                            MusicTrack(
+                                videoId = videoId,
+                                title = mediaMetadata?.title?.toString() ?: "",
+                                artist = mediaMetadata?.artist?.toString() ?: "",
+                                thumbnailUrl = mediaMetadata?.artworkUri?.toString() ?: "",
+                                duration = ((mediaMetadata?.durationMs ?: 0L) / 1000L).toInt(),
+                            )
+                        }
+                        val isNowLiked = playlistRepository.toggleFavorite(trackToLike)
                         if (isNowLiked) {
                             likedVideosRepository.likeVideo(
                                 com.jmtube.app.data.local.LikedVideoInfo(
-                                    videoId = currentTrack.videoId,
-                                    title = currentTrack.title,
-                                    thumbnail = currentTrack.thumbnailUrl ?: "",
-                                    channelName = currentTrack.artist,
+                                    videoId = trackToLike.videoId,
+                                    title = trackToLike.title,
+                                    thumbnail = trackToLike.thumbnailUrl ?: "",
+                                    channelName = trackToLike.artist,
                                     isMusic = true,
                                 ),
                             )
                         } else {
-                            likedVideosRepository.removeLikeState(currentTrack.videoId)
+                            likedVideosRepository.removeLikeState(trackToLike.videoId)
+                        }
+                        withContext(kotlinx.coroutines.Dispatchers.Main) {
+                            com.jmtube.app.player.EnhancedMusicPlayerManager.setLiked(isNowLiked)
+                            updateNotification()
                         }
                     }
                 }
@@ -1980,6 +2017,8 @@ class Media3MusicService : MediaLibraryService() {
             customLayout: ImmutableList<CommandButton>,
             showPauseButton: Boolean,
         ): ImmutableList<CommandButton> {
+            val isLiked = com.jmtube.app.player.EnhancedMusicPlayerManager.isLiked.value
+
             val playPauseButton =
                 CommandButton
                     .Builder(if (showPauseButton) CommandButton.ICON_PAUSE else CommandButton.ICON_PLAY)
@@ -2007,32 +2046,18 @@ class Media3MusicService : MediaLibraryService() {
                     .setEnabled(playerCommands.contains(Player.COMMAND_SEEK_TO_NEXT))
                     .build()
 
-            var shuffleButton: CommandButton? = null
-            var repeatButton: CommandButton? = null
-            var likeButton: CommandButton? = null
-            var closeButton: CommandButton? = null
-
-            for (button in customLayout) {
-                if (button.sessionCommand?.customAction == ACTION_TOGGLE_SHUFFLE) {
-                    shuffleButton = button
-                } else if (button.sessionCommand?.customAction == ACTION_TOGGLE_REPEAT) {
-                    repeatButton = button
-                } else if (button.sessionCommand?.customAction == ACTION_TOGGLE_LIKE) {
-                    likeButton = button
-                } else if (button.sessionCommand?.customAction == ACTION_STOP) {
-                    closeButton = button
-                }
-            }
+            val likeButton = customLayout.firstOrNull { it.sessionCommand?.customAction == ACTION_TOGGLE_LIKE } ?: buildLikeButton(isLiked)
+            val repeatButton = customLayout.firstOrNull { it.sessionCommand?.customAction == ACTION_TOGGLE_REPEAT }
+            val shuffleButton = customLayout.firstOrNull { it.sessionCommand?.customAction == ACTION_TOGGLE_SHUFFLE }
+            val closeButton = customLayout.firstOrNull { it.sessionCommand?.customAction == ACTION_STOP }
 
             val builder = ImmutableList.builder<CommandButton>()
 
-            likeButton?.let { builder.add(it) }
-            shuffleButton?.let { builder.add(it) }
+            builder.add(likeButton)
             builder.add(prevButton)
             builder.add(playPauseButton)
             builder.add(nextButton)
-            repeatButton?.let { builder.add(it) }
-            closeButton?.let { builder.add(it) }
+            (repeatButton ?: shuffleButton ?: closeButton)?.let { builder.add(it) }
 
             return builder.build()
         }

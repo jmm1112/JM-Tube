@@ -125,6 +125,7 @@ class ShortsPlayerPool private constructor() {
     private var poolScope: CoroutineScope? = null
     private var preferredAudioLanguage: String = "original"
     private var shortsPlaybackMode: String = "loop"
+    private var shortsAutoScroll: Boolean = false
     private var basePlaybackSpeed: Float = 1f
     private var volumeNormalization: Boolean = true
 
@@ -177,6 +178,7 @@ class ShortsPlayerPool private constructor() {
             },
             onPlaybackMode = { mode ->
                 shortsPlaybackMode = mode
+                updateRepeatModes()
                 Log.d(TAG, "Shorts playback mode changed to: $mode")
             },
             onPlaybackSpeed = { speed ->
@@ -186,6 +188,12 @@ class ShortsPlayerPool private constructor() {
             onVolumeNormalization = { enabled ->
                 volumeNormalization = enabled
                 for (slot in 0 until POOL_SIZE) applyVolume(slot)
+            },
+            autoScroll = preferences.shortsAutoScroll,
+            onAutoScroll = { enabled ->
+                shortsAutoScroll = enabled
+                updateRepeatModes()
+                Log.d(TAG, "Shorts auto-scroll changed to: $enabled")
             },
         )
 
@@ -352,8 +360,8 @@ class ShortsPlayerPool private constructor() {
         // Set playback state
         player.setPlaybackSpeed(basePlaybackSpeed)
         player.playWhenReady = shouldPlay
-        // Set repeat mode based on playback preference: "loop" → REPEAT_MODE_ONE, "auto_next" → REPEAT_MODE_OFF
-        player.repeatMode = if (shortsPlaybackMode == "loop") Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+        // Set repeat mode based on playback preference: "loop" → REPEAT_MODE_ONE (unless autoScroll is enabled)
+        player.repeatMode = if (shortsPlaybackMode == "loop" && !shortsAutoScroll) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
 
         if (shouldPlay) _currentVideoId.value = videoId
         // Only the reel on screen takes audio focus; the buffering neighbours must not.
@@ -442,7 +450,7 @@ class ShortsPlayerPool private constructor() {
         preparePlayerInternal(player, videoUrl, newAudioUrl, slots.videoManifests[slot], newAudioDashManifest)
         player.setPlaybackSpeed(basePlaybackSpeed)
         player.playWhenReady = wasPlaying
-        player.repeatMode = if (shortsPlaybackMode == "loop") Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+        player.repeatMode = if (shortsPlaybackMode == "loop" && !shortsAutoScroll) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
     }
 
     /**
@@ -473,7 +481,14 @@ class ShortsPlayerPool private constructor() {
         player.setPlaybackSpeed(basePlaybackSpeed)
         player.playWhenReady = wasPlaying
         player.seekTo(position)
-        player.repeatMode = if (shortsPlaybackMode == "loop") Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+        player.repeatMode = if (shortsPlaybackMode == "loop" && !shortsAutoScroll) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+    }
+
+    private fun updateRepeatModes() {
+        val mode = if (shortsPlaybackMode == "loop" && !shortsAutoScroll) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+        for (i in 0 until POOL_SIZE) {
+            players[i]?.repeatMode = mode
+        }
     }
 
     private fun preparePlayerInternal(

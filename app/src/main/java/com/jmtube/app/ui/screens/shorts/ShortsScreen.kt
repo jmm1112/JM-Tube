@@ -219,7 +219,11 @@ fun ShortsScreen(
                                 onMoreClick = { settingsSheet.open(page, short.id) },
                                 onVideoEnded = {
                                     scope.launch {
-                                        if (page < pagerState.pageCount - 1) pagerState.animateScrollToPage(page + 1)
+                                        if (page < pagerState.pageCount - 1) {
+                                            pagerState.animateScrollToPage(page + 1)
+                                        } else {
+                                            viewModel.loadMoreShorts()
+                                        }
                                     }
                                 },
                             ),

@@ -153,7 +153,7 @@ internal fun ShortsReelPlaybackEffects(
                         positionMs = endedDuration.takeIf { it > 0L } ?: pageState.currentPosition,
                         durationMs = endedDuration,
                     )
-                    if (settings.playbackMode == SHORTS_PLAYBACK_AUTO_NEXT || settings.playbackMode == SHORTS_PLAYBACK_AUTO_INTERVAL) {
+                    if (settings.autoScroll || settings.playbackMode == SHORTS_PLAYBACK_AUTO_NEXT || settings.playbackMode == SHORTS_PLAYBACK_AUTO_INTERVAL) {
                         requestAutoAdvance()
                     }
                 }
@@ -169,6 +169,9 @@ internal fun ShortsReelPlaybackEffects(
                     if (reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) {
                         val loopedDuration = player.duration.coerceAtLeast(0L)
                         if (loopedDuration > 0L) recordWatched(loopedDuration, loopedDuration)
+                        if (settings.autoScroll || settings.playbackMode == SHORTS_PLAYBACK_AUTO_NEXT) {
+                            requestAutoAdvance()
+                        }
                     }
                 }
             }
@@ -185,6 +188,7 @@ internal fun ShortsReelPlaybackEffects(
         pageState.isPlaying,
         settings.playbackMode,
         settings.autoScrollSeconds,
+        settings.autoScroll,
     ) {
         if (!isActive || !pageState.isPlaying) return@LaunchedEffect
         val player = playerPool.ownedPlayer(pageIndex, short.id) ?: return@LaunchedEffect
@@ -216,7 +220,14 @@ internal fun ShortsReelPlaybackEffects(
                     viewModel.onReelDwelled(short)
                 }
 
-                if (settings.playbackMode == SHORTS_PLAYBACK_AUTO_INTERVAL && !autoAdvanceState.hasAutoAdvanced) {
+                if ((settings.autoScroll || settings.playbackMode == SHORTS_PLAYBACK_AUTO_NEXT) &&
+                    !autoAdvanceState.hasAutoAdvanced &&
+                    duration > 0L &&
+                    position >= duration - 250L
+                ) {
+                    recordWatched(position, duration)
+                    requestAutoAdvance()
+                } else if (settings.playbackMode == SHORTS_PLAYBACK_AUTO_INTERVAL && !autoAdvanceState.hasAutoAdvanced) {
                     val intervalMs = settings.autoScrollSeconds.coerceIn(AUTO_INTERVAL_MIN_SECONDS, AUTO_INTERVAL_MAX_SECONDS) * 1_000L
                     val shouldWaitForEnd = duration in 1..intervalMs
                     if (!shouldWaitForEnd && position >= intervalMs) {

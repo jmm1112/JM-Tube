@@ -37,6 +37,7 @@ internal data class ShortsReelSettings(
     val customSpeedsEnabled: Boolean,
     val customSpeedPresetsRaw: String,
     val speedSliderEnabled: Boolean,
+    val autoScroll: Boolean = false,
 )
 
 @Stable
@@ -81,6 +82,7 @@ internal fun rememberShortsReelSettings(playerPreferences: PlayerPreferences): S
     val customSpeedsEnabled by playerPreferences.customSpeedsEnabled.collectAsState(initial = false)
     val customSpeedPresetsRaw by playerPreferences.customSpeedPresets.collectAsState(initial = "")
     val speedSliderEnabled by playerPreferences.speedSliderEnabled.collectAsState(initial = false)
+    val autoScroll by playerPreferences.shortsAutoScroll.collectAsState(initial = false)
 
     return ShortsReelSettings(
         playbackMode = playbackMode,
@@ -92,5 +94,6 @@ internal fun rememberShortsReelSettings(playerPreferences: PlayerPreferences): S
         customSpeedsEnabled = customSpeedsEnabled,
         customSpeedPresetsRaw = customSpeedPresetsRaw,
         speedSliderEnabled = speedSliderEnabled,
+        autoScroll = autoScroll,
     )
 }

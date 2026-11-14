@@ -166,6 +166,13 @@ internal object PlayerAppearanceIndex {
             R.string.player_appearance_shorts_ui_subtitle,
             R.string.content_settings_header_shorts,
         )
+    val shortsAutoScroll =
+        entry(
+            "shorts_auto_scroll",
+            R.string.settings_shorts_auto_scroll_title,
+            R.string.settings_shorts_auto_scroll_subtitle,
+            R.string.content_settings_header_shorts,
+        )
     val miniPlayerSize = entry("mini_player_size", R.string.mini_player_size, section = R.string.settings_section_mini_player)
     val miniPlayerSkip =
         entry("mini_player_skip", R.string.skip_button_title, R.string.skip_button_subtitle, R.string.settings_section_mini_player)

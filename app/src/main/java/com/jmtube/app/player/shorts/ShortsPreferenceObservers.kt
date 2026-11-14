@@ -26,6 +26,8 @@ internal class ShortsPreferenceObservers(
         onPlaybackSpeed: (Float) -> Unit,
         volumeNormalization: Flow<Boolean> = emptyFlow(),
         onVolumeNormalization: (Boolean) -> Unit = {},
+        autoScroll: Flow<Boolean> = emptyFlow(),
+        onAutoScroll: (Boolean) -> Unit = {},
     ) {
         stop()
         val observerScope = CoroutineScope(SupervisorJob() + dispatcher)
@@ -41,6 +43,9 @@ internal class ShortsPreferenceObservers(
         }
         observerScope.launch {
             volumeNormalization.collect(onVolumeNormalization)
+        }
+        observerScope.launch {
+            autoScroll.collect(onAutoScroll)
         }
     }
 

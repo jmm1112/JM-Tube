@@ -595,6 +595,8 @@
     <string name="content_settings_navbar_show_on_other_pages_subtitle">Pertahankan bilah di saluran, daftar putar, dan artis</string>
     <string name="player_appearance_sheet_artwork_colors_title">Warna aksen sampul panel pemutar</string>
     <string name="player_appearance_sheet_artwork_colors_subtitle">Gunakan warna aksen gambar mini di panel deskripsi dan komentar</string>
+    <string name="settings_shorts_auto_scroll_title">Auto-gulir Shorts</string>
+    <string name="settings_shorts_auto_scroll_subtitle">Gulir otomatis ke video berikutnya saat Short selesai</string>
     <string name="settings_section_general">Umum</string>
     <string name="settings_highlight_new_title">Sorot pengaturan baru</string>
     <string name="settings_highlight_new_summary">Tampilkan titik lencana pada opsi pengaturan baru</string>

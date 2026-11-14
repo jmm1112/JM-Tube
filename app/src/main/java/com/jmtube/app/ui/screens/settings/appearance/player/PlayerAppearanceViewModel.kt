@@ -47,6 +47,7 @@ class PlayerAppearanceViewModel
         val groupedQualitySelector = preferences.groupedQualitySelectorEnabled.asState(false)
         val gestureOverlay = preferences.gestureOverlayStyle.asState(GestureOverlayStyle.CIRCULAR)
         val shortsUiMode = preferences.shortsPlayerUiMode.asState(ShortsPlayerUiMode.DEFAULT)
+        val shortsAutoScroll = preferences.shortsAutoScroll.asState(false)
         val miniPlayerScale = preferences.miniPlayerScale.asState(MiniPlayerSize.NORMAL.scale)
         val miniPlayerSkip = preferences.miniPlayerShowSkipControls.asState(false)
         val miniPlayerNextPrev = preferences.miniPlayerShowNextPrevControls.asState(false)
@@ -98,6 +99,8 @@ class PlayerAppearanceViewModel
         fun setGestureOverlay(value: GestureOverlayStyle) = write { preferences.setGestureOverlayStyle(value) }
 
         fun setShortsUiMode(value: ShortsPlayerUiMode) = write { preferences.setShortsPlayerUiMode(value) }
+
+        fun setShortsAutoScroll(value: Boolean) = write { preferences.setShortsAutoScroll(value) }
 
         fun setMiniPlayerSize(value: MiniPlayerSize) = write { preferences.setMiniPlayerScale(value.scale) }
 

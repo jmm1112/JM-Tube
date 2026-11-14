@@ -418,6 +418,8 @@
     <string name="content_settings_navbar_show_on_other_pages_subtitle">Garder la barre sur les chaînes, listes de lecture et artistes</string>
     <string name="player_appearance_sheet_artwork_colors_title">Couleurs d\'accentuation des panneaux du lecteur</string>
     <string name="player_appearance_sheet_artwork_colors_subtitle">Utiliser les couleurs de la vignette dans les panneaux de description et de commentaires</string>
+    <string name="settings_shorts_auto_scroll_title">Défilement automatique des Shorts</string>
+    <string name="settings_shorts_auto_scroll_subtitle">Faire défiler automatiquement vers la vidéo suivante lorsqu\'un Short se termine</string>
     <string name="settings_section_general">Général</string>
     <string name="settings_highlight_new_title">Mettre en évidence les nouveaux paramètres</string>
     <string name="settings_highlight_new_summary">Afficher un point sur les nouvelles options de configuration</string>

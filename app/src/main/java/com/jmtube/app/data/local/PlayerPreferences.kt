@@ -169,6 +169,7 @@ class PlayerPreferences(
         val HAPTICS_IGNORE_SYSTEM = booleanPreferencesKey("haptics_ignore_system")
         val SHOW_NAV_ON_OTHER_PAGES = booleanPreferencesKey("show_nav_on_other_pages")
         val PLAYER_SHEET_ARTWORK_COLORS = booleanPreferencesKey("player_sheet_artwork_colors")
+        val SHORTS_AUTO_SCROLL = booleanPreferencesKey("shorts_auto_scroll")
         val PREFERRED_LYRICS_PROVIDER = stringPreferencesKey("preferred_lyrics_provider")
         val LYRICS_PROVIDER_ORDER = stringPreferencesKey("lyrics_provider_order")
         val LYRICS_TEXT_ALIGN = stringPreferencesKey("lyrics_text_align")
@@ -1384,6 +1385,16 @@ class PlayerPreferences(
     suspend fun setShowNavOnOtherPages(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.SHOW_NAV_ON_OTHER_PAGES] = enabled
+        }
+    }
+
+    val shortsAutoScroll: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SHORTS_AUTO_SCROLL] ?: false }
+
+    suspend fun setShortsAutoScroll(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.SHORTS_AUTO_SCROLL] = enabled
         }
     }
 

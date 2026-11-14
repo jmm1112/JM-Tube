@@ -92,7 +92,7 @@ internal fun ShortsReelPage(
     // off screen, so swiping back and forth re-fed the same watch signal to the engine.
     val sessionState = remember(short.id) { ShortsReelSessionState() }
     val autoAdvanceState =
-        remember(short.id, isActive, settings.playbackMode, settings.autoScrollSeconds) { ShortsReelAutoAdvanceState() }
+        remember(short.id, isActive, settings.playbackMode, settings.autoScrollSeconds, settings.autoScroll) { ShortsReelAutoAdvanceState() }
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
     val playerPool = remember { ShortsPlayerPool.getInstance() }

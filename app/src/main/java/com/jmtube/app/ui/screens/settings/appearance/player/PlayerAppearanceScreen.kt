@@ -77,6 +77,7 @@ internal fun PlayerAppearanceScreen(
     val groupedQuality by viewModel.groupedQualitySelector.collectAsStateWithLifecycle()
     val gestureOverlay by viewModel.gestureOverlay.collectAsStateWithLifecycle()
     val shortsUi by viewModel.shortsUiMode.collectAsStateWithLifecycle()
+    val shortsAutoScroll by viewModel.shortsAutoScroll.collectAsStateWithLifecycle()
     val miniPlayerScale by viewModel.miniPlayerScale.collectAsStateWithLifecycle()
     val miniPlayerSkip by viewModel.miniPlayerSkip.collectAsStateWithLifecycle()
     val miniPlayerNextPrev by viewModel.miniPlayerNextPrev.collectAsStateWithLifecycle()
@@ -206,6 +207,7 @@ internal fun PlayerAppearanceScreen(
         }
         group(key = "player_appearance.shorts", header = R.string.content_settings_header_shorts) {
             toggleGroup(PlayerAppearanceIndex.shortsUi, shortsOptions, shortsUi, viewModel::setShortsUiMode)
+            switch(PlayerAppearanceIndex.shortsAutoScroll, shortsAutoScroll, viewModel::setShortsAutoScroll)
         }
         group(key = "player_appearance.mini_player", header = R.string.settings_section_mini_player) {
             toggleGroup(

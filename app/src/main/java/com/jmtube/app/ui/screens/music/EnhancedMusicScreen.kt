@@ -158,6 +158,7 @@ fun EnhancedMusicScreen(
     val context = LocalContext.current
     val preferences = remember(context) { PlayerPreferences(context) }
     val selectedAppIcon by preferences.selectedAppIcon.collectAsStateWithLifecycle(initialValue = null)
+    val showAppLogoIcon by preferences.showAppLogoIcon.collectAsStateWithLifecycle(initialValue = true)
 
     val musicMenus = LocalMusicMenus.current
 
@@ -171,10 +172,12 @@ fun EnhancedMusicScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-                        YouTubeMusicLogoIcon(
-                            iconSuffix = selectedAppIcon,
-                            modifier = Modifier.size(38.dp),
-                        )
+                        if (showAppLogoIcon) {
+                            YouTubeMusicLogoIcon(
+                                iconSuffix = selectedAppIcon,
+                                modifier = Modifier.size(38.dp),
+                            )
+                        }
                         Text(
                             text = "JM Music",
                             style =
