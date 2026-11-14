@@ -73,6 +73,7 @@ internal fun PlayerAppearanceScreen(
     val adaptiveSize by viewModel.adaptivePlayerSize.collectAsStateWithLifecycle()
     val ambientMode by viewModel.ambientMode.collectAsStateWithLifecycle()
     val paidPromotionLabel by viewModel.paidPromotionLabel.collectAsStateWithLifecycle()
+    val playerSheetArtworkColors by viewModel.playerSheetArtworkColors.collectAsStateWithLifecycle()
     val groupedQuality by viewModel.groupedQualitySelector.collectAsStateWithLifecycle()
     val gestureOverlay by viewModel.gestureOverlay.collectAsStateWithLifecycle()
     val shortsUi by viewModel.shortsUiMode.collectAsStateWithLifecycle()
@@ -199,6 +200,7 @@ internal fun PlayerAppearanceScreen(
             switch(PlayerAppearanceIndex.adaptiveSize, adaptiveSize, viewModel::setAdaptivePlayerSize)
             switch(PlayerAppearanceIndex.ambientMode, ambientMode, viewModel::setAmbientMode)
             switch(PlayerAppearanceIndex.paidPromotion, paidPromotionLabel, viewModel::setPaidPromotionLabel)
+            switch(PlayerAppearanceIndex.sheetArtworkColors, playerSheetArtworkColors, viewModel::setPlayerSheetArtworkColors)
             switch(PlayerAppearanceIndex.groupedQuality, groupedQuality, viewModel::setGroupedQualitySelector)
             nav(PlayerAppearanceIndex.gestureOverlay, value = gestureLabel, onClick = { sheet = PreviewSheet.GESTURE })
         }

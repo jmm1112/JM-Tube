@@ -124,6 +124,46 @@ internal object AppearanceIndex {
             revealVia = "appearance.highlight_new_settings",
             destination = page,
         )
+    val skeletonGradient =
+        SettingEntry(
+            key = "appearance.skeleton_gradient",
+            title = R.string.settings_skeleton_gradient_title,
+            summary = R.string.settings_skeleton_gradient_summary,
+            section = R.string.settings_section_general,
+            destination = page,
+        )
+    val marquee =
+        SettingEntry(
+            key = "appearance.marquee",
+            title = R.string.settings_marquee_title,
+            summary = R.string.settings_marquee_summary,
+            section = R.string.settings_section_general,
+            destination = page,
+        )
+    val classicLoadingIndicator =
+        SettingEntry(
+            key = "appearance.classic_loading_indicator",
+            title = R.string.settings_classic_loader_title,
+            summary = R.string.settings_classic_loader_summary,
+            section = R.string.settings_section_general,
+            destination = page,
+        )
+    val haptics =
+        SettingEntry(
+            key = "appearance.haptics",
+            title = R.string.player_appearance_haptics_title,
+            summary = R.string.player_appearance_haptics_subtitle,
+            section = R.string.settings_section_general,
+            destination = page,
+        )
+    val hapticsIgnoreSystem =
+        SettingEntry(
+            key = "appearance.haptics_ignore_system",
+            title = R.string.settings_haptics_ignore_system_title,
+            summary = R.string.settings_haptics_ignore_system_summary,
+            section = R.string.settings_section_general,
+            destination = page,
+        )
 
     val all =
         listOf(
@@ -178,6 +218,15 @@ internal object NavigationBarIndex {
             key = "navigation_bar.show_on_search",
             title = R.string.settings_show_nav_on_search_title,
             summary = R.string.settings_show_nav_on_search_subtitle,
+            keywords = R.string.settings_keywords_nav_bar,
+            section = R.string.settings_section_tabs,
+            destination = page,
+        )
+    val showOnOtherPages =
+        SettingEntry(
+            key = "navigation_bar.show_on_other_pages",
+            title = R.string.content_settings_navbar_show_on_other_pages_title,
+            summary = R.string.content_settings_navbar_show_on_other_pages_subtitle,
             keywords = R.string.settings_keywords_nav_bar,
             section = R.string.settings_section_tabs,
             destination = page,

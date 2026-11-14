@@ -71,8 +71,14 @@ class AppearanceViewModel
         val hideNavBarLabels = preferences.hideNavBarLabels.asState(false)
         val hideNavOnShorts = preferences.hideNavOnShorts.asState(false)
         val showNavOnSearch = preferences.showNavOnSearch.asState(true)
+        val showNavOnOtherPages = preferences.showNavOnOtherPages.asState(false)
         val newSettingsHighlight = preferences.newSettingsHighlight.asState(true)
         val newSettingsDays = preferences.newSettingsHighlightDays.asState(7)
+        val skeletonGradient = preferences.skeletonGradientEnabled.asState(true)
+        val marqueeEnabled = preferences.marqueeEnabled.asState(true)
+        val classicLoadingIndicator = preferences.classicLoadingIndicatorEnabled.asState(false)
+        val haptics = preferences.hapticsEnabled.asState(true)
+        val hapticsIgnoreSystem = preferences.hapticsIgnoreSystem.asState(false)
         val navTabOrder = preferences.navTabOrder.asState(DEFAULT_NAV_TAB_ORDER)
         val defaultNavTabIndex = preferences.defaultNavTabIndex.asState(0)
 
@@ -139,6 +145,18 @@ class AppearanceViewModel
         fun setNewSettingsHighlight(enabled: Boolean) = write { preferences.setNewSettingsHighlight(enabled) }
 
         fun setNewSettingsDays(days: Int) = write { preferences.setNewSettingsHighlightDays(days) }
+
+        fun setShowNavOnOtherPages(enabled: Boolean) = write { preferences.setShowNavOnOtherPages(enabled) }
+
+        fun setSkeletonGradient(enabled: Boolean) = write { preferences.setSkeletonGradientEnabled(enabled) }
+
+        fun setMarqueeEnabled(enabled: Boolean) = write { preferences.setMarqueeEnabled(enabled) }
+
+        fun setClassicLoadingIndicator(enabled: Boolean) = write { preferences.setClassicLoadingIndicatorEnabled(enabled) }
+
+        fun setHaptics(enabled: Boolean) = write { preferences.setHapticsEnabled(enabled) }
+
+        fun setHapticsIgnoreSystem(enabled: Boolean) = write { preferences.setHapticsIgnoreSystem(enabled) }
 
         fun setNavTabOrder(order: List<Int>) = write { preferences.setNavTabOrder(order) }
 

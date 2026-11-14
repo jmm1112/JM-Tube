@@ -199,6 +199,7 @@ fun FlowApp(
     val hideNavBarLabels by preferences.hideNavBarLabels.collectAsStateWithLifecycle(false)
     val hideNavOnShorts by preferences.hideNavOnShorts.collectAsStateWithLifecycle(false)
     val showNavOnSearch by preferences.showNavOnSearch.collectAsStateWithLifecycle(true)
+    val showNavOnOtherPages by preferences.showNavOnOtherPages.collectAsStateWithLifecycle(false)
 
     FlowStartTabEffects(
         navController = navController,
@@ -396,7 +397,9 @@ fun FlowApp(
                 (isMusicSheetShown && musicPlayerSheetState.isExpanded)
         val isShortsRoute = currentTab == FlowTab.Shorts || currentEntry?.destination?.route?.startsWith("shorts") == true
         val isSearchRoute = currentTab == FlowTab.Search || currentEntry?.destination?.route?.startsWith("search") == true
-        val showBottomNav = !isInPipMode && currentTab.showsNavigationBar() && !isPlayerCoveringContent && !(isShortsRoute && hideNavOnShorts) && !(isSearchRoute && !showNavOnSearch)
+        val isInnerPage = currentTab == null && currentEntry?.destination?.route != null
+        val showsBar = (currentTab?.showsNavigationBar() == true) || (isInnerPage && showNavOnOtherPages)
+        val showBottomNav = !isInPipMode && showsBar && !isPlayerCoveringContent && !(isShortsRoute && hideNavOnShorts) && !(isSearchRoute && !showNavOnSearch)
         val isBottomNavShown = !usesNavigationRail && showBottomNav && navScrollState.isBarVisible
         // The rail is hidden only where content goes truly full screen; the expanded players cover
         // it instead, so opening them never re-lays out the page beneath.

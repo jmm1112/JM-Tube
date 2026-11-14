@@ -46,4 +46,6 @@ internal sealed interface PlayerSheet {
 
     /** The video note editor, raised from the settings sheet so fullscreen can write one too. */
     data object Note : PlayerSheet
+
+    data object MoreVideos : PlayerSheet
 }

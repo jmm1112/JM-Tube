@@ -7,6 +7,7 @@ import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LabelOff
+import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Slideshow
@@ -39,6 +40,7 @@ internal fun NavigationBarScreen(
     val hideNavBarLabels by viewModel.hideNavBarLabels.collectAsStateWithLifecycle()
     val hideNavOnShorts by viewModel.hideNavOnShorts.collectAsStateWithLifecycle()
     val showNavOnSearch by viewModel.showNavOnSearch.collectAsStateWithLifecycle()
+    val showNavOnOtherPages by viewModel.showNavOnOtherPages.collectAsStateWithLifecycle()
     val order by viewModel.navTabOrder.collectAsStateWithLifecycle()
     val defaultIndex by viewModel.defaultNavTabIndex.collectAsStateWithLifecycle()
 
@@ -70,6 +72,7 @@ internal fun NavigationBarScreen(
             switch(NavigationBarIndex.hideLabels, hideNavBarLabels, viewModel::setHideNavBarLabels, icon = Icons.Outlined.LabelOff)
             switch(NavigationBarIndex.hideOnShorts, hideNavOnShorts, viewModel::setHideNavOnShorts, icon = Icons.Outlined.Slideshow)
             switch(NavigationBarIndex.showNavOnSearch, showNavOnSearch, viewModel::setShowNavOnSearch, icon = Icons.Outlined.Search)
+            switch(NavigationBarIndex.showOnOtherPages, showNavOnOtherPages, viewModel::setShowNavOnOtherPages, icon = Icons.Outlined.Layers)
         }
         group(
             key = NavigationBarIndex.order.key,

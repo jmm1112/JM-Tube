@@ -46,7 +46,7 @@
     <string name="copy_logs">Copy logs</string>
     <string name="logs_copied">Logs copied</string>
     <string name="logs_copy_failed">Couldn\'t copy logs</string>
-    <string name="channel_error_log_clip_label">Flow channel error log</string>
+    <string name="channel_error_log_clip_label">JM Tube channel error log</string>
     <string name="shorts">Shorts</string>
     <string name="failed_to_load_channel">Failed to load channel</string>
     <string name="subscribers">Subscribers</string>
@@ -1220,6 +1220,18 @@
     <string name="settings_hide_nav_on_shorts_subtitle">Hide navigation bar while watching Shorts for a full-screen view</string>
     <string name="settings_show_nav_on_search_title">Show navigation bar on search</string>
     <string name="settings_show_nav_on_search_subtitle">Keep navigation bar visible while searching and viewing results</string>
+    <string name="settings_skeleton_gradient_title">Skeleton Gradient</string>
+    <string name="settings_skeleton_gradient_summary">Shimmer loading placeholders before thumbnails load</string>
+    <string name="settings_marquee_title">Text Marquee Scrolling</string>
+    <string name="settings_marquee_summary">Scroll long video and song titles automatically</string>
+    <string name="settings_classic_loader_title">Classic Loading Indicator</string>
+    <string name="settings_classic_loader_summary">Use classic circular loading spinner instead of M3 expressive loader</string>
+    <string name="settings_haptics_ignore_system_title">Ignore System Haptic Settings</string>
+    <string name="settings_haptics_ignore_system_summary">Vibrate in JM Tube even when system touch haptics are off</string>
+    <string name="content_settings_navbar_show_on_other_pages_title">Show navigation bar on other pages</string>
+    <string name="content_settings_navbar_show_on_other_pages_subtitle">Keep the bar on channels, playlists, artists, and inner pages</string>
+    <string name="player_appearance_sheet_artwork_colors_title">Player sheet artwork colors</string>
+    <string name="player_appearance_sheet_artwork_colors_subtitle">Use thumbnail accent colors in description and comments sheets</string>
     <string name="settings_section_general">General</string>
     <string name="settings_keywords_appearance">appearance theme font colors icons</string>
     <string name="settings_highlight_new_title">Highlight new settings</string>
@@ -3033,7 +3045,7 @@
     <string name="settings_item_diagnostics">Diagnostics</string>
     <string name="settings_item_diagnostics_subtitle">View error logs and crash reports</string>
     <string name="diagnostics_title">Diagnostics</string>
-    <string name="diagnostics_report_subject">Flow Diagnostics Report</string>
+    <string name="diagnostics_report_subject">JM Tube Diagnostics Report</string>
     <string name="diagnostics_tab_session">Session Logs</string>
     <string name="diagnostics_tab_crashes">Crash Reports</string>
     <string name="diagnostics_copy">Copy report</string>

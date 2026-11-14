@@ -43,6 +43,7 @@ class PlayerAppearanceViewModel
         val adaptivePlayerSize = preferences.adaptivePlayerSizeEnabled.asState(true)
         val ambientMode = preferences.videoAmbientModeEnabled.asState(false)
         val paidPromotionLabel = preferences.paidPromotionLabel.asState(false)
+        val playerSheetArtworkColors = preferences.playerSheetArtworkColors.asState(true)
         val groupedQualitySelector = preferences.groupedQualitySelectorEnabled.asState(false)
         val gestureOverlay = preferences.gestureOverlayStyle.asState(GestureOverlayStyle.CIRCULAR)
         val shortsUiMode = preferences.shortsPlayerUiMode.asState(ShortsPlayerUiMode.DEFAULT)
@@ -89,6 +90,8 @@ class PlayerAppearanceViewModel
         fun setAmbientMode(value: Boolean) = write { preferences.setVideoAmbientModeEnabled(value) }
 
         fun setPaidPromotionLabel(value: Boolean) = write { preferences.setPaidPromotionLabel(value) }
+
+        fun setPlayerSheetArtworkColors(value: Boolean) = write { preferences.setPlayerSheetArtworkColors(value) }
 
         fun setGroupedQualitySelector(value: Boolean) = write { preferences.setGroupedQualitySelectorEnabled(value) }
 

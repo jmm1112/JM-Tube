@@ -1,6 +1,7 @@
 package com.jmtube.app.ui.screens.settings.wellbeing
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -92,37 +97,62 @@ private fun WeekChart(summary: WatchTimeSummary) {
     val peak = summary.days.maxOf { it.millis }.coerceAtLeast(1L)
     val today = summary.days.last().date
     val locale = Locale.getDefault()
+    var selectedDay by remember { mutableStateOf<DayWatchTime?>(null) }
     val description = summary.days.map { "${it.date.dayOfWeek.getDisplayName(TextStyle.FULL, locale)} ${spentTimeLabel(it.millis)}" }
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clearAndSetSemantics { contentDescription = description.joinToString() },
-        horizontalArrangement = Arrangement.spacedBy(BarSpacing),
-    ) {
-        summary.days.forEach { day ->
-            val isToday = day.date == today
-            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(modifier = Modifier.fillMaxWidth().height(ChartHeight), contentAlignment = Alignment.BottomCenter) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth(BAR_WIDTH_FRACTION)
-                                .fillMaxHeight((day.millis.toFloat() / peak).coerceIn(MIN_BAR_FRACTION, 1f))
-                                .clip(MaterialTheme.shapes.small)
-                                .background(
-                                    if (isToday) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
-                                ),
+
+    Column {
+        if (selectedDay != null) {
+            val dayName = selectedDay!!.date.dayOfWeek.getDisplayName(TextStyle.FULL, locale)
+            Text(
+                text = "$dayName: ${spentTimeLabel(selectedDay!!.millis)}",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+        }
+
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clearAndSetSemantics { contentDescription = description.joinToString() },
+            horizontalArrangement = Arrangement.spacedBy(BarSpacing),
+        ) {
+            summary.days.forEach { day ->
+                val isToday = day.date == today
+                val isSelected = selectedDay == day
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(MaterialTheme.shapes.small)
+                        .clickable { selectedDay = if (selectedDay == day) null else day },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Box(modifier = Modifier.fillMaxWidth().height(ChartHeight), contentAlignment = Alignment.BottomCenter) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth(BAR_WIDTH_FRACTION)
+                                    .fillMaxHeight((day.millis.toFloat() / peak).coerceIn(MIN_BAR_FRACTION, 1f))
+                                    .clip(MaterialTheme.shapes.small)
+                                    .background(
+                                        when {
+                                            isSelected -> MaterialTheme.colorScheme.tertiary
+                                            isToday -> MaterialTheme.colorScheme.primary
+                                            else -> MaterialTheme.colorScheme.secondaryContainer
+                                        },
+                                    ),
+                        )
+                    }
+                    Spacer(Modifier.height(LabelSpacing))
+                    Text(
+                        text = day.date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (isToday || isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
                     )
                 }
-                Spacer(Modifier.height(LabelSpacing))
-                Text(
-                    text = day.date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (isToday) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                )
             }
         }
     }

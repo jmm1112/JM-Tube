@@ -152,6 +152,13 @@ internal object PlayerAppearanceIndex {
             R.string.player_appearance_paid_promotion_subtitle,
             R.string.settings_section_video_player,
         )
+    val sheetArtworkColors =
+        entry(
+            "sheet_artwork_colors",
+            R.string.player_appearance_sheet_artwork_colors_title,
+            R.string.player_appearance_sheet_artwork_colors_subtitle,
+            R.string.settings_section_video_player,
+        )
     val shortsUi =
         entry(
             "shorts_ui",

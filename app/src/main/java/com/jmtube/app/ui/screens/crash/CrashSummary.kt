@@ -8,8 +8,8 @@ private const val NEW_ISSUE_URL = "https://github.com/jmm1112/JM-Tube/issues/new
 private const val APP_PACKAGE = "com.jmtube.app"
 private const val MAX_URL_LOG_CHARS = 1_500
 private const val MAX_URL_ACTUAL_CHARS = 300
-private const val UNKNOWN_STEPS = "Not known. Flow crashed during normal use; the stack trace is under Logs."
-private const val EXPECTED = "Flow keeps running."
+private const val UNKNOWN_STEPS = "Not known. JM Tube closed unexpectedly; the stack trace is under Logs."
+private const val EXPECTED = "JM Tube keeps running."
 private const val TOP_FRAMES = 6
 private val ReportTime: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
 private val WrappedCause = Regex("""([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+(?:Exception|Error))(?::.*)?""", RegexOption.DOT_MATCHES_ALL)
@@ -91,7 +91,7 @@ fun CrashSummary.issueUrl(): String {
             device?.let { "device" to it },
             "steps" to UNKNOWN_STEPS,
             "expected" to EXPECTED,
-            "actual" to "Flow crashed with $error".take(MAX_URL_ACTUAL_CHARS),
+            "actual" to "JM Tube closed unexpectedly with $error".take(MAX_URL_ACTUAL_CHARS),
             "logs" to log,
         )
     return NEW_ISSUE_URL + "?" +

@@ -162,6 +162,13 @@ class PlayerPreferences(
         val PAID_PROMOTION_LABEL = booleanPreferencesKey("paid_promotion_label")
         val HIGHLIGHT_NEW_SETTINGS = booleanPreferencesKey("highlight_new_settings")
         val HIGHLIGHT_NEW_SETTINGS_DAYS = intPreferencesKey("highlight_new_settings_days")
+        val SKELETON_GRADIENT_ENABLED = booleanPreferencesKey("skeleton_gradient_enabled")
+        val MARQUEE_ENABLED = booleanPreferencesKey("marquee_enabled")
+        val CLASSIC_LOADING_INDICATOR_ENABLED = booleanPreferencesKey("classic_loading_indicator_enabled")
+        val HAPTICS_ENABLED = booleanPreferencesKey("haptics_enabled")
+        val HAPTICS_IGNORE_SYSTEM = booleanPreferencesKey("haptics_ignore_system")
+        val SHOW_NAV_ON_OTHER_PAGES = booleanPreferencesKey("show_nav_on_other_pages")
+        val PLAYER_SHEET_ARTWORK_COLORS = booleanPreferencesKey("player_sheet_artwork_colors")
         val PREFERRED_LYRICS_PROVIDER = stringPreferencesKey("preferred_lyrics_provider")
         val LYRICS_PROVIDER_ORDER = stringPreferencesKey("lyrics_provider_order")
         val LYRICS_TEXT_ALIGN = stringPreferencesKey("lyrics_text_align")
@@ -1317,6 +1324,76 @@ class PlayerPreferences(
     suspend fun setNewSettingsHighlightDays(days: Int) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.HIGHLIGHT_NEW_SETTINGS_DAYS] = days
+        }
+    }
+
+    val skeletonGradientEnabled: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SKELETON_GRADIENT_ENABLED] ?: true }
+
+    suspend fun setSkeletonGradientEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.SKELETON_GRADIENT_ENABLED] = enabled
+        }
+    }
+
+    val marqueeEnabled: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.MARQUEE_ENABLED] ?: true }
+
+    suspend fun setMarqueeEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.MARQUEE_ENABLED] = enabled
+        }
+    }
+
+    val classicLoadingIndicatorEnabled: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.CLASSIC_LOADING_INDICATOR_ENABLED] ?: false }
+
+    suspend fun setClassicLoadingIndicatorEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.CLASSIC_LOADING_INDICATOR_ENABLED] = enabled
+        }
+    }
+
+    val hapticsEnabled: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.HAPTICS_ENABLED] ?: true }
+
+    suspend fun setHapticsEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.HAPTICS_ENABLED] = enabled
+        }
+    }
+
+    val hapticsIgnoreSystem: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.HAPTICS_IGNORE_SYSTEM] ?: false }
+
+    suspend fun setHapticsIgnoreSystem(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.HAPTICS_IGNORE_SYSTEM] = enabled
+        }
+    }
+
+    val showNavOnOtherPages: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SHOW_NAV_ON_OTHER_PAGES] ?: false }
+
+    suspend fun setShowNavOnOtherPages(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.SHOW_NAV_ON_OTHER_PAGES] = enabled
+        }
+    }
+
+    val playerSheetArtworkColors: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.PLAYER_SHEET_ARTWORK_COLORS] ?: true }
+
+    suspend fun setPlayerSheetArtworkColors(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.PLAYER_SHEET_ARTWORK_COLORS] = enabled
         }
     }
 
@@ -3886,7 +3963,7 @@ class PlayerPreferences(
     /** What swiping the music bar or the background video bar to the left does. */
     val miniBarSwipeLeftAction: Flow<MiniBarSwipeAction> =
         context.devicePreferencesDataStore.data
-            .map { preferences -> MiniBarSwipeAction.fromString(preferences[DeviceKeys.MINI_BAR_SWIPE_LEFT_ACTION]) }
+            .map { preferences -> MiniBarSwipeAction.fromString(preferences[DeviceKeys.MINI_BAR_SWIPE_LEFT_ACTION], fallback = MiniBarSwipeAction.NEXT) }
 
     suspend fun setMiniBarSwipeLeftAction(action: MiniBarSwipeAction) {
         context.devicePreferencesDataStore.edit { preferences ->
@@ -3897,7 +3974,7 @@ class PlayerPreferences(
     /** What swiping the music bar or the background video bar to the right does. */
     val miniBarSwipeRightAction: Flow<MiniBarSwipeAction> =
         context.devicePreferencesDataStore.data
-            .map { preferences -> MiniBarSwipeAction.fromString(preferences[DeviceKeys.MINI_BAR_SWIPE_RIGHT_ACTION]) }
+            .map { preferences -> MiniBarSwipeAction.fromString(preferences[DeviceKeys.MINI_BAR_SWIPE_RIGHT_ACTION], fallback = MiniBarSwipeAction.PREVIOUS) }
 
     suspend fun setMiniBarSwipeRightAction(action: MiniBarSwipeAction) {
         context.devicePreferencesDataStore.edit { preferences ->
@@ -4326,7 +4403,10 @@ enum class MiniBarSwipeAction {
     val appliesToMusic: Boolean get() = this == CLOSE || this == NEXT || this == PREVIOUS
 
     companion object {
-        fun fromString(value: String?): MiniBarSwipeAction = entries.firstOrNull { it.name == value } ?: CLOSE
+        fun fromString(
+            value: String?,
+            fallback: MiniBarSwipeAction = CLOSE,
+        ): MiniBarSwipeAction = entries.firstOrNull { it.name == value } ?: fallback
     }
 }
 

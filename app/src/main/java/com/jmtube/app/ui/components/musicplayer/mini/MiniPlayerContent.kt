@@ -9,7 +9,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -107,29 +106,6 @@ internal fun MiniPlayerContent(
         animationSpec = if (animationsEnabled) tween(900, easing = LinearEasing) else snap(),
         label = "miniProgress",
     )
-
-    var totalDragX by remember { mutableFloatStateOf(0f) }
-    val swipeGestureModifier =
-        Modifier.pointerInput(Unit) {
-            detectHorizontalDragGestures(
-                onDragStart = { totalDragX = 0f },
-                onDragEnd = {
-                    val threshold = 36.dp.toPx()
-                    if (totalDragX < -threshold) {
-                        haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        EnhancedMusicPlayerManager.playNext()
-                    } else if (totalDragX > threshold) {
-                        haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        EnhancedMusicPlayerManager.playPrevious()
-                    }
-                },
-                onHorizontalDrag = { change, dragAmount ->
-                    change.consume()
-                    totalDragX += dragAmount
-                },
-            )
-        }
-
     Row(
         modifier =
             modifier
@@ -144,7 +120,6 @@ internal fun MiniPlayerContent(
             modifier =
                 Modifier
                     .weight(1f)
-                    .then(swipeGestureModifier)
                     .then(
                         if (onOpen == null) {
                             Modifier

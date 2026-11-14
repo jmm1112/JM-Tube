@@ -3,12 +3,17 @@ package com.jmtube.app.ui.screens.settings.appearance
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ViewList
 import androidx.compose.material.icons.outlined.AppShortcut
+import androidx.compose.material.icons.outlined.Autorenew
+import androidx.compose.material.icons.outlined.EdgesensorHigh
 import androidx.compose.material.icons.outlined.FiberNew
+import androidx.compose.material.icons.outlined.Gradient
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.TextFields
+import androidx.compose.material.icons.outlined.TextRotationNone
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.Tv
+import androidx.compose.material.icons.outlined.Vibration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -69,6 +74,11 @@ internal fun AppearanceScreen(
     val cardMarkWatched by viewModel.cardMarkWatched.collectAsStateWithLifecycle()
     val highlightNewSettings by viewModel.newSettingsHighlight.collectAsStateWithLifecycle()
     val newSettingsDays by viewModel.newSettingsDays.collectAsStateWithLifecycle()
+    val haptics by viewModel.haptics.collectAsStateWithLifecycle()
+    val hapticsIgnoreSystem by viewModel.hapticsIgnoreSystem.collectAsStateWithLifecycle()
+    val skeletonGradient by viewModel.skeletonGradient.collectAsStateWithLifecycle()
+    val marqueeEnabled by viewModel.marqueeEnabled.collectAsStateWithLifecycle()
+    val classicLoadingIndicator by viewModel.classicLoadingIndicator.collectAsStateWithLifecycle()
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -160,6 +170,32 @@ internal fun AppearanceScreen(
                     pluralStringResource(R.plurals.settings_highlight_new_days, newSettingsDays, newSettingsDays)
                 }
             }
+            switch(
+                AppearanceIndex.skeletonGradient,
+                skeletonGradient,
+                viewModel::setSkeletonGradient,
+                icon = Icons.Outlined.Gradient,
+            )
+            switch(
+                AppearanceIndex.marquee,
+                marqueeEnabled,
+                viewModel::setMarqueeEnabled,
+                icon = Icons.Outlined.TextRotationNone,
+            )
+            switch(
+                AppearanceIndex.classicLoadingIndicator,
+                classicLoadingIndicator,
+                viewModel::setClassicLoadingIndicator,
+                icon = Icons.Outlined.Autorenew,
+            )
+            switch(AppearanceIndex.haptics, haptics, viewModel::setHaptics, icon = Icons.Outlined.Vibration)
+            switch(
+                AppearanceIndex.hapticsIgnoreSystem,
+                hapticsIgnoreSystem,
+                viewModel::setHapticsIgnoreSystem,
+                enabled = haptics,
+                icon = Icons.Outlined.EdgesensorHigh,
+            )
         }
         group(key = "appearance.layout", header = R.string.settings_section_layout) {
             toggleGroup(AppearanceIndex.homeViewMode, viewModeOptions, homeViewMode, viewModel::setHomeViewMode)

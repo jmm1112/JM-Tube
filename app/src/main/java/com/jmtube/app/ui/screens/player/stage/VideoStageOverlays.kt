@@ -25,6 +25,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import com.jmtube.app.ui.screens.player.state.PlayerSheet
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -148,5 +150,13 @@ internal fun BoxScope.VideoStageOverlays(session: VideoPlayerStageSession) {
                 }
             }
         }
+    }
+
+    if (screenState.isFullscreen && screenState.activeSheet == PlayerSheet.MoreVideos) {
+        FullscreenMoreVideos(
+            screenState = screenState,
+            videos = remember(session.uiState.relatedVideos) { moreVideosFrom(session.uiState.relatedVideos) },
+            onVideoClick = { playerViewModel.playVideo(it) },
+        )
     }
 }

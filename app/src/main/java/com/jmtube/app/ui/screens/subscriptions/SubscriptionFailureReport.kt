@@ -17,7 +17,7 @@ internal fun buildSubscriptionFailureReport(
     sessionLogs: String,
 ): String =
     buildString {
-        appendLine("Flow — subscription refresh failure")
+        appendLine("JM Tube — subscription refresh failure")
         appendLine("=".repeat(60))
         appendLine()
         append(deviceInfo)
