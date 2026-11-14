@@ -34,3 +34,7 @@ fun PlayerHaptics(
 private object SilentHapticFeedback : HapticFeedback {
     override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) = Unit
 }
+
+/** The haptic for an on/off action such as like, save or subscribe, by the state it has just switched to. */
+fun toggleHapticType(nowOn: Boolean): HapticFeedbackType =
+    if (nowOn) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff

@@ -13,7 +13,8 @@ class PlaybackAnalyticsLogger(
     private val videoIdProvider: () -> String? = { null }
 ) : AnalyticsListener {
 
-    private var activeDecoderName: String? = null
+    var activeDecoderName: String? = null
+        private set
     private var activeFormatSummary: String = "unknown"
     private var droppedFramesSinceFormatChange: Int = 0
 

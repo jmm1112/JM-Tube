@@ -567,6 +567,8 @@
     <string name="player_appearance_sheet_artwork_colors_subtitle">Vorschaubild-Akzentfarben in Beschreibung und Kommentaren verwenden</string>
     <string name="settings_shorts_auto_scroll_title">Shorts automatisch scrollen</string>
     <string name="settings_shorts_auto_scroll_subtitle">Automatisch zum nächsten Video scrollen, wenn ein Short endet</string>
+    <string name="player_appearance_minimize_to_audio_bar_title">Video in Leiste minimieren</string>
+    <string name="player_appearance_minimize_to_audio_bar_subtitle">Eingeklappte Videos direkt als Audio an die Mini-Leiste senden</string>
     <string name="settings_section_general">Allgemein</string>
     <string name="settings_highlight_new_title">Neue Einstellungen hervorheben</string>
     <string name="settings_highlight_new_summary">Zeigt einen Punkt bei neuen Einstellungsoptionen an</string>

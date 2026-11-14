@@ -655,6 +655,8 @@
     <string name="player_appearance_sheet_artwork_colors_subtitle">Usar colores de acento en paneles de descripción y comentarios</string>
     <string name="settings_shorts_auto_scroll_title">Autodesplazamiento de Shorts</string>
     <string name="settings_shorts_auto_scroll_subtitle">Desplazarse automáticamente al siguiente video cuando termine un Short</string>
+    <string name="player_appearance_minimize_to_audio_bar_title">Minimizar video a barra de audio</string>
+    <string name="player_appearance_minimize_to_audio_bar_subtitle">Enviar videos colapsados directamente a la minibarra como audio</string>
     <string name="settings_section_general">General</string>
     <string name="settings_highlight_new_title">Destacar ajustes nuevos</string>
     <string name="settings_highlight_new_summary">Mostrar un punto de insignia en las nuevas opciones de configuración</string>

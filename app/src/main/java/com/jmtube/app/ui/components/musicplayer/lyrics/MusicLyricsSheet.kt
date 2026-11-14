@@ -101,6 +101,7 @@ internal fun MusicLyricsSheet(
     var panelComposed by remember { mutableStateOf(false) }
     var showActionsSheet by remember { mutableStateOf(false) }
     var showSourcesSheet by remember { mutableStateOf(false) }
+    var showShareSheet by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
     var showSyncControls by remember { mutableStateOf(false) }
     var pendingSaveText by remember { mutableStateOf<String?>(null) }
@@ -127,6 +128,7 @@ internal fun MusicLyricsSheet(
         } else {
             showActionsSheet = false
             showSourcesSheet = false
+            showShareSheet = false
             showEditDialog = false
             showSyncControls = false
             sheetShown.animateTo(
@@ -318,6 +320,7 @@ internal fun MusicLyricsSheet(
                         browse()
                     }
                 },
+            onShare = { showShareSheet = true },
             onEdit = { showEditDialog = true },
             onCopy = {
                 val text = lyrics ?: syncedLyrics.joinToString("\n") { it.text }
@@ -361,6 +364,18 @@ internal fun MusicLyricsSheet(
                 onCancelBrowse()
                 showSourcesSheet = false
             },
+        )
+    }
+
+    if (showShareSheet) {
+        LyricsShareSheet(
+            title = trackTitle,
+            artist = trackArtist,
+            artworkUrl = artworkUrl,
+            lines = remember(lyrics, syncedLyrics) { buildLines(lyrics, syncedLyrics) },
+            positionProvider = positionProvider,
+            initialAlign = lyricsTextAlignFor(alignPref),
+            onDismiss = { showShareSheet = false },
         )
     }
 

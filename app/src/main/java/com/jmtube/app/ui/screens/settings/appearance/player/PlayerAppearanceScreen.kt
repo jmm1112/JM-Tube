@@ -13,6 +13,7 @@ import com.jmtube.app.R
 import com.jmtube.app.data.local.DEFAULT_FULLSCREEN_SEEKBAR_PADDING_DP
 import com.jmtube.app.data.local.DEFAULT_PORTRAIT_SEEKBAR_PADDING_DP
 import com.jmtube.app.data.local.GestureOverlayStyle
+import com.jmtube.app.data.local.IdleProgressBar
 import com.jmtube.app.data.local.MAX_FULLSCREEN_SEEKBAR_PADDING_DP
 import com.jmtube.app.data.local.MAX_PORTRAIT_SEEKBAR_PADDING_DP
 import com.jmtube.app.data.local.MiniBarSwipeAction
@@ -61,6 +62,7 @@ internal fun PlayerAppearanceScreen(
     val portraitCustom by viewModel.portraitSeekbarCustom.collectAsStateWithLifecycle()
     val fullscreenMode by viewModel.fullscreenSeekbarMode.collectAsStateWithLifecycle()
     val fullscreenCustom by viewModel.fullscreenSeekbarCustom.collectAsStateWithLifecycle()
+    val idleProgressBar by viewModel.idleProgressBar.collectAsStateWithLifecycle()
     val scrubPreview by viewModel.scrubPreview.collectAsStateWithLifecycle()
     val frameStep by viewModel.frameStepButtons.collectAsStateWithLifecycle()
     val musicBackground by viewModel.musicBackground.collectAsStateWithLifecycle()
@@ -103,6 +105,12 @@ internal fun PlayerAppearanceScreen(
         )
     val portraitOptions = PortraitSeekbarModes.map { FlowToggleOption(it, stringResource(seekbarModeLabel(it))) }
     val fullscreenOptions = FullscreenSeekbarModes.map { FlowToggleOption(it, stringResource(seekbarModeLabel(it))) }
+    val idleProgressOptions =
+        listOf(
+            FlowToggleOption(IdleProgressBar.ON_VIDEO, stringResource(R.string.player_appearance_idle_progress_on_video)),
+            FlowToggleOption(IdleProgressBar.BELOW_VIDEO, stringResource(R.string.player_appearance_idle_progress_below)),
+            FlowToggleOption(IdleProgressBar.OFF, stringResource(R.string.player_appearance_idle_progress_off)),
+        )
     val scrubOptions =
         listOf(
             FlowToggleOption(ScrubPreviewStyle.STRIP, stringResource(R.string.player_appearance_scrub_preview_strip)),
@@ -167,6 +175,7 @@ internal fun PlayerAppearanceScreen(
                     viewModel::setFullscreenSeekbarCustom,
                 )
             }
+            toggleGroup(PlayerAppearanceIndex.idleProgressBar, idleProgressOptions, idleProgressBar, viewModel::setIdleProgressBar)
             toggleGroup(PlayerAppearanceIndex.scrubPreview, scrubOptions, scrubPreview, viewModel::setScrubPreview)
             switch(PlayerAppearanceIndex.frameStep, frameStep, viewModel::setFrameStepButtons)
         }

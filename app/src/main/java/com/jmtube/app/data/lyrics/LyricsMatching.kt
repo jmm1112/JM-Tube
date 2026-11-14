@@ -119,15 +119,15 @@ internal object LyricsMatching {
     }
 
     /**
-     * The candidate naming the same recording: same version tags, a score at or above
-     * [MIN_SCORE], then the highest score, then [preferred] ones, then the closest duration.
+     * Candidates naming the same recording, ordered from best to worst match: same version tags,
+     * a score at or above [MIN_SCORE], then highest score, then [preferred], then closest duration.
      */
-    fun <T> best(
+    fun <T> ranked(
         candidates: List<T>,
         request: Song,
         describe: (T) -> Song,
         preferred: (T) -> Boolean = { false },
-    ): T? =
+    ): List<T> =
         candidates
             .map { it to describe(it) }
             .filter { (_, song) -> sameVersion(request.title, song.title) }
@@ -137,8 +137,18 @@ internal object LyricsMatching {
                 compareByDescending<Triple<T, Song, Int>> { it.third }
                     .thenByDescending { preferred(it.first) }
                     .thenBy { durationGap(request, it.second) },
-            ).firstOrNull()
-            ?.first
+            ).map { it.first }
+
+    /**
+     * The candidate naming the same recording: same version tags, a score at or above
+     * [MIN_SCORE], then the highest score, then [preferred] ones, then the closest duration.
+     */
+    fun <T> best(
+        candidates: List<T>,
+        request: Song,
+        describe: (T) -> Song,
+        preferred: (T) -> Boolean = { false },
+    ): T? = ranked(candidates, request, describe, preferred).firstOrNull()
 
     private fun durationGap(
         request: Song,

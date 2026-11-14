@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jmtube.app.R
 import com.jmtube.app.data.local.DoubleTapSeekZone
@@ -27,6 +28,13 @@ private const val SEEK_RIPPLE_ALPHA = 0.15f
 private const val SEEK_RIPPLE_PULSE_ALPHA = 0.28f
 private val ChevronTravel = 24.dp
 private val ChevronSize = 26.dp
+private val ChapterTitleMaxWidth = 200.dp
+
+/** A two-finger double tap that just moved to another chapter. Each skip is a new instance. */
+internal class ChapterSkipFeedback(
+    val title: String,
+    val forward: Boolean,
+)
 
 @Composable
 internal fun SeekAnimationOverlay(
@@ -34,15 +42,20 @@ internal fun SeekAnimationOverlay(
     showSeekForward: Boolean,
     seekSeconds: Int = 10,
     zoneFraction: Float = DoubleTapSeekZone.NORMAL.sideFraction,
+    chapterSkip: ChapterSkipFeedback? = null,
+    showChapterSkip: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val fadeSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
+    val chapterBack = showChapterSkip && chapterSkip?.forward == false
+    val chapterForward = showChapterSkip && chapterSkip?.forward == true
+    val pulseKey = if (showChapterSkip && chapterSkip != null) chapterSkip.hashCode() else seekSeconds
 
     Box(modifier = modifier.fillMaxSize()) {
         SeekZoneRipple(
-            visible = showSeekBack,
+            visible = showSeekBack || chapterBack,
             forward = false,
-            pulseKey = seekSeconds,
+            pulseKey = pulseKey,
             modifier =
                 Modifier
                     .align(Alignment.CenterStart)
@@ -51,9 +64,9 @@ internal fun SeekAnimationOverlay(
         )
 
         SeekZoneRipple(
-            visible = showSeekForward,
+            visible = showSeekForward || chapterForward,
             forward = true,
-            pulseKey = seekSeconds,
+            pulseKey = pulseKey,
             modifier =
                 Modifier
                     .align(Alignment.CenterEnd)
@@ -80,7 +93,40 @@ internal fun SeekAnimationOverlay(
         ) {
             SeekChevronLabel(forward = true, seconds = seekSeconds)
         }
+
+        AnimatedVisibility(
+            visible = chapterBack,
+            enter = fadeIn(fadeSpec),
+            exit = fadeOut(fadeSpec),
+            modifier = Modifier.align(Alignment.CenterStart).padding(start = 48.dp),
+        ) {
+            SeekChevronLabel(forward = false, text = chapterSkip?.title.orEmpty())
+        }
+
+        AnimatedVisibility(
+            visible = chapterForward,
+            enter = fadeIn(fadeSpec),
+            exit = fadeOut(fadeSpec),
+            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 48.dp),
+        ) {
+            SeekChevronLabel(forward = true, text = chapterSkip?.title.orEmpty())
+        }
     }
+}
+
+@Composable
+private fun SeekChevronLabel(
+    forward: Boolean,
+    seconds: Int,
+) {
+    SeekChevronLabel(
+        forward = forward,
+        text =
+            stringResource(
+                if (forward) R.string.player_seek_seconds_forward else R.string.player_seek_seconds_back,
+                seconds,
+            ),
+    )
 }
 
 /**
@@ -111,22 +157,19 @@ private fun SeekZoneRipple(
     }
 
     Canvas(
-        modifier = modifier.graphicsLayer { alpha = rippleAlpha.value },
+        modifier =
+            modifier.graphicsLayer {
+                alpha = rippleAlpha.value
+            },
     ) {
-        val w = size.width
-        val h = size.height
-        if (w <= 0f || h <= 0f) return@Canvas
-
-        // Smallest radius whose circle still covers both corners on the flush edge, so the shape
-        // never leaves a sliver of untinted video at the screen border.
-        val radius = w / 2f + (h * h) / (8f * w)
-        val centerX = if (forward) radius else w - radius
-
-        clipRect(left = 0f, top = 0f, right = w, bottom = h) {
+        clipRect(0f, 0f, size.width, size.height) {
+            val radius = size.height * 0.9f
+            val cx = if (forward) size.width + radius * 0.15f else -radius * 0.15f
+            val cy = size.height / 2f
             drawCircle(
                 color = PlayerScrimContent,
                 radius = radius,
-                center = Offset(centerX, h / 2f),
+                center = Offset(cx, cy),
             )
         }
     }
@@ -142,7 +185,7 @@ private fun SeekZoneRipple(
 @Composable
 private fun SeekChevronLabel(
     forward: Boolean,
-    seconds: Int,
+    text: String,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "chevron")
 
@@ -179,14 +222,13 @@ private fun SeekChevronLabel(
             SeekChevron(forward = false, modifier = chevronModifier)
         }
         Text(
-            text =
-                stringResource(
-                    if (forward) R.string.player_seek_seconds_forward else R.string.player_seek_seconds_back,
-                    seconds,
-                ),
+            text = text,
             color = PlayerScrimContent,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.widthIn(max = ChapterTitleMaxWidth),
         )
         if (forward) {
             SeekChevron(forward = true, modifier = chevronModifier)

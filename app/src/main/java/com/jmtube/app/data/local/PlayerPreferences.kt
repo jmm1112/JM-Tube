@@ -170,6 +170,12 @@ class PlayerPreferences(
         val SHOW_NAV_ON_OTHER_PAGES = booleanPreferencesKey("show_nav_on_other_pages")
         val PLAYER_SHEET_ARTWORK_COLORS = booleanPreferencesKey("player_sheet_artwork_colors")
         val SHORTS_AUTO_SCROLL = booleanPreferencesKey("shorts_auto_scroll")
+        val MINIMIZE_TO_AUDIO_BAR = booleanPreferencesKey("minimize_to_audio_bar")
+        val AUTO_DOWNLOAD_LIKES = booleanPreferencesKey("auto_download_likes")
+        val AUTO_DOWNLOAD_OPENED = booleanPreferencesKey("auto_download_opened")
+        val WIFI_ONLY_DOWNLOADS = booleanPreferencesKey("wifi_only_downloads")
+        val REMOVE_WATCHED_WATCH_LATER = booleanPreferencesKey("remove_watched_watch_later")
+        val LYRICS_IN_MINI_PLAYER = booleanPreferencesKey("lyrics_in_mini_player")
         val PREFERRED_LYRICS_PROVIDER = stringPreferencesKey("preferred_lyrics_provider")
         val LYRICS_PROVIDER_ORDER = stringPreferencesKey("lyrics_provider_order")
         val LYRICS_TEXT_ALIGN = stringPreferencesKey("lyrics_text_align")
@@ -441,6 +447,8 @@ class PlayerPreferences(
         val REMEMBERED_BRIGHTNESS_LEVEL = device(floatPreferencesKey("remembered_brightness_level"))
         val VOLUME_SWIPE_GESTURES_ENABLED = device(booleanPreferencesKey("volume_swipe_gestures_enabled"))
         val SEEK_SWIPE_GESTURES_ENABLED = device(booleanPreferencesKey("seek_swipe_gestures_enabled"))
+        val CHAPTER_SKIP_GESTURE_ENABLED = device(booleanPreferencesKey("chapter_skip_gesture_enabled"))
+        val MORE_VIDEOS_SWIPE_ENABLED = device(booleanPreferencesKey("more_videos_swipe_enabled"))
         val DOUBLE_TAP_SEEK_SECONDS = device(intPreferencesKey("double_tap_seek_seconds"))
         val DOUBLE_TAP_SEEK_ZONE = device(stringPreferencesKey("double_tap_seek_zone"))
 
@@ -465,6 +473,7 @@ class PlayerPreferences(
         val PORTRAIT_SEEKBAR_CUSTOM_PADDING_DP = device(intPreferencesKey("portrait_seekbar_custom_padding_dp"))
         val FULLSCREEN_SEEKBAR_PADDING_MODE = device(stringPreferencesKey("fullscreen_seekbar_padding_mode"))
         val FULLSCREEN_SEEKBAR_CUSTOM_PADDING_DP = device(intPreferencesKey("fullscreen_seekbar_custom_padding_dp"))
+        val PORTRAIT_IDLE_PROGRESS_BAR = device(stringPreferencesKey("portrait_idle_progress_bar"))
         val FRAME_STEP_BUTTONS_ENABLED = device(booleanPreferencesKey("frame_step_buttons_enabled"))
 
         // Mini Player Customizations
@@ -680,6 +689,26 @@ class PlayerPreferences(
         }
     }
 
+    val chapterSkipGestureEnabled: Flow<Boolean> =
+        context.devicePreferencesDataStore.data
+            .map { preferences -> preferences[DeviceKeys.CHAPTER_SKIP_GESTURE_ENABLED] ?: true }
+
+    suspend fun setChapterSkipGestureEnabled(enabled: Boolean) {
+        context.devicePreferencesDataStore.edit { preferences ->
+            preferences[DeviceKeys.CHAPTER_SKIP_GESTURE_ENABLED] = enabled
+        }
+    }
+
+    val moreVideosSwipeEnabled: Flow<Boolean> =
+        context.devicePreferencesDataStore.data
+            .map { preferences -> preferences[DeviceKeys.MORE_VIDEOS_SWIPE_ENABLED] ?: true }
+
+    suspend fun setMoreVideosSwipeEnabled(enabled: Boolean) {
+        context.devicePreferencesDataStore.edit { preferences ->
+            preferences[DeviceKeys.MORE_VIDEOS_SWIPE_ENABLED] = enabled
+        }
+    }
+
     // SponsorBlock per-category action preferences
     fun sbActionForCategory(category: String): Flow<SponsorBlockAction> {
         val key =
@@ -796,6 +825,7 @@ class PlayerPreferences(
                     defaultPaddingDp = DEFAULT_PORTRAIT_SEEKBAR_PADDING_DP,
                     maxPaddingDp = MAX_PORTRAIT_SEEKBAR_PADDING_DP,
                 ),
+            idleProgressBar = resolveIdleProgressBar(device[DeviceKeys.PORTRAIT_IDLE_PROGRESS_BAR]),
             scrubPreviewStyle = resolveScrubPreviewStyle(profile[Keys.SCRUB_PREVIEW_STYLE]),
             frameStepButtonsEnabled =
                 device[DeviceKeys.FRAME_STEP_BUTTONS_ENABLED] ?: overlayDefaults.frameStepButtonsEnabled,
@@ -1405,6 +1435,66 @@ class PlayerPreferences(
     suspend fun setPlayerSheetArtworkColors(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.PLAYER_SHEET_ARTWORK_COLORS] = enabled
+        }
+    }
+
+    val minimizeToAudioBar: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.MINIMIZE_TO_AUDIO_BAR] ?: false }
+
+    suspend fun setMinimizeToAudioBar(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.MINIMIZE_TO_AUDIO_BAR] = enabled
+        }
+    }
+
+    val autoDownloadLikes: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.AUTO_DOWNLOAD_LIKES] ?: false }
+
+    suspend fun setAutoDownloadLikes(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.AUTO_DOWNLOAD_LIKES] = enabled
+        }
+    }
+
+    val autoDownloadOpened: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.AUTO_DOWNLOAD_OPENED] ?: false }
+
+    suspend fun setAutoDownloadOpened(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.AUTO_DOWNLOAD_OPENED] = enabled
+        }
+    }
+
+    val wifiOnlyDownloads: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.WIFI_ONLY_DOWNLOADS] ?: false }
+
+    suspend fun setWifiOnlyDownloads(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.WIFI_ONLY_DOWNLOADS] = enabled
+        }
+    }
+
+    val removeWatchedWatchLater: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.REMOVE_WATCHED_WATCH_LATER] ?: false }
+
+    suspend fun setRemoveWatchedWatchLater(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.REMOVE_WATCHED_WATCH_LATER] = enabled
+        }
+    }
+
+    val lyricsInMiniPlayer: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.LYRICS_IN_MINI_PLAYER] ?: false }
+
+    suspend fun setLyricsInMiniPlayer(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.LYRICS_IN_MINI_PLAYER] = enabled
         }
     }
 
@@ -2204,6 +2294,16 @@ class PlayerPreferences(
     suspend fun setAdaptivePlayerSizeEnabled(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.ADAPTIVE_PLAYER_SIZE_ENABLED] = enabled
+        }
+    }
+
+    val idleProgressBar: Flow<IdleProgressBar> =
+        context.devicePreferencesDataStore.data
+            .map { preferences -> resolveIdleProgressBar(preferences[DeviceKeys.PORTRAIT_IDLE_PROGRESS_BAR]) }
+
+    suspend fun setIdleProgressBar(value: IdleProgressBar) {
+        context.devicePreferencesDataStore.edit { preferences ->
+            preferences[DeviceKeys.PORTRAIT_IDLE_PROGRESS_BAR] = value.name
         }
     }
 
@@ -4456,6 +4556,15 @@ enum class SeekbarPaddingMode {
     DEFAULT,
     CUSTOM,
 }
+
+enum class IdleProgressBar {
+    ON_VIDEO,
+    BELOW_VIDEO,
+    OFF,
+}
+
+internal fun resolveIdleProgressBar(stored: String?): IdleProgressBar =
+    stored?.let { value -> IdleProgressBar.entries.firstOrNull { it.name == value } } ?: IdleProgressBar.ON_VIDEO
 
 /** What a scrub shows above the bar: a filmstrip around the target, or the single frame under it. */
 enum class ScrubPreviewStyle {

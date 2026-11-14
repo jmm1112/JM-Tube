@@ -125,6 +125,7 @@ internal class PlaybackSessionApplier(
             is SecondaryMetadata.Related -> publishRelatedVideos(result.videoId, result.videos, result.loadToken)
             is SecondaryMetadata.LiveWatch -> applyLiveWatchMetadata(result)
             is SecondaryMetadata.Category -> applyCategory(result)
+            is SecondaryMetadata.PaidPromotion -> applyPaidPromotion(result)
             is SecondaryMetadata.Heatmap -> applyHeatmap(result)
             is SecondaryMetadata.Chapters -> applyChapters(result)
             is SecondaryMetadata.WatchInfo -> applyWatchInfo(result)
@@ -409,6 +410,7 @@ internal class PlaybackSessionApplier(
             ?.category
             ?.let { repository.rememberVideoCategory(videoId, it) }
         secondaryMetadata.loadCategory(videoId, load.token)
+        secondaryMetadata.loadPaidPromotion(videoId, load.token)
         secondaryMetadata.loadHeatmap(videoId, load.token)
         secondaryMetadata.loadChapters(videoId, load.token)
         secondaryMetadata.loadWatchInfo(videoId, identity.enrichedVideo, load.token)
@@ -485,6 +487,11 @@ internal class PlaybackSessionApplier(
                 awaitPlayback = false,
             )
         }
+    }
+
+    private fun applyPaidPromotion(result: SecondaryMetadata.PaidPromotion) {
+        if (!isLoadCurrent(result.loadToken)) return
+        uiState.update { it.copy(paidPromotion = result.label) }
     }
 
     /** Kept on the video, so the watch signal carries it. */

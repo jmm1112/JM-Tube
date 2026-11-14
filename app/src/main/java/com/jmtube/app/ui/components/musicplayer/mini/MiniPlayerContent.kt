@@ -18,7 +18,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -52,6 +54,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -62,6 +65,9 @@ import com.jmtube.app.R
 import com.jmtube.app.data.music.model.MusicTrack
 import com.jmtube.app.player.EnhancedMusicPlayerManager
 import com.jmtube.app.ui.components.PlayingWaveform
+import com.jmtube.app.ui.components.musicplayer.lyrics.SYNCED_LINE_UNSUNG_ALPHA
+import com.jmtube.app.ui.components.musicplayer.lyrics.SyncedLines
+import com.jmtube.app.ui.components.musicplayer.lyrics.SyncedLyricLine
 import com.jmtube.app.ui.components.shared.MediaPlayPauseButton
 import com.jmtube.app.ui.screens.playon.LocalPlayOn
 import com.jmtube.app.ui.screens.playon.PlayOnButton
@@ -85,6 +91,7 @@ internal fun MiniPlayerContent(
     // and smooth progress ring stop forcing frames nobody can see. Values still update.
     animationsEnabled: Boolean = true,
     showPrevious: Boolean = true,
+    lyrics: SyncedLines? = null,
     onOpen: (() -> Unit)? = null,
 ) {
     val playerState by EnhancedMusicPlayerManager.playerState.collectAsStateWithLifecycle()
@@ -219,13 +226,36 @@ internal fun MiniPlayerContent(
                         },
                 )
                 Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = elsewhere?.let { stringResource(R.string.play_on_playing_on, it.name) } ?: track.artist,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (elsewhere != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                val artistLine: @Composable () -> Unit = {
+                    Text(
+                        text = elsewhere?.let { stringResource(R.string.play_on_playing_on, it.name) } ?: track.artist,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (elsewhere != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                if (lyrics != null && elsewhere == null) {
+                    val style = MaterialTheme.typography.labelLarge
+                    val sung = MaterialTheme.colorScheme.onSurface
+                    SyncedLyricLine(
+                        lyrics = lyrics,
+                        isPlaying = playerState.isPlaying,
+                        positionKey = playerState.position / 1000L,
+                        style = style,
+                        sungColor = sung,
+                        unsungColor = sung.copy(alpha = SYNCED_LINE_UNSUNG_ALPHA),
+                        // As tall as a lyric line either way, so the title doesn't move when the artist comes back.
+                        modifier = Modifier.fillMaxWidth().heightIn(min = with(LocalDensity.current) { style.lineHeight.toDp() }),
+                        active = animationsEnabled,
+                        clearInGaps = true,
+                        singleLine = true,
+                        contentAlignment = Alignment.CenterStart,
+                        empty = artistLine,
+                    )
+                } else {
+                    artistLine()
+                }
             }
         }
 

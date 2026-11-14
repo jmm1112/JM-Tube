@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.HighQuality
 import androidx.compose.material.icons.filled.PictureInPicture
+import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Subtitles
@@ -50,6 +51,7 @@ internal fun PlayerSettingsMainPage(
     onCastClick: () -> Unit,
     onPipClick: () -> Unit,
     onSleepTimerClick: () -> Unit,
+    onStatsForNerds: () -> Unit = {},
     onLoopToggle: (Boolean) -> Unit,
     onAutoplayToggle: (Boolean) -> Unit,
     onSkipSilenceToggle: (Boolean) -> Unit,
@@ -213,8 +215,14 @@ internal fun PlayerSettingsMainPage(
             leadingIcon = ImageVector.vectorResource(R.drawable.ic_ambient_mode),
             title = stringResource(R.string.player_settings_ambient_mode),
             checked = ambientModeEnabled,
-            shape = flowRowGroupShape(0, DISPLAY_ROWS),
+            shape = flowRowGroupShape(0, 2),
             onCheckedChange = onAmbientModeToggle,
+        )
+        FlowNavRow(
+            leadingIcon = Icons.Filled.QueryStats,
+            title = stringResource(R.string.stats_for_nerds),
+            shape = flowRowGroupShape(1, 2),
+            onClick = onStatsForNerds,
         )
     }
 }

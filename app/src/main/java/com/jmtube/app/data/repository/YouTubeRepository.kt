@@ -10,6 +10,7 @@ import com.jmtube.app.data.model.VideoCollaborator
 import com.jmtube.app.data.model.needsCollaboratorResolution
 import com.jmtube.app.data.shorts.ShortsClassifier
 import com.jmtube.app.innertube.YouTube
+import com.jmtube.app.innertube.models.response.PaidPromotionLabel
 import com.jmtube.app.innertube.models.response.VideoChapter
 import com.jmtube.app.innertube.models.response.VideoChaptersParser
 import com.jmtube.app.innertube.models.response.VideoHeatmap
@@ -76,6 +77,13 @@ class YouTubeRepository
             InFlightRequestCoalescer<String, String?>(
                 CoroutineScope(SupervisorJob() + Dispatchers.IO),
             )
+
+        private val paidPromotionCoalescer =
+            InFlightRequestCoalescer<String, PaidPromotionLabel?>(
+                CoroutineScope(SupervisorJob() + Dispatchers.IO),
+            )
+
+        private val paidPromotionCache = LruCache<String, PaidPromotionAnswer>(PAID_PROMOTION_CACHE_SIZE)
 
         // A category never changes, so this is a plain memo rather than a short player-side cache:
         // the value is worth keeping for every video the engine has already learned from.
@@ -604,6 +612,19 @@ class YouTubeRepository
         }
 
         /**
+         * YouTube's own wording and duration for a video that declared paid promotion, or null when
+         * the video has no label. An answer is kept for the process, so seeing a video again costs nothing.
+         */
+        suspend fun paidPromotion(videoId: String): PaidPromotionLabel? {
+            paidPromotionCache.get(videoId)?.let { return it.label }
+            return paidPromotionCoalescer.run(videoId) {
+                val answer = YouTube.paidPromotion(videoId)
+                answer.onSuccess { paidPromotionCache.put(videoId, PaidPromotionAnswer(it)) }
+                answer.getOrNull()
+            }
+        }
+
+        /**
          * The rewatch curve for [videoId], or null when the video has none.
          *
          * Free: it rides the watch response the description and comments already fetch. Plenty of
@@ -1093,6 +1114,7 @@ class YouTubeRepository
             private const val COMMENT_AVATAR_FETCH_CONCURRENCY = 4
             private const val COMMENT_AVATAR_FETCH_TIMEOUT_MS = 6_000L
             private const val WATCH_NEXT_CACHE_SIZE = 3
+            private const val PAID_PROMOTION_CACHE_SIZE = 100
             private const val VIDEO_CATEGORY_CACHE_SIZE = 500
             private val CHANNEL_ID_IN_URL = Regex("""/channel/(UC[\w-]{22})""")
 
@@ -1252,3 +1274,7 @@ internal object WatchMetadataVideoMapper {
             )
         }
 }
+
+private class PaidPromotionAnswer(
+    val label: PaidPromotionLabel?,
+)

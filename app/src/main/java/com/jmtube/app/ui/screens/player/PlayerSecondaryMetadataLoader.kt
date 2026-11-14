@@ -5,6 +5,7 @@ import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.data.model.Video
 import com.jmtube.app.data.recommendation.FeedExclusions
 import com.jmtube.app.data.repository.YouTubeRepository
+import com.jmtube.app.innertube.models.response.PaidPromotionLabel
 import com.jmtube.app.innertube.models.response.VideoChapter
 import com.jmtube.app.innertube.models.response.VideoHeatmap
 import com.jmtube.app.player.EnhancedPlayerManager
@@ -46,6 +47,12 @@ internal sealed interface SecondaryMetadata {
         override val videoId: String,
         override val loadToken: Long,
         val category: String,
+    ) : SecondaryMetadata
+
+    class PaidPromotion(
+        override val videoId: String,
+        override val loadToken: Long,
+        val label: PaidPromotionLabel,
     ) : SecondaryMetadata
 
     class Heatmap(
@@ -141,6 +148,7 @@ internal class PlayerSecondaryMetadataLoader(
 
     private val channelLoad = ConcurrentLoad()
     private val relatedLoad = ConcurrentLoad()
+    private val paidPromotionLoad = ConcurrentLoad()
     private val liveWatchLoad = ConcurrentLoad()
     private val categoryLoad = ConcurrentLoad()
     private val heatmapLoad = ConcurrentLoad()
@@ -151,10 +159,30 @@ internal class PlayerSecondaryMetadataLoader(
     fun cancel() {
         channelLoad.cancel()
         relatedLoad.cancel()
+        paidPromotionLoad.cancel()
         categoryLoad.cancel()
         heatmapLoad.cancel()
         chaptersLoad.cancel()
         watchInfoLoad.cancel()
+    }
+
+    fun loadPaidPromotion(
+        videoId: String,
+        loadToken: Long,
+    ) {
+        if (!paidPromotionLoad.claim(videoId, loadToken)) return
+
+        paidPromotionLoad.job =
+            scope.launch(networkDispatcher) {
+                if (!playerPreferences.paidPromotionLabel.first()) return@launch
+                awaitPlaybackStarted(videoId)
+                if (!isPlaybackCurrent(loadToken)) return@launch
+                val label =
+                    withTimeoutOrNull(PAID_PROMOTION_TIMEOUT_MS) { repository.paidPromotion(videoId) }
+                        ?: return@launch
+                if (!isPlaybackCurrent(loadToken) || !paidPromotionLoad.holds(videoId, loadToken)) return@launch
+                onResult(SecondaryMetadata.PaidPromotion(videoId, loadToken, label))
+            }
     }
 
     /** The rewatch curve, off the watch response the description and comments already fetch. */
@@ -488,6 +516,7 @@ internal class PlayerSecondaryMetadataLoader(
         const val LIVE_RELATED_SEARCH_TIMEOUT_MS = 8_000L
         const val RYD_TIMEOUT_MS = 5_000L
         const val CATEGORY_TIMEOUT_MS = 8_000L
+        const val PAID_PROMOTION_TIMEOUT_MS = 6_000L
         const val HEATMAP_TIMEOUT_MS = 8_000L
         const val CHAPTERS_TIMEOUT_MS = 8_000L
         const val WATCH_INFO_TIMEOUT_MS = 8_000L

@@ -123,6 +123,7 @@ internal fun SettingsListScope.playbackSections(
             }
         }
         switch(PlaybackGesturesIndex.seekGesture, viewModel.seekGesture, viewModel::setSeekGesture)
+        switch(PlaybackIndex.chapterSkipGesture, viewModel.chapterSkipGesture, viewModel::setChapterSkipGesture)
         switch(PlaybackGesturesIndex.haptics, viewModel.haptics, viewModel::setHaptics)
         switch(PlaybackGesturesIndex.controlsWhileLoading, viewModel.controlsWhileLoading, viewModel::setControlsWhileLoading)
     }
@@ -163,6 +164,7 @@ internal fun SettingsListScope.playbackSections(
         switch(PlaybackIndex.musicResume, viewModel.musicResume, viewModel::setMusicResume)
         switch(PlaybackIndex.resumeFromHeadphones, viewModel.resumeFromHeadphones, viewModel::setResumeFromHeadphones)
         switch(PlaybackIndex.musicSideSwipes, viewModel.musicSideSwipes, viewModel::setMusicSideSwipes)
+        switch(PlaybackIndex.lyricsInMiniPlayer, viewModel.lyricsInMiniPlayer, viewModel::setLyricsInMiniPlayer)
         switch(PlaybackIndex.musicVideoSwitch, viewModel.musicVideoSwitch, viewModel::setMusicVideoSwitch)
         choice(PlaybackIndex.lyricsProviders, onClick = { openDialog(PlaybackDialog.LYRICS) }) {
             val providers by viewModel.lyricsProviders.collectAsStateWithLifecycle()

@@ -455,6 +455,24 @@ internal object PlaybackIndex {
             destination = page,
         )
 
+    val lyricsInMiniPlayer =
+        SettingEntry(
+            key = "playback.lyrics_in_mini_player",
+            title = R.string.lyrics_in_mini_player,
+            summary = R.string.lyrics_in_mini_player_summary,
+            section = R.string.settings_section_music,
+            destination = page,
+        )
+
+    val chapterSkipGesture =
+        SettingEntry(
+            key = "playback.chapter_skip_gesture",
+            title = R.string.player_appearance_chapter_skip_gesture_title,
+            summary = R.string.player_appearance_chapter_skip_gesture_subtitle,
+            section = R.string.settings_section_video_player,
+            destination = page,
+        )
+
     val all =
         listOf(
             backgroundPlay,

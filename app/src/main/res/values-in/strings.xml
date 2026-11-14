@@ -597,6 +597,8 @@
     <string name="player_appearance_sheet_artwork_colors_subtitle">Gunakan warna aksen gambar mini di panel deskripsi dan komentar</string>
     <string name="settings_shorts_auto_scroll_title">Auto-gulir Shorts</string>
     <string name="settings_shorts_auto_scroll_subtitle">Gulir otomatis ke video berikutnya saat Short selesai</string>
+    <string name="player_appearance_minimize_to_audio_bar_title">Minimalkan video ke bilah audio</string>
+    <string name="player_appearance_minimize_to_audio_bar_subtitle">Kirim video yang diciutkan langsung ke mini bar sebagai aliran audio</string>
     <string name="settings_section_general">Umum</string>
     <string name="settings_highlight_new_title">Sorot pengaturan baru</string>
     <string name="settings_highlight_new_summary">Tampilkan titik lencana pada opsi pengaturan baru</string>

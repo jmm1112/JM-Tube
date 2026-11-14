@@ -8,22 +8,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
+import com.jmtube.app.R
 import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.player.EnhancedPlayerManager
 import com.jmtube.app.ui.components.shared.VideoThumbnailImage
 import com.jmtube.app.ui.components.videoplayer.MINI_PLAYER_CORNER_RADIUS_DP
 import com.jmtube.app.ui.components.videoplayer.VideoPlayerSurface
+import com.jmtube.app.ui.components.videoplayer.gesture.chapterSkipTarget
 import com.jmtube.app.ui.components.videoplayer.gesture.videoPlayerControls
 import com.jmtube.app.ui.components.videoplayer.gesture.videoPlayerZoom
+import com.jmtube.app.ui.components.videoplayer.overlay.ChapterSkipFeedback
 import com.jmtube.app.ui.components.videoplayer.placedWhen
 import com.jmtube.app.ui.components.videoplayer.subtitle.Media3SubtitleOverlay
 import com.jmtube.app.ui.screens.player.saveChosenPlaybackSpeed
@@ -62,6 +68,23 @@ internal fun VideoStage(
     val audioSystemInfo = session.audioSystemInfo
     val isLandscapeWindow = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val playerPreferences = remember(session.context) { PlayerPreferences(session.context) }
+    val haptics = LocalHapticFeedback.current
+    val chapters = playerUiState.chapters
+    val chapterStartsMs = remember(chapters) { chapters.map { it.startTimeSeconds * 1000L } }
+    val canSkipChapters = prefs.chapterSkipGestureEnabled && chapterStartsMs.isNotEmpty() && !playerState.isLive
+    val skipChapter by rememberUpdatedState { forward: Boolean ->
+        val manager = EnhancedPlayerManager.getInstance()
+        val position = manager.getPlayer()?.currentPosition ?: screenState.currentPosition
+        chapterSkipTarget(chapterStartsMs, position, forward)?.let { index ->
+            manager.seekTo(chapterStartsMs[index])
+            screenState.showSeekBackAnimation = false
+            screenState.showSeekForwardAnimation = false
+            val title = chapters[index].title.orEmpty().ifBlank { session.context.getString(R.string.player_chapter_number, index + 1) }
+            screenState.chapterSkip = ChapterSkipFeedback(title = title, forward = forward)
+            screenState.showChapterSkip = true
+            haptics.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+        }
+    }
 
     // ALWAYS use the same video surface
     val gestureModifier =
@@ -72,8 +95,14 @@ internal fun VideoStage(
                     onSpeedBoostChange = { screenState.isSpeedBoostActive = it },
                     showControls = screenState.showControls,
                     onShowControlsChange = { screenState.showControls = it },
-                    onShowSeekBackChange = { screenState.showSeekBackAnimation = it },
-                    onShowSeekForwardChange = { screenState.showSeekForwardAnimation = it },
+                    onShowSeekBackChange = { shown ->
+                        screenState.showSeekBackAnimation = shown
+                        if (shown) screenState.showChapterSkip = false
+                    },
+                    onShowSeekForwardChange = { shown ->
+                        screenState.showSeekForwardAnimation = shown
+                        if (shown) screenState.showChapterSkip = false
+                    },
                     onSeekAccumulate = { screenState.seekAccumulation = kotlin.math.abs(it) },
                     currentPosition = { screenState.currentPosition },
                     duration = screenState.duration,
@@ -138,6 +167,7 @@ internal fun VideoStage(
                     scale = { screenState.zoomScale },
                     offsetX = { screenState.zoomOffsetX },
                     offsetY = { screenState.zoomOffsetY },
+                    onTwoFingerDoubleTap = if (canSkipChapters) { forward -> skipChapter(forward) } else null,
                     onTransform = { newScale, newOffsetX, newOffsetY ->
                         screenState.zoomScale = newScale
                         screenState.zoomOffsetX = newOffsetX

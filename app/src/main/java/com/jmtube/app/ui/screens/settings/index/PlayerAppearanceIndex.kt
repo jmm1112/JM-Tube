@@ -46,6 +46,13 @@ internal object PlayerAppearanceIndex {
             section = R.string.settings_section_seek_bar,
             revealVia = "player_appearance.fullscreen_width",
         )
+    val idleProgressBar =
+        entry(
+            "idle_progress_bar",
+            R.string.player_appearance_idle_progress_title,
+            R.string.player_appearance_idle_progress_subtitle,
+            R.string.settings_section_seek_bar,
+        )
     val scrubPreview =
         entry(
             "scrub_preview",
@@ -157,6 +164,13 @@ internal object PlayerAppearanceIndex {
             "sheet_artwork_colors",
             R.string.player_appearance_sheet_artwork_colors_title,
             R.string.player_appearance_sheet_artwork_colors_subtitle,
+            R.string.settings_section_video_player,
+        )
+    val minimizeToAudioBar =
+        entry(
+            "minimize_to_audio_bar",
+            R.string.player_appearance_minimize_to_audio_bar_title,
+            R.string.player_appearance_minimize_to_audio_bar_subtitle,
             R.string.settings_section_video_player,
         )
     val shortsUi =

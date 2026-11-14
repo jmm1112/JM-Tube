@@ -39,6 +39,7 @@ import com.jmtube.app.innertube.YouTube
 import com.jmtube.app.innertube.models.YouTubeClient
 import com.jmtube.app.innertube.models.response.PlayerResponse
 import com.jmtube.app.player.analytics.PlaybackAnalyticsLogger
+import com.jmtube.app.player.stats.PlayerStatsReadings
 import com.jmtube.app.player.analytics.RenderedFirstFrameListener
 import com.jmtube.app.player.audio.AudioEffectsEntryPoint
 import com.jmtube.app.player.audio.AudioFeaturesManager
@@ -540,6 +541,7 @@ class EnhancedPlayerManager private constructor() {
     val playbackCompletedEvent: SharedFlow<PlaybackCompletion> = _playbackCompletedEvent.asSharedFlow()
 
     private var audioFeaturesManager: AudioFeaturesManager? = null
+    private var analyticsLogger: PlaybackAnalyticsLogger? = null
     private var mediaLoader: MediaLoader? = null
 
     // Public Queue State
@@ -756,7 +758,9 @@ class EnhancedPlayerManager private constructor() {
                 bandwidthMeter = bandwidthMeter!!,
                 dataSourceFactory = cacheManager?.getDataSourceFactory(),
             )
-        player?.addAnalyticsListener(PlaybackAnalyticsLogger(TAG) { currentVideoId })
+        val analytics = PlaybackAnalyticsLogger(TAG) { currentVideoId }
+        analyticsLogger = analytics
+        player?.addAnalyticsListener(analytics)
         player?.addAnalyticsListener(
             RenderedFirstFrameListener(currentVideoId = { currentVideoId }) { videoId -> _firstFrameVideoId.value = videoId },
         )
@@ -2647,6 +2651,14 @@ class EnhancedPlayerManager private constructor() {
     }
 
     fun getPlayer(): ExoPlayer? = player
+
+    internal fun statsReadings(): PlayerStatsReadings =
+        PlayerStatsReadings(
+            bandwidthBitsPerSecond = bandwidthMeter?.bitrateEstimate ?: 0L,
+            decoderName = analyticsLogger?.activeDecoderName,
+            gainDb = audioFeaturesManager?.appliedLoudnessDb,
+            surfaceFrame = surfaceManager?.getSurfaceHolder()?.surfaceFrame,
+        )
 
     fun getCastVideoStreams(): List<VideoStream> = availableVideoStreams
 

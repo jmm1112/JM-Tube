@@ -112,6 +112,8 @@ class PlaybackSettingsViewModel
         val musicResume = preferences.musicResumeLongTracks.asState(false)
         val resumeFromHeadphones = preferences.resumeFromHeadphones.asState(true)
         val musicSideSwipes = preferences.musicSideSwipes.asState(false)
+        val lyricsInMiniPlayer = preferences.lyricsInMiniPlayer.asState(false)
+        val chapterSkipGesture = preferences.chapterSkipGestureEnabled.asState(true)
         val normalizeVolume = preferences.videoVolumeNormalizationEnabled.asState(true)
         val lyricsProviders =
             combine(preferences.lyricsProviderOrder, preferences.allLyricsProviderEnabledStates()) { order, enabled ->
@@ -262,6 +264,10 @@ class PlaybackSettingsViewModel
         fun setMusicResume(value: Boolean) = write { preferences.setMusicResumeLongTracks(value) }
 
         fun setMusicSideSwipes(value: Boolean) = write { preferences.setMusicSideSwipes(value) }
+
+        fun setLyricsInMiniPlayer(value: Boolean) = write { preferences.setLyricsInMiniPlayer(value) }
+
+        fun setChapterSkipGesture(value: Boolean) = write { preferences.setChapterSkipGestureEnabled(value) }
 
         fun setNormalizeVolume(value: Boolean) = write { preferences.setVideoVolumeNormalizationEnabled(value) }
 

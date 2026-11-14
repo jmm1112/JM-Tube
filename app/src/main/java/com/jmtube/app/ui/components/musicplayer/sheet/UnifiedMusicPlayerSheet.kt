@@ -49,6 +49,7 @@ import com.jmtube.app.player.EnhancedMusicPlayerManager
 import com.jmtube.app.ui.components.musicplayer.common.rememberMusicPlayerAppearance
 import com.jmtube.app.ui.components.musicplayer.full.FullMusicPlayerContent
 import com.jmtube.app.ui.components.musicplayer.mini.MiniPlayerContent
+import com.jmtube.app.ui.components.musicplayer.mini.rememberMiniPlayerLyrics
 import com.jmtube.app.ui.components.musicplayer.motion.MusicSheetDragGestureHandler
 import com.jmtube.app.ui.components.musicplayer.motion.MusicSheetMotionController
 import com.jmtube.app.ui.components.musicplayer.motion.musicSheetVerticalDragGesture
@@ -87,6 +88,7 @@ internal fun UnifiedMusicPlayerSheet(
     track: MusicTrack,
     swipeLeftAction: MiniBarSwipeAction,
     swipeRightAction: MiniBarSwipeAction,
+    lyricsInMiniPlayer: Boolean = false,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -410,6 +412,7 @@ internal fun UnifiedMusicPlayerSheet(
                             track = displayTrack,
                             animationsEnabled = miniAnimationsEnabled,
                             showPrevious = true,
+                            lyrics = if (lyricsInMiniPlayer) rememberMiniPlayerLyrics(displayTrack.videoId) else null,
                         )
                     }
                 }

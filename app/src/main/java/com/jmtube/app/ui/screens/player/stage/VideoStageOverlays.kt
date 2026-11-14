@@ -25,7 +25,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import com.jmtube.app.ui.screens.player.state.PlayerSheet
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,11 +41,14 @@ import androidx.compose.ui.unit.dp
 import com.jmtube.app.R
 import com.jmtube.app.ui.components.videoplayer.UpcomingVideoOverlay
 import com.jmtube.app.ui.components.videoplayer.gesture.PlayerSpeedBoost
+import com.jmtube.app.ui.components.videoplayer.overlay.PaidPromotionChip
 import com.jmtube.app.ui.components.videoplayer.overlay.PlayerGestureOverlays
 import com.jmtube.app.ui.components.videoplayer.overlay.cutoutTopInset
 import com.jmtube.app.ui.theme.PlayerScrim
 import com.jmtube.app.ui.theme.PlayerScrimContent
 import com.jmtube.app.ui.theme.PlayerScrimPanel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import java.util.Locale
 
 /**
@@ -92,6 +100,23 @@ internal fun BoxScope.VideoStageOverlays(session: VideoPlayerStageSession) {
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             )
         }
+    }
+    playerUiState.paidPromotion?.let { label ->
+        var elapsed by remember(video.id) { mutableStateOf(false) }
+        val visible = !elapsed && !screenState.showControls
+        LaunchedEffect(video.id) {
+            snapshotFlow { !screenState.showControls }.first { it }
+            delay(label.durationMs)
+            elapsed = true
+        }
+        PaidPromotionChip(
+            text = label.text,
+            visible = visible,
+            modifier =
+                Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 12.dp, top = 12.dp + cutoutTopInset(screenState.isFullscreenPortrait)),
+        )
     }
     if (playerUiState.isUpcoming) {
         UpcomingVideoOverlay(
@@ -159,4 +184,6 @@ internal fun BoxScope.VideoStageOverlays(session: VideoPlayerStageSession) {
             onVideoClick = { playerViewModel.playVideo(it) },
         )
     }
+
+    PlayerStatsLayer(session = session)
 }

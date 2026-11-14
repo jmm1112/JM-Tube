@@ -420,6 +420,8 @@
     <string name="player_appearance_sheet_artwork_colors_subtitle">Utiliser les couleurs de la vignette dans les panneaux de description et de commentaires</string>
     <string name="settings_shorts_auto_scroll_title">Défilement automatique des Shorts</string>
     <string name="settings_shorts_auto_scroll_subtitle">Faire défiler automatiquement vers la vidéo suivante lorsqu\'un Short se termine</string>
+    <string name="player_appearance_minimize_to_audio_bar_title">Réduire la vidéo dans la barre audio</string>
+    <string name="player_appearance_minimize_to_audio_bar_subtitle">Envoyer les vidéos réduites directement dans la mini-barre audio</string>
     <string name="settings_section_general">Général</string>
     <string name="settings_highlight_new_title">Mettre en évidence les nouveaux paramètres</string>
     <string name="settings_highlight_new_summary">Afficher un point sur les nouvelles options de configuration</string>

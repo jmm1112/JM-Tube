@@ -4,6 +4,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import com.jmtube.app.data.local.DEFAULT_FULLSCREEN_SEEKBAR_PADDING_DP
 import com.jmtube.app.data.local.DEFAULT_PORTRAIT_SEEKBAR_PADDING_DP
 import com.jmtube.app.data.local.GestureOverlayStyle
+import com.jmtube.app.data.local.IdleProgressBar
 import com.jmtube.app.data.local.MiniBarSwipeAction
 import com.jmtube.app.data.local.MusicPlainControlColors
 import com.jmtube.app.data.local.MusicPlayerBackgroundStyle
@@ -30,6 +31,7 @@ class PlayerAppearanceViewModel
         val portraitSeekbarCustom = preferences.portraitSeekbarCustomPaddingDp.asState(DEFAULT_PORTRAIT_SEEKBAR_PADDING_DP)
         val fullscreenSeekbarMode = preferences.fullscreenSeekbarPaddingMode.asState(SeekbarPaddingMode.DEFAULT)
         val fullscreenSeekbarCustom = preferences.fullscreenSeekbarCustomPaddingDp.asState(DEFAULT_FULLSCREEN_SEEKBAR_PADDING_DP)
+        val idleProgressBar = preferences.idleProgressBar.asState(overlayDefaults.idleProgressBar)
         val scrubPreview = preferences.scrubPreviewStyle.asState(overlayDefaults.scrubPreviewStyle)
         val frameStepButtons = preferences.frameStepButtonsEnabled.asState(overlayDefaults.frameStepButtonsEnabled)
         val musicBackground = preferences.musicPlayerBackgroundStyle.asState(MusicPlayerBackgroundStyle.BLUR_GRADIENT)
@@ -44,6 +46,7 @@ class PlayerAppearanceViewModel
         val ambientMode = preferences.videoAmbientModeEnabled.asState(false)
         val paidPromotionLabel = preferences.paidPromotionLabel.asState(false)
         val playerSheetArtworkColors = preferences.playerSheetArtworkColors.asState(true)
+        val minimizeToAudioBar = preferences.minimizeToAudioBar.asState(false)
         val groupedQualitySelector = preferences.groupedQualitySelectorEnabled.asState(false)
         val gestureOverlay = preferences.gestureOverlayStyle.asState(GestureOverlayStyle.CIRCULAR)
         val shortsUiMode = preferences.shortsPlayerUiMode.asState(ShortsPlayerUiMode.DEFAULT)
@@ -65,6 +68,8 @@ class PlayerAppearanceViewModel
         fun setFullscreenSeekbarMode(value: SeekbarPaddingMode) = write { preferences.setFullscreenSeekbarPaddingMode(value) }
 
         fun setFullscreenSeekbarCustom(value: Int) = write { preferences.setFullscreenSeekbarCustomPaddingDp(value) }
+
+        fun setIdleProgressBar(value: IdleProgressBar) = write { preferences.setIdleProgressBar(value) }
 
         fun setScrubPreview(value: ScrubPreviewStyle) = write { preferences.setScrubPreviewStyle(value) }
 

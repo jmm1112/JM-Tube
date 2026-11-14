@@ -4,6 +4,7 @@ import com.jmtube.app.data.local.VideoQuality
 import com.jmtube.app.data.model.LiveChatMessage
 import com.jmtube.app.data.model.SponsorBlockSegment
 import com.jmtube.app.data.model.Video
+import com.jmtube.app.innertube.models.response.PaidPromotionLabel
 import com.jmtube.app.innertube.models.response.PlayerResponse
 import com.jmtube.app.innertube.models.response.VideoHeatmap
 import com.jmtube.app.player.stream.StoryboardLevel
@@ -31,6 +32,7 @@ data class VideoPlayerUiState(
     val likeState: String? = null,
     val channelSubscriberCount: Long? = null,
     val channelAvatarUrl: String? = null,
+    val paidPromotion: PaidPromotionLabel? = null,
     val chapters: List<StreamSegment> = emptyList(),
     val storyboard: List<StoryboardLevel> = emptyList(),
     /** A livestream that has ended: its date reads "Streamed …" rather than a plain date. */

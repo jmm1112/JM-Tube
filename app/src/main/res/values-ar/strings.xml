@@ -399,6 +399,8 @@
     <string name="player_appearance_sheet_artwork_colors_subtitle">استخدام ألوان الصور المصغرة في لوحات الوصف والتعليقات</string>
     <string name="settings_shorts_auto_scroll_title">التمرير التلقائي لفيديوهات Shorts</string>
     <string name="settings_shorts_auto_scroll_subtitle">التمرير تلقائياً إلى الفيديو التالي عند انتهاء الفيديو القصير</string>
+    <string name="player_appearance_minimize_to_audio_bar_title">تصغير الفيديو إلى شريط الصوت</string>
+    <string name="player_appearance_minimize_to_audio_bar_subtitle">إرسال الفيديوهات المطوية مباشرة إلى شريط المشغل المصغر كبث صوتي</string>
     <string name="settings_section_general">عام</string>
     <string name="settings_highlight_new_title">تميين الإعدادات الجديدة</string>
     <string name="settings_highlight_new_summary">إظهار نقطة شارة على خيارات الإعدادات الجديدة</string>

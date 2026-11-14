@@ -152,6 +152,7 @@ internal fun PlayerSettingsSheetHost(
             }
         },
         onSleepTimerClick = { screenState.open(PlayerSheet.SleepTimer) },
+        onStatsForNerds = { screenState.showStatsForNerds = true },
         sponsorBlockSegmentCount = if (sponsorBlockEnabled) sponsorSegments.count { it.endTime > it.startTime } else 0,
         sponsorBlockOffForVideo = sponsorBlockOffForVideo,
         onSponsorBlockToggle = playerManager::setSponsorBlockOffForVideo,

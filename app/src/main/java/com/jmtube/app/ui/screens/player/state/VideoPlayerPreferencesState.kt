@@ -55,6 +55,8 @@ internal class VideoPlayerPreferencesState(
     val feedColumns: HomeFeedColumns,
     val deArrowEnabled: Boolean,
     val tiltFullscreenRotationLocked: Boolean,
+    val chapterSkipGestureEnabled: Boolean,
+    val moreVideosSwipeEnabled: Boolean,
 )
 
 @Composable
@@ -93,6 +95,8 @@ internal fun rememberVideoPlayerPreferences(context: Context): VideoPlayerPrefer
     val feedColumns by playerPreferences.homeFeedColumns.collectAsState(initial = HomeFeedColumns.AUTO)
     val deArrowEnabled by playerPreferences.deArrowEnabled.collectAsState(initial = false)
     val tiltFullscreenRotationLocked by playerPreferences.tiltFullscreenRotationLocked.collectAsState(initial = false)
+    val chapterSkipGestureEnabled by playerPreferences.chapterSkipGestureEnabled.collectAsState(initial = true)
+    val moreVideosSwipeEnabled by playerPreferences.moreVideosSwipeEnabled.collectAsState(initial = true)
 
     return VideoPlayerPreferencesState(
         preferences = playerPreferences,
@@ -127,5 +131,7 @@ internal fun rememberVideoPlayerPreferences(context: Context): VideoPlayerPrefer
         feedColumns = feedColumns,
         deArrowEnabled = deArrowEnabled,
         tiltFullscreenRotationLocked = tiltFullscreenRotationLocked,
+        chapterSkipGestureEnabled = chapterSkipGestureEnabled,
+        moreVideosSwipeEnabled = moreVideosSwipeEnabled,
     )
 }

@@ -1234,6 +1234,8 @@
     <string name="player_appearance_sheet_artwork_colors_subtitle">Use thumbnail accent colors in description and comments sheets</string>
     <string name="settings_shorts_auto_scroll_title">Auto-scroll Shorts</string>
     <string name="settings_shorts_auto_scroll_subtitle">Automatically scroll to the next video when a Short finishes</string>
+    <string name="player_appearance_minimize_to_audio_bar_title">Minimize video to audio bar</string>
+    <string name="player_appearance_minimize_to_audio_bar_subtitle">Send collapsed videos directly to the mini bar as an audio stream</string>
     <string name="settings_section_general">General</string>
     <string name="settings_keywords_appearance">appearance theme font colors icons</string>
     <string name="settings_highlight_new_title">Highlight new settings</string>
@@ -1241,6 +1243,32 @@
     <string name="settings_highlight_new_days_title">Keep the dot for</string>
     <string name="player_appearance_paid_promotion_title">Show paid promotion label</string>
     <string name="player_appearance_paid_promotion_subtitle">Show a label when a video contains paid promotion</string>
+    <string name="paid_promotion_label">Includes paid promotion</string>
+    <string name="player_chapter_number">Chapter %1$d</string>
+    <string name="player_appearance_chapter_skip_gesture_title">Two-finger double tap for chapters</string>
+    <string name="player_appearance_chapter_skip_gesture_subtitle">Double tap with two fingers to jump to the next or previous chapter</string>
+    <string name="lyrics_in_mini_player">Lyrics in mini player</string>
+    <string name="lyrics_in_mini_player_summary">Show the line being sung in place of the artist</string>
+    <string name="player_appearance_idle_progress_title">Progress Bar With Hidden Controls</string>
+    <string name="player_appearance_idle_progress_subtitle">Where the thin bar sits in portrait</string>
+    <string name="player_appearance_idle_progress_on_video">On video</string>
+    <string name="player_appearance_idle_progress_below">Below</string>
+    <string name="player_appearance_idle_progress_off">Off</string>
+    <string name="stats_for_nerds">Stats for nerds</string>
+    <string name="stats_copy">Copy</string>
+    <string name="stats_line">%1$s: %2$s</string>
+    <string name="stats_device">Device</string>
+    <string name="stats_video_id">Video ID</string>
+    <string name="stats_video">Video</string>
+    <string name="stats_decoder">Decoder</string>
+    <string name="stats_audio">Audio</string>
+    <string name="stats_volume">Volume</string>
+    <string name="stats_bandwidth">Bandwidth</string>
+    <string name="stats_buffered">Buffered</string>
+    <string name="stats_viewport">Viewport</string>
+    <string name="stats_dropped_frames">Dropped frames</string>
+    <string name="stats_speed">Speed</string>
+    <string name="stats_skip_silence">Skip silence</string>
     <string name="profile_remove_avatar">Remove Avatar</string>
     <plurals name="settings_highlight_new_days">
         <item quantity="one">%d day</item>
@@ -4757,4 +4785,23 @@
     <string name="app_lock_unlock_button">Unlock with Biometric / Screen Lock</string>
     <string name="app_lock_use_screen_lock_button">Use PIN, Pattern, or Password</string>
     <string name="app_lock_auth_failed">Authentication was cancelled or failed</string>
+
+    <!-- Lyrics Share -->
+    <string name="lyrics_share">Share lyrics</string>
+    <string name="lyrics_share_selected">%1$d of %2$d lines selected</string>
+    <string name="lyrics_share_align_left">Left</string>
+    <string name="lyrics_share_align_center">Center</string>
+    <string name="lyrics_share_align_right">Right</string>
+    <string name="lyrics_share_frame_square">Square</string>
+    <string name="lyrics_share_frame_backdrop">Framed</string>
+    <string name="lyrics_share_frame_clear">Clear</string>
+    <string name="lyrics_share_size_fit">Fit</string>
+    <string name="lyrics_share_size_square">1:1</string>
+    <string name="lyrics_share_size_story">Story</string>
+    <string name="lyrics_share_layout_classic">Classic</string>
+    <string name="lyrics_share_layout_poster">Poster</string>
+    <string name="lyrics_share_layout_shape">Shape</string>
+    <string name="lyrics_share_save_image">Save image</string>
+    <string name="lyrics_share_image_saved">Image saved</string>
+    <string name="lyrics_share_image_failed">Could not create the image</string>
 </resources>
