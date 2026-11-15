@@ -1,4 +1,4 @@
-﻿package com.jmtube.app.ui.screens.sync
+package com.jmtube.app.ui.screens.sync
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -17,9 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.SyncDisabled
-import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -40,6 +38,7 @@ import com.jmtube.app.sync.protocol.SyncRole
 import com.jmtube.app.ui.components.layout.LocalFlowBottomInsets
 import com.jmtube.app.ui.components.layout.topbar.FlowGlobalActionsMode
 import com.jmtube.app.ui.components.layout.topbar.FlowTopBar
+import com.jmtube.app.ui.components.settings.SettingsNotice
 import com.jmtube.app.ui.components.shared.dpadFocusOnEnter
 import com.jmtube.app.ui.screens.sync.linked.LinkedDevicesSection
 
@@ -322,19 +321,18 @@ private fun SyncSetupStep(
     when (step) {
         Step.CHOOSER -> {
             LinkedDevicesSection(hostOnly)
-            HorizontalDivider()
-            SyncStepHeader(
-                icon = Icons.Outlined.Wifi,
-                title = stringResource(R.string.sync_one_time_title),
-                body = stringResource(R.string.sync_one_time_body),
-            )
-            if (oneTimeElsewhere != null) {
-                SyncInfoRow(icon = Icons.Outlined.SyncDisabled, text = stringResource(R.string.sync_default_only_title, oneTimeElsewhere))
-            } else {
-                SyncChooserContent(
-                    onSend = { onStepChange(Step.SEND_SELECT) },
-                    onReceive = { if (hostOnly) onHost(SyncRole.RECEIVER) else onStepChange(Step.RECEIVE_TRANSPORT) },
-                )
+            SyncSection(stringResource(R.string.sync_one_time_title)) {
+                if (oneTimeElsewhere != null) {
+                    SettingsNotice(
+                        text = stringResource(R.string.sync_default_only_title, oneTimeElsewhere),
+                        icon = Icons.Outlined.SyncDisabled,
+                    )
+                } else {
+                    SyncChooserContent(
+                        onSend = { onStepChange(Step.SEND_SELECT) },
+                        onReceive = { if (hostOnly) onHost(SyncRole.RECEIVER) else onStepChange(Step.RECEIVE_TRANSPORT) },
+                    )
+                }
             }
         }
 

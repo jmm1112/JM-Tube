@@ -1,0 +1,13 @@
+JM TUBE CHANGE LOG
+VERSION: 1.2.2
+DATE: 2026-11-15
+STATUS: stable
+
+HIGHLIGHTS
+- Redesigned Sync Screen: Brand-new modular layout featuring a top-level sync status card with instant "Sync now" triggering and live sync timestamps
+- Devices-First Hierarchy: Linked devices are now highlighted at the top of the sync screen, giving immediate visibility into active devices on your network
+- Dedicated Device Sheet: Tap any linked device to open its dedicated configuration sheet to view status, adjust remote playback permissions, or remove the device
+- Simplified Sync Setup: Streamlined entry paths to easily "Create a group" or "Join a group" with intuitive "Show a code" and "Scan its code" pairing workflows
+- Play On Remote Control Sheet Tidy: Repositioned "Manage linked devices" into the header and added a prominent playing device status banner directly above the current track
+- Playback Status Clarifications: New granular status indicators ("Playing here", "Paused here", "Paused on [Device]") for seamless remote playback monitoring
+- UI Encoding & Polish: Resolved text encoding artifacts and improved visual consistency across sync and remote playback sheets
