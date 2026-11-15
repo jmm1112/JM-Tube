@@ -15,9 +15,11 @@ import com.jmtube.app.player.FeedExclusionsSource
 import com.jmtube.app.player.LocalCaptionSource
 import com.jmtube.app.player.LocalCaptions
 import com.jmtube.app.player.LocalCopySource
+import com.jmtube.app.player.shorts.ShortsPlayerPool
 import com.jmtube.app.utils.PerformanceDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Qualifier
+import javax.inject.Singleton
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -56,6 +58,10 @@ object PlayerManagerModule {
                 }
             it.feedExclusionsSource = FeedExclusionsSource { neuroEngine.get().feedExclusions() }
         }
+
+    @Provides
+    @Singleton
+    fun provideShortsPlayerPool(): ShortsPlayerPool = ShortsPlayerPool.getInstance()
 
     @Provides
     @NetworkIoDispatcher

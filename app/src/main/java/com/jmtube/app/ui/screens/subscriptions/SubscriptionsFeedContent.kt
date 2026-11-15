@@ -148,9 +148,10 @@ internal fun SubscriptionsFeedContent(
                                 selected = state.selectedGroupName == null,
                                 onClick = { onGroupSelected(null) },
                             )
-                            state.groups.forEach { group ->
+                            val chips = state.groupChips()
+                            chips.forEach { group ->
                                 FlowFilterChip(
-                                    label = group.name,
+                                    label = if (group.isUngrouped()) stringResource(R.string.group_ungrouped) else group.name,
                                     selected = state.selectedGroupName == group.name,
                                     onClick = { onGroupSelected(group.name) },
                                 )

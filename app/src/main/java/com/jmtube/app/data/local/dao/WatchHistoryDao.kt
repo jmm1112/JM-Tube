@@ -63,7 +63,7 @@ interface WatchHistoryDao {
     /** [getHistoryPage] with only what watched and progress checks read. */
     @Query(
         """
-        SELECT videoId, position, duration, timestamp FROM watch_history
+        SELECT videoId, position, duration, timestamp, isMusic, isLocal FROM watch_history
         WHERE (:isMusic < 0 OR isMusic = :isMusic)
         AND (:isLocal < 0 OR isLocal = :isLocal)
         AND (timestamp < :beforeTimestamp OR (timestamp = :beforeTimestamp AND videoId > :afterVideoId))
@@ -147,17 +147,17 @@ interface WatchHistoryDao {
 
     /** Every Short with progress; which of them count as watched is [WatchedThreshold.isWatched]'s call. */
     @Query(
-        "SELECT videoId, position, duration, timestamp FROM watch_history " +
+        "SELECT videoId, position, duration, timestamp, isMusic, isLocal FROM watch_history " +
             "WHERE isMusic = 0 AND isLocal = 0 AND isShort = 1 AND position > 0 AND duration > 0",
     )
     suspend fun readShortProgress(): List<WatchProgress>
 
-    @Query("SELECT videoId, position, duration, timestamp FROM watch_history WHERE videoId = :videoId")
+    @Query("SELECT videoId, position, duration, timestamp, isMusic, isLocal FROM watch_history WHERE videoId = :videoId")
     suspend fun getProgress(videoId: String): WatchProgress?
 
     /** Progress for just [videoIds], so a search page asks about its own results and nothing else. */
     @Query(
-        "SELECT videoId, position, duration, timestamp FROM watch_history " +
+        "SELECT videoId, position, duration, timestamp, isMusic, isLocal FROM watch_history " +
             "WHERE isMusic = 0 AND isLocal = 0 AND videoId IN (:videoIds)",
     )
     suspend fun getProgressFor(videoIds: List<String>): List<WatchProgress>
@@ -210,6 +210,8 @@ data class WatchProgress(
     val position: Long,
     val duration: Long,
     val timestamp: Long,
+    val isMusic: Boolean = false,
+    val isLocal: Boolean = false,
 )
 
 /** One row of [WatchHistoryDao.getChannelVideoCounts]. */

@@ -56,11 +56,12 @@ internal fun List<SearchResultItem>.withWatchState(
     }
 }
 
-/** Shorts count as watched on the Shorts line (#979), videos on the user's [threshold]. */
+/** Shorts count as watched on the Shorts line (#979), videos on the user's [threshold] and, with [countImported], when imported. */
 internal fun watchedVideoIds(
     videos: List<Video>,
     progress: List<WatchProgress>,
     threshold: WatchedThreshold,
+    countImported: Boolean = false,
 ): Set<String> {
     val byId = progress.associateBy { it.videoId }
     return videos
@@ -69,7 +70,7 @@ internal fun watchedVideoIds(
             if (video.isShort) {
                 isShortComplete(entry.position, entry.duration)
             } else {
-                threshold.isWatched(entry.position, entry.duration)
+                threshold.isWatched(entry.position, entry.duration, countImported)
             }
         }.mapTo(HashSet()) { it.id }
 }

@@ -24,13 +24,14 @@ class SubscriptionWatchedVideos
                 viewHistory.getVideoWatchProgress(),
                 playerPreferences.hideWatchedVideosFromSubscriptions,
                 playerPreferences.watchedThreshold,
+                playerPreferences.countImportedAsWatched,
                 database.downloadDao().getVideoDownloads(),
-            ) { history, hideWatched, threshold, downloads ->
+            ) { history, hideWatched, threshold, countImported, downloads ->
                 if (!hideWatched) return@combine emptySet<String>()
                 val downloadedIds = downloads.mapTo(HashSet()) { it.download.videoId }
                 history
                     .asSequence()
-                    .filter { threshold.isWatched(it.position, it.duration) || it.videoId in downloadedIds }
+                    .filter { threshold.isWatched(it.position, it.duration, countImported) || it.videoId in downloadedIds }
                     .map { it.videoId }
                     .toHashSet()
             }.distinctUntilChanged()

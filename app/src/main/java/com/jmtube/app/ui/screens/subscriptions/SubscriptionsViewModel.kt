@@ -126,17 +126,32 @@ class SubscriptionsViewModel
                     playerPreferences.subscriptionShowVideos,
                     playerPreferences.effectiveSubscriptionShowShorts,
                     playerPreferences.subscriptionShowLive,
-                ) { showVideos, showShorts, showLive ->
-                    Triple(showVideos, showShorts, showLive)
+                    playerPreferences.subscriptionShowUpcoming,
+                ) { showVideos, showShorts, showLive, showUpcoming ->
+                    listOf(showVideos, showShorts, showLive, showUpcoming)
                 }.distinctUntilChanged()
-                    .collect { (showVideos, showShorts, showLive) ->
+                    .collect { (showVideos, showShorts, showLive, showUpcoming) ->
                         _uiState.update {
                             it.copy(
                                 showSubscriptionVideos = showVideos,
                                 showSubscriptionShorts = showShorts,
                                 showSubscriptionLive = showLive,
+                                showSubscriptionUpcoming = showUpcoming,
                             )
                         }
+                        refreshVisibleFeed()
+                    }
+            }
+
+            viewModelScope.launch(PerformanceDispatcher.diskIO) {
+                combine(
+                    playerPreferences.subscriptionUngroupedEnabled,
+                    playerPreferences.subscriptionUngroupedPosition,
+                    playerPreferences.subscriptionPostsChip,
+                    ::Triple,
+                ).distinctUntilChanged()
+                    .collect { (enabled, position, postsChip) ->
+                        _uiState.update { it.copy(ungroupedEnabled = enabled, ungroupedPosition = position, showPostsChip = postsChip) }
                         refreshVisibleFeed()
                     }
             }
@@ -340,16 +355,11 @@ class SubscriptionsViewModel
                             showVideos = state.showSubscriptionVideos,
                             showShorts = state.showSubscriptionShorts,
                             showLive = state.showSubscriptionLive,
+                            showUpcoming = state.showSubscriptionUpcoming,
                             watchedVideoIds = watchedVideoIds,
                             watchedShortIds = watchedShortIds,
                             unplayableVideoIds = unplayableVideoIds,
-                            allowedChannelIds =
-                                state.selectedGroupName?.let { name ->
-                                    state.groups
-                                        .find { it.name == name }
-                                        ?.channelIds
-                                        ?.toHashSet()
-                                },
+                            allowedChannelIds = state.selectedGroupScope(),
                             excludedShortsChannelIds = excludedShortsChannelIds,
                             exclusions = neuroEngine.feedExclusions(),
                         ),

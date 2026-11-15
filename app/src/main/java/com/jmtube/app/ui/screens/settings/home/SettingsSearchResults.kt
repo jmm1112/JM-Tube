@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.jmtube.app.BuildConfig
 import com.jmtube.app.R
+import com.jmtube.app.ui.components.settings.LocalNewSettings
 import com.jmtube.app.ui.components.settings.SettingEntry
 import com.jmtube.app.ui.components.settings.SettingsDestination
 import com.jmtube.app.ui.components.settings.SettingsListScope
@@ -82,6 +83,7 @@ internal fun SettingsListScope.searchResults(
                     supportingText = result.breadcrumb,
                     onClick = { onResultClick(result.entry) },
                     shape = shape,
+                    titleBadge = result.entry.key in LocalNewSettings.current,
                 )
             }
         }

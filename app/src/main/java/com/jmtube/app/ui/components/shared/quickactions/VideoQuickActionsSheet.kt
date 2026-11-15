@@ -10,6 +10,7 @@ import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.PlaylistRemove
@@ -61,7 +62,7 @@ import com.jmtube.app.ui.components.shared.sharedSubscriptionBellViewModel
 import com.jmtube.app.utils.youtubeWatchUrl
 import kotlinx.coroutines.launch
 
-private enum class VideoMenuPage { Actions, Details, Collaborators, Save }
+private enum class VideoMenuPage { Actions, Details, Collaborators, Save, ReportAi }
 
 /**
  * A video's menu. [title] and [thumbnailUrl] are what the card shows, so a DeArrow title stays the
@@ -106,6 +107,10 @@ fun VideoQuickActionsBottomSheet(
                 MediaDetailsPage(subject = video.toDetailsSubject(title, whyShown))
             }
 
+            VideoMenuPage.ReportAi -> {
+                AiReportPage(video = video, viewModel = viewModel, onBack = toActions, onClose = close)
+            }
+
             VideoMenuPage.Collaborators -> {
                 QuickActionsPageHeader(title = stringResource(R.string.collaborators), onBack = toActions, onClose = close)
                 QuickActionsGroup(title = null, rows = collaboratorRows(collaborators, onOpened = close, viewModel = viewModel))
@@ -138,11 +143,14 @@ fun VideoQuickActionsBottomSheet(
                             listOf(
                                 channelRow(video, collaborators, viewModel, close) {
                                     page = VideoMenuPage.Collaborators
-                                },
+                                }
                             ),
                     )
                 }
-                QuickActionsGroup(title = stringResource(R.string.section_algorithm), rows = feedRows(video, viewModel, close))
+                QuickActionsGroup(
+                    title = stringResource(R.string.section_algorithm),
+                    rows = feedRows(video, viewModel, close, onReportAi = { page = VideoMenuPage.ReportAi }),
+                )
                 val removeRow =
                     if (onRemoveFromCollection != null && removeFromCollectionLabel != null) {
                         actionRow("remove", removeFromCollectionIcon, removeFromCollectionLabel, destructive = true) {
@@ -308,10 +316,12 @@ private fun feedRows(
     video: Video,
     viewModel: QuickActionsViewModel,
     onDismiss: () -> Unit,
+    onReportAi: () -> Unit,
 ): List<QuickActionRow> {
     val haptics = LocalHapticFeedback.current
     val isWatched = isWatchedProgress(rememberWatchProgress(video.id))
-    return listOf(
+    val reportAi by viewModel.aiReportEnabled.collectAsStateWithLifecycle()
+    return listOfNotNull(
         actionRow("interested", Icons.Outlined.ThumbUp, stringResource(R.string.i_like_this)) {
             haptics.performHapticFeedback(HapticFeedbackType.Confirm)
             viewModel.markAsInteresting(video)
@@ -345,6 +355,18 @@ private fun feedRows(
         ) {
             viewModel.blockChannel(video)
             onDismiss()
+        },
+        if (reportAi && video.channelId.isNotBlank()) {
+            QuickActionRow("report_ai") { shape ->
+                FlowNavRow(
+                    title = stringResource(R.string.ai_report_action),
+                    leadingIcon = Icons.Outlined.Flag,
+                    onClick = onReportAi,
+                    shape = shape,
+                )
+            }
+        } else {
+            null
         },
     )
 }

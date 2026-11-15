@@ -73,6 +73,8 @@ import com.jmtube.app.ui.screens.playon.PlayOnHost
 import com.jmtube.app.ui.screens.sync.linked.LinkedSyncAlerts
 import com.jmtube.app.ui.screens.update.UPDATE_ROUTE
 import com.jmtube.app.ui.screens.update.UpdateLaunchEffect
+import com.jmtube.app.ui.screens.settings.wellbeing.TIMES_UP_ROUTE
+import com.jmtube.app.ui.screens.settings.wellbeing.TimesUpLaunchEffect
 import com.jmtube.app.ui.theme.ThemeMode
 import com.jmtube.app.ui.theme.ThemeVariant
 import com.jmtube.app.ui.utils.LocalWindowSizeClass
@@ -623,5 +625,9 @@ fun FlowApp(
         )
 
         UpdateLaunchEffect(needsOnboarding = needsOnboarding, onOpenUpdate = { navController.navigate(UPDATE_ROUTE) })
+        TimesUpLaunchEffect(enabled = needsOnboarding == false && !isInPipMode) {
+            collapseExpandedPlayers()
+            navController.navigate(TIMES_UP_ROUTE) { launchSingleTop = true }
+        }
     }
 }

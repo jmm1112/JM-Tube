@@ -33,6 +33,7 @@ import com.jmtube.app.data.shorts.ShortsFeedRepository
 import com.jmtube.app.data.subscriptions.HomeSubscriptionUploads
 import com.jmtube.app.innertube.pages.renderer.FeedItemOwner
 import com.jmtube.app.ui.screens.home.chips.ChipFeedContext
+import com.jmtube.app.ui.screens.home.chips.HomeChip
 import com.jmtube.app.ui.screens.home.chips.HomeChipFeeds
 import com.jmtube.app.ui.screens.home.chips.HomeChipsState
 import com.jmtube.app.utils.PerformanceDispatcher
@@ -207,8 +208,15 @@ class HomeViewModel
         private val watchedVideoIds = MutableStateFlow<Set<String>>(emptySet())
         private val watchedShortIds = MutableStateFlow<Set<String>>(emptySet())
 
-        /** The chips above the feed and what the selected one shows. */
-        internal val chips: StateFlow<HomeChipsState> = chipFeeds.state
+        /** The chips above the feed and what the selected one shows; All alone hides the row while chips are off. */
+        internal val chips: StateFlow<HomeChipsState> =
+            combine(chipFeeds.state, playerPreferences.homeChipsEnabled) { state, enabled ->
+                if (enabled) state else HomeChipsState(chips = listOf(HomeChip.All))
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(UI_STATE_SUBSCRIPTION_TIMEOUT_MS), chipFeeds.state.value)
+
+        internal val newVideosButtonEnabled: StateFlow<Boolean> =
+            playerPreferences.homeNewVideosButtonEnabled
+                .stateIn(viewModelScope, SharingStarted.WhileSubscribed(UI_STATE_SUBSCRIPTION_TIMEOUT_MS), true)
 
         fun selectChip(key: String) = chipFeeds.select(key)
 
@@ -222,6 +230,12 @@ class HomeViewModel
                 savedState = savedStateHandle,
                 context = ChipFeedContext(::cacheFilters, ::feedExclusions) { watchedVideoIds.value },
             )
+            viewModelScope.launch {
+                // Turning chips off drops the selection too, so a chip's feed stops loading behind the main one.
+                playerPreferences.homeChipsEnabled.distinctUntilChanged().collect { enabled ->
+                    if (!enabled && !chipFeeds.state.value.isAll) chipFeeds.select(HomeChip.All.key)
+                }
+            }
             if (HomeFeedCache.isFresh()) {
                 _uiState.update {
                     it.copy(
@@ -246,14 +260,15 @@ class HomeViewModel
                 combine(
                     viewHistory.getVideoHistoryFlow(),
                     playerPreferences.hideWatchedVideosFromHome,
-                    playerPreferences.watchedThreshold,
+                    playerPreferences.watchedThreshold.combine(playerPreferences.countImportedAsWatched, ::Pair),
                     playerPreferences.continueWatchingEnabled,
                     playerPreferences.hideWatchedShorts,
-                ) { history, hideWatched, threshold, continueWatchingEnabled, hideWatchedShorts ->
+                ) { history, hideWatched, (threshold, countImported), continueWatchingEnabled, hideWatchedShorts ->
                     filterHomeHistory(
                         history = history,
                         hideWatchedVideos = hideWatched,
                         watchedThreshold = threshold,
+                        countImported = countImported,
                         continueWatchingEnabled = continueWatchingEnabled,
                         hideWatchedShorts = hideWatchedShorts,
                     )

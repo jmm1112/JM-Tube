@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -167,6 +168,7 @@ internal fun HomeFeedBody(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val newVideosButtonEnabled by viewModel.newVideosButtonEnabled.collectAsStateWithLifecycle()
     when {
         !homeFeedEnabled -> {
             HomeFeedDisabledState(modifier = Modifier.fillMaxSize())
@@ -232,7 +234,7 @@ internal fun HomeFeedBody(
                     showShorts = showShorts,
                 )
                 HomeNewVideosButton(
-                    visible = uiState.pendingFeed != null,
+                    visible = uiState.pendingFeed != null && newVideosButtonEnabled,
                     onClick = {
                         viewModel.showNewVideos()
                         scope.launch { gridStates.feed.scrollToItem(0) }

@@ -19,6 +19,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
 import com.jmtube.app.data.local.PlayerPreferences
+import com.jmtube.app.data.contentfilter.aislist.AiListMatcher
 import com.jmtube.app.data.model.Video
 import com.jmtube.app.utils.traced
 import kotlinx.coroutines.CoroutineScope
@@ -466,6 +467,10 @@ class FlowNeuroEngine internal constructor(
         )
 
     private var currentUserBrain: UserBrain = UserBrain()
+
+    /** The AI channel list's current matcher, set once at app start (see FlowApplication). */
+    @Volatile
+    var aiListMatcher: () -> AiListMatcher = { AiListMatcher.NONE }
 
     @Volatile
     private var isInitialized = false
@@ -1910,6 +1915,7 @@ class FlowNeuroEngine internal constructor(
                 brain.blockedTopics.isNotEmpty() &&
                     NeuroScoring.isBlockedByText(title, channelName, matchers, tokenizer::keyOf)
             },
+            ai = aiListMatcher(),
         )
     }
 
@@ -2134,6 +2140,7 @@ class FlowNeuroEngine internal constructor(
                 }
 
             // Pre-filter blocked content
+            val aiList = aiListMatcher()
             val filtered =
                 candidates.filter { video ->
                     if (video.id in activeSuppressedVideos) return@filter false
@@ -2141,6 +2148,7 @@ class FlowNeuroEngine internal constructor(
                     if (brain.blockedChannels.contains(video.channelId)) {
                         return@filter false
                     }
+                    if (aiList.blocks(video)) return@filter false
                     !NeuroScoring.isBlockedByText(
                         video.title,
                         video.channelName,

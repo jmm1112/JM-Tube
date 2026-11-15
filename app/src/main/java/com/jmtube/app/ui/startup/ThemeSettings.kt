@@ -1,10 +1,14 @@
 package com.jmtube.app.ui.startup
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.font.FontFamily
 import com.jmtube.app.data.local.AppFontPreferences
 import com.jmtube.app.data.local.LocalDataManager
+import com.jmtube.app.ui.components.shared.LocalClassicLoadingIndicator
+import com.jmtube.app.ui.components.shared.LocalMarqueeEnabled
+import com.jmtube.app.ui.components.shared.LocalSkeletonGradientEnabled
 import com.jmtube.app.ui.theme.CustomTheme
 import com.jmtube.app.ui.theme.FlowFontFamily
 import com.jmtube.app.ui.theme.FlowTheme
@@ -23,6 +27,9 @@ data class ThemeSettings(
     val systemDarkThemeMode: ThemeMode = ThemeMode.DARK,
     val systemDarkThemeVariant: ThemeVariant = ThemeVariant.DARK,
     val fontFamily: FontFamily = FlowFontFamily,
+    val skeletonGradient: Boolean = false,
+    val marqueeEnabled: Boolean = true,
+    val classicLoadingIndicator: Boolean = false,
 )
 
 fun LocalDataManager.themeSettings(fonts: AppFontPreferences): Flow<ThemeSettings> =
@@ -30,6 +37,9 @@ fun LocalDataManager.themeSettings(fonts: AppFontPreferences): Flow<ThemeSetting
         ThemeSettings(mode, variant, custom, light, dark)
     }.combine(systemDarkThemeVariant) { settings, darkVariant -> settings.copy(systemDarkThemeVariant = darkVariant) }
         .combine(fonts.fontFamily) { settings, family -> settings.copy(fontFamily = family) }
+        .combine(skeletonGradient) { settings, gradient -> settings.copy(skeletonGradient = gradient) }
+        .combine(marqueeEnabled) { settings, marquee -> settings.copy(marqueeEnabled = marquee) }
+        .combine(classicLoadingIndicator) { settings, classic -> settings.copy(classicLoadingIndicator = classic) }
 
 @Composable
 fun FlowTheme(
@@ -43,5 +53,12 @@ fun FlowTheme(
     systemDarkThemeMode = settings.systemDarkThemeMode,
     systemDarkThemeVariant = settings.systemDarkThemeVariant,
     fontFamily = settings.fontFamily,
-    content = content,
+    content = {
+        CompositionLocalProvider(
+            LocalSkeletonGradientEnabled provides settings.skeletonGradient,
+            LocalMarqueeEnabled provides settings.marqueeEnabled,
+            LocalClassicLoadingIndicator provides settings.classicLoadingIndicator,
+            content = content,
+        )
+    },
 )

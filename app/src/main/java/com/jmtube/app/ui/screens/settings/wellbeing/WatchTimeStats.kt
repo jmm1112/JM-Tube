@@ -1,9 +1,11 @@
 package com.jmtube.app.ui.screens.settings.wellbeing
 
 import androidx.compose.runtime.Immutable
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.ZonedDateTime
 
 internal const val WEEK_DAYS = 7
 
@@ -48,6 +50,10 @@ data class WatchRecord(
     val timestamp: Long,
     val watchedMillis: Long,
 )
+
+/** Time left until the next calendar day starts in [now]'s zone. A day can run 23 or 25 hours. */
+internal fun millisUntilNextDay(now: ZonedDateTime): Long =
+    Duration.between(now, now.toLocalDate().plusDays(1).atStartOfDay(now.zone)).toMillis()
 
 /**
  * Buckets [records] into the seven calendar days ending [today] in [zone]. A record counts on the

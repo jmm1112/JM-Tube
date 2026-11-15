@@ -66,6 +66,9 @@ class MainActivity : ComponentActivity() {
     lateinit var deArrow: DeArrowRepository
 
     @Inject
+    lateinit var aiList: com.jmtube.app.data.contentfilter.aislist.AiListRepository
+
+    @Inject
     lateinit var lifecyclePlaybackPreferences: LifecyclePlaybackPreferences
 
     @Inject
@@ -196,6 +199,7 @@ class MainActivity : ComponentActivity() {
                 splashController = splashController,
                 originalTitles = originalTitles,
                 deArrow = deArrow,
+                aiList = aiList,
                 appIconController = appIconController,
                 appLockPreferences = appLockPreferences,
                 onUiRoot = { cachedAppUiRoot = it },

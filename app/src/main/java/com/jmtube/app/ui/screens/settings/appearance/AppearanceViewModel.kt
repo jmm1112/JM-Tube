@@ -32,7 +32,7 @@ class AppearanceViewModel
         private val preferences: PlayerPreferences,
         private val uiModePreferences: AppUiModePreferences,
         private val appIconController: AppIconController,
-        localDataManager: LocalDataManager,
+        private val localDataManager: LocalDataManager,
         fontPreferences: AppFontPreferences,
     ) : SettingsViewModel() {
         val themeMode = localDataManager.themeMode.asState(ThemeMode.SYSTEM)
@@ -148,11 +148,20 @@ class AppearanceViewModel
 
         fun setShowNavOnOtherPages(enabled: Boolean) = write { preferences.setShowNavOnOtherPages(enabled) }
 
-        fun setSkeletonGradient(enabled: Boolean) = write { preferences.setSkeletonGradientEnabled(enabled) }
+        fun setSkeletonGradient(enabled: Boolean) = write {
+            preferences.setSkeletonGradientEnabled(enabled)
+            localDataManager.setSkeletonGradient(enabled)
+        }
 
-        fun setMarqueeEnabled(enabled: Boolean) = write { preferences.setMarqueeEnabled(enabled) }
+        fun setMarqueeEnabled(enabled: Boolean) = write {
+            preferences.setMarqueeEnabled(enabled)
+            localDataManager.setMarqueeEnabled(enabled)
+        }
 
-        fun setClassicLoadingIndicator(enabled: Boolean) = write { preferences.setClassicLoadingIndicatorEnabled(enabled) }
+        fun setClassicLoadingIndicator(enabled: Boolean) = write {
+            preferences.setClassicLoadingIndicatorEnabled(enabled)
+            localDataManager.setClassicLoadingIndicator(enabled)
+        }
 
         fun setHaptics(enabled: Boolean) = write { preferences.setHapticsEnabled(enabled) }
 

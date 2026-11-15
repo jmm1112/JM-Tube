@@ -361,7 +361,7 @@ internal fun SubscriptionGroupDialogsHost(
 
     if (!editing) {
         SubscriptionGroupsManagerDialog(
-            groups = uiState.groups,
+            groups = uiState.managedGroups(),
             onDismiss = onDismiss,
             onCreateNew = {
                 editingGroup = null

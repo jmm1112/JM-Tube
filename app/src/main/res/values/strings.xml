@@ -4804,4 +4804,120 @@
     <string name="lyrics_share_save_image">Save image</string>
     <string name="lyrics_share_image_saved">Image saved</string>
     <string name="lyrics_share_image_failed">Could not create the image</string>
+
+    <!-- New Badge -->
+    <string name="new_badge_label">New</string>
+
+    <!-- Watched Videos & Feed Content -->
+    <string name="content_settings_count_imported_watched_title">Count imported history as watched</string>
+    <string name="content_settings_count_imported_watched_subtitle">Videos from a YouTube history import show as watched</string>
+    <string name="settings_keywords_count_imported_watched">takeout, import, youtube history, seen</string>
+    <string name="content_settings_home_chips_title">Topic filters</string>
+    <string name="content_settings_home_chips_subtitle">Show topic chips at the top of the home feed</string>
+    <string name="content_settings_home_new_videos_title">New videos button</string>
+    <string name="content_settings_home_new_videos_subtitle">Show a button when new videos arrive on the home feed</string>
+    <string name="content_settings_subs_show_upcoming_title">Upcoming</string>
+    <string name="content_settings_subs_show_upcoming_subtitle">Scheduled live streams and premieres</string>
+    <string name="content_settings_subs_posts_chip_title">Community posts</string>
+    <string name="content_settings_subs_posts_chip_subtitle">Posts chip in subscriptions feed</string>
+    <string name="content_settings_subs_ungrouped_title">Ungrouped subscriptions</string>
+    <string name="content_settings_subs_ungrouped_subtitle">Channels without a group</string>
+    <string name="group_ungrouped">Ungrouped</string>
+
+    <!-- Wellbeing: Daily Watch Limit & Times Up -->
+    <string name="daily_limit_title">Daily limit</string>
+    <string name="daily_limit_subtitle">Pause videos after a set time each day</string>
+    <string name="daily_limit_time_title">Limit</string>
+    <string name="daily_limit_time_description">How long videos can play each day</string>
+    <string name="daily_limit_music_title">Count music too</string>
+    <string name="daily_limit_music_subtitle">Music counts toward the limit and pauses with it</string>
+    <string name="daily_limit_footer">Counts the time videos play, Shorts, picture-in-picture and background play included. Nothing pauses while Android Auto is connected.</string>
+    <string name="daily_limit_warning_title">5 minutes left today</string>
+    <string name="daily_limit_warning_body">Your daily limit is almost up.</string>
+    <string name="daily_limit_reached_title">Time\'s up</string>
+    <string name="daily_limit_reached_body">You reached your daily limit, so playback is paused.</string>
+    <string name="daily_limit_wait_title">Change your limit?</string>
+    <string name="daily_limit_wait_body">Your limit already ran out today, so changing it takes a short wait.</string>
+    <string name="daily_limit_wait_confirm">Change</string>
+    <string name="daily_limit_wait_countdown">Wait %1$d s</string>
+    <string name="times_up_body">You watched %1$s today. Your daily limit is %2$s.</string>
+    <string name="times_up_keep_watching">Keep watching</string>
+    <string name="times_up_keep_watching_wait">Keep watching in %1$d s</string>
+    <string name="times_up_keep_watching_note">Keep watching adds 15 minutes.</string>
+
+    <!-- Integrations: AI Channels (AiSList) & Reports -->
+    <string name="ai_list_title">AI channels</string>
+    <string name="ai_list_block_title">Hide AI channels</string>
+    <string name="ai_list_block_summary">Uses the community list AiSList</string>
+    <string name="ai_list_warn_title">Label suspected AI channels</string>
+    <string name="ai_list_warn_summary">Marks their videos instead of hiding them</string>
+    <string name="ai_list_status_title">List</string>
+    <string name="ai_list_status_count">%1$s channels, updated %2$s</string>
+    <string name="ai_list_status_pending">Not downloaded yet</string>
+    <string name="ai_list_attribution_title">List by AiSList</string>
+    <string name="ai_list_attribution_summary">CC BY-NC 4.0</string>
+    <string name="ai_list_footer">Downloads a public list once a day. Nothing is sent.</string>
+    <string name="ai_list_label">Suspected AI</string>
+    <string name="ai_list_channel_blocked">This channel is on the AiSList block list</string>
+    <string name="ai_list_channel_warned">This channel is on the AiSList warn list</string>
+    <string name="ai_list_channel_show">Show its videos</string>
+    <string name="ai_list_allowed_header">Allowed AI channels</string>
+    <string name="ai_list_hide_again">Hide again</string>
+    <string name="ai_list_hide_again_item">Hide %1$s again</string>
+    <string name="settings_keywords_ai_list">AI, slop, generated, AiSList, filter, block</string>
+    <string name="ai_list_status_count_now">%1$s channels, updated just now</string>
+    <string name="ai_list_source_title">List source</string>
+    <string name="ai_list_source_default">JM Tube</string>
+    <string name="ai_list_source_dialog_body">Use another server that publishes the list, such as one you host. Leave the URL empty to use default.</string>
+    <string name="ai_list_source_url_hint">Server URL</string>
+    <string name="ai_list_source_url_placeholder" translatable="false">https://</string>
+    <string name="ai_list_source_key_hint">Public key (optional)</string>
+    <string name="ai_list_source_key_help">Only needed when the server signs the list with its own key</string>
+    <string name="ai_list_source_invalid">Enter an https URL and, if given, a valid Ed25519 public key</string>
+    <string name="ai_list_source_reset">Use Default</string>
+    <string name="ai_report_header">Report AI channels</string>
+    <string name="ai_report_enabled_title">Report from the video menu</string>
+    <string name="ai_report_enabled_summary">Adds Report AI channel to each video\'s menu</string>
+    <string name="ai_report_name_title">Submitter name</string>
+    <string name="ai_report_name_unset">Not set</string>
+    <string name="ai_report_name_dialog_body">AiSList shows this name next to your reports on its public leaderboard.</string>
+    <string name="ai_report_name_hint">Name</string>
+    <string name="ai_report_footer">A report sends the channel, the video and your submitter name to AiSList. Their reviewers check it before the channel is added.</string>
+    <string name="ai_report_action">Report AI channel</string>
+    <string name="ai_report_looking_up">Looking up the channel…</string>
+    <string name="ai_report_confirm">Report %1$s to AiSList, with this video as evidence?</string>
+    <string name="ai_report_confirm_note">Reviewers check every report before a channel is added.</string>
+    <string name="ai_report_send">Report</string>
+    <string name="ai_report_already_blocked">This channel is already on the AiSList block list</string>
+    <string name="ai_report_already_warned">This channel is already on the AiSList warn list</string>
+    <string name="ai_report_no_name">Set a submitter name in Settings, Integrations first</string>
+    <string name="ai_report_no_handle">Can\'t find this channel\'s handle</string>
+    <string name="ai_report_sent">Reported, waiting for review</string>
+    <string name="ai_report_busy">AiSList couldn\'t take the report, try again later</string>
+    <string name="ai_report_rate_limited">Too many reports sent, try again later</string>
+    <string name="ai_report_rejected">AiSList rejected the report</string>
+    <string name="ai_report_failed">Report failed, check your connection</string>
+
+    <!-- SponsorBlock Skip Styles & Notices -->
+    <string name="sb_skip_notice_title">Show skip message</string>
+    <string name="sb_skip_notice_summary">Shows a message when a segment is skipped</string>
+    <string name="sb_skip_style_title">Skip button style</string>
+    <string name="sb_skip_style_full">Full</string>
+    <string name="sb_skip_style_full_detail">Names the segment</string>
+    <string name="sb_skip_style_compact">Compact</string>
+    <string name="sb_skip_style_compact_detail">Just Skip and an icon</string>
+    <string name="sb_skip_style_icon">Icon only</string>
+    <string name="sb_skip_style_icon_detail">Takes the least space</string>
+    <string name="sb_color_custom">Custom color</string>
+    <string name="sb_color_custom_value">Custom color: %1$s</string>
+    <string name="sb_action_skip_automatically">Skip automatically</string>
+    <string name="sb_action_skip_once">Skip automatically once</string>
+    <string name="sb_action_skip_once_detail">Shows a skip button if you go back into it</string>
+    <string name="sb_action_skip_button">Show a skip button</string>
+    <string name="sb_action_notify">Notify</string>
+    <string name="sb_action_with_button_detail">Also shows a skip button</string>
+    <string name="sb_action_seek_bar_only">Show in seek bar</string>
+    <string name="sb_action_disable">Disable</string>
+    <string name="sb_action_jump_button">Show a jump button</string>
+    <string name="sb_action_jump_button_detail">Offers the jump for 10 seconds as the video starts</string>
 </resources>

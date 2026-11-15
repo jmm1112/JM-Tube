@@ -9,8 +9,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
 /**
@@ -36,6 +40,21 @@ fun Modifier.shimmerEffect(
                 ),
             label = "skeleton_pulse",
         )
+    if (LocalSkeletonGradientEnabled.current) {
+        val gradient = LocalSkeletonGradient.current ?: themeSkeletonGradient()
+        return this.clip(shape).drawWithCache {
+            fun brush(
+                start: Color,
+                end: Color,
+            ) = Brush.horizontalGradient(if (layoutDirection == LayoutDirection.Rtl) listOf(end, start) else listOf(start, end))
+            val dim = brush(gradient.dimStart, gradient.dimEnd)
+            val bright = brush(gradient.brightStart, gradient.brightEnd)
+            onDrawBehind {
+                drawRect(dim)
+                drawRect(bright, alpha = pulse.value)
+            }
+        }
+    }
     val base = MaterialTheme.colorScheme.surfaceContainerHigh
     val highlight = MaterialTheme.colorScheme.surfaceContainerHighest
     return this

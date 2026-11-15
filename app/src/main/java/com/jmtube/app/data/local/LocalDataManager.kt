@@ -78,6 +78,9 @@ class LocalDataManager
             private val SYSTEM_LIGHT_THEME_MODE = stringPreferencesKey("system_light_theme_mode")
             private val SYSTEM_DARK_THEME_MODE = stringPreferencesKey("system_dark_theme_mode")
             private val SYSTEM_DARK_THEME_VARIANT = stringPreferencesKey("system_dark_theme_variant")
+            private val SKELETON_GRADIENT = booleanPreferencesKey("skeleton_gradient")
+            private val MARQUEE_ENABLED = booleanPreferencesKey("marquee_enabled")
+            private val CLASSIC_LOADING_INDICATOR = booleanPreferencesKey("classic_loading_indicator")
 
             val AUTO_BACKUP_LAST_RUN =
                 androidx.datastore.preferences.core
@@ -184,6 +187,24 @@ class LocalDataManager
 
         suspend fun setSystemDarkThemeVariant(variant: ThemeVariant) {
             context.dataStore.edit { prefs -> prefs[SYSTEM_DARK_THEME_VARIANT] = variant.name }
+        }
+
+        val skeletonGradient: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[SKELETON_GRADIENT] ?: false }
+
+        suspend fun setSkeletonGradient(enabled: Boolean) {
+            context.dataStore.edit { prefs -> prefs[SKELETON_GRADIENT] = enabled }
+        }
+
+        val marqueeEnabled: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[MARQUEE_ENABLED] ?: true }
+
+        suspend fun setMarqueeEnabled(enabled: Boolean) {
+            context.dataStore.edit { prefs -> prefs[MARQUEE_ENABLED] = enabled }
+        }
+
+        val classicLoadingIndicator: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[CLASSIC_LOADING_INDICATOR] ?: false }
+
+        suspend fun setClassicLoadingIndicator(enabled: Boolean) {
+            context.dataStore.edit { prefs -> prefs[CLASSIC_LOADING_INDICATOR] = enabled }
         }
 
         /** A stored theme name as today's mode: retired palettes land on their successor, unknown names on [fallback]. */

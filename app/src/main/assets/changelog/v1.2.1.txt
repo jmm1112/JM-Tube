@@ -6,6 +6,12 @@ STATUS: stable
 HIGHLIGHTS
 - Media Player Notification Widget Like Button: Added Like/Favorite button directly to the Android notification panel's media player widget with real-time background sync, allowing users to like or unlike the currently playing track without opening the app
 - Shorts Auto-Scroll Support: Added auto-scroll capability for the Shorts section that automatically scrolls and transitions to the next video when playback ends, with seamless repeat mode handling and comment/description sheet pause protection
+- Digital Wellbeing & Daily Watch Limits: Comprehensive daily watch limits with customizable countdown warnings, Time's Up screen lockout, and background DailyLimitGuard enforcement across video, music, and shorts
+- Highlight New Settings ("Keep the dot"): Dynamic feature badges and dots across settings categories to highlight newly introduced settings until visited
+- Gradient Loading Shimmer Placeholders: Fluid animated skeleton gradient placeholders for video thumbnails and cards matching the active color theme
+- Feed & Watched Content Settings: Support for counting imported Takeout videos as watched, configurable watched progress thresholds, toggleable Home chips, Home new videos button, subscription upcoming videos, posts chip, and ungrouped channel section
+- AI Channel Filter & Reporting Integration: Built-in AiSList community filtering with options to hide or label suspected AI-generated channels, custom list source support, and one-tap AI channel reporting from video menus
+- SponsorBlock Enhancements: Added Skip button styles, skip notices, highlight jump button, and fine-grained action handling for SponsorBlock categories
 - Paid Promotion Chip UI: Displays translucent overlay chip on videos containing paid promotions or sponsorships
 - Gesture Chapter Skipping: Two-finger double-tap gesture to seamlessly jump forward or backward between video chapters
 - Mini Player Synced Lyrics: Real-time synced lyric lines directly within the music mini player bar

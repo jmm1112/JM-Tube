@@ -249,7 +249,7 @@ class SponsorBlockHandler(
             Log.d(TAG, "Segment hit: ${segment.category} action=$action")
 
             return when (action) {
-                SponsorBlockAction.SKIP -> {
+                SponsorBlockAction.SKIP, SponsorBlockAction.SKIP_ONCE -> {
                     lastSkippedSegmentUuid = segment.uuid
                     _skipEvent.tryEmit(segment)
                     (segment.endTime * 1000).toLong()
@@ -269,7 +269,7 @@ class SponsorBlockHandler(
                     null
                 }
 
-                SponsorBlockAction.IGNORE -> {
+                SponsorBlockAction.SKIP_BUTTON, SponsorBlockAction.IGNORE, SponsorBlockAction.DISABLED -> {
                     null
                 }
             }

@@ -94,6 +94,12 @@ class JMTubeApplication :
     @Inject
     lateinit var linkedForeground: LinkedForeground
 
+    @Inject
+    lateinit var dailyLimitGuard: com.jmtube.app.notification.DailyLimitGuard
+
+    @Inject
+    lateinit var aiList: com.jmtube.app.data.contentfilter.aislist.AiListRepository
+
     override fun newImageLoader(context: PlatformContext): ImageLoader = imageLoader
 
     companion object {
@@ -113,6 +119,8 @@ class JMTubeApplication :
         super.onCreate()
         appContext = applicationContext
         linkedForeground.install()
+        dailyLimitGuard.install()
+        com.jmtube.app.data.recommendation.FlowNeuroEngine.getInstance(this).aiListMatcher = aiList::currentMatcher
         YouTube.cacheDirectory = cacheDir.resolve("innertube_http_cache")
 
         DiscordPresenceRuntime.initialize(this, okHttpClient)

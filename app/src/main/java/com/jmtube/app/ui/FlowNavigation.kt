@@ -9,6 +9,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import com.jmtube.app.ui.components.settings.LocalNewSettings
+import com.jmtube.app.ui.screens.settings.rememberNewSettings
+import com.jmtube.app.ui.screens.settings.wellbeing.TIMES_UP_ROUTE
+import com.jmtube.app.ui.screens.settings.wellbeing.TimesUpScreen
 import androidx.navigation.navArgument
 import com.jmtube.app.data.local.PlaylistRepository
 import com.jmtube.app.data.localmedia.LocalMediaIds
@@ -108,6 +112,11 @@ fun NavGraphBuilder.flowAppGraph(
     composable(UPDATE_ROUTE) {
         currentRoute.value = UPDATE_ROUTE
         UpdateScreen(onClose = { navController.popBackStack() })
+    }
+
+    composable(TIMES_UP_ROUTE) {
+        currentRoute.value = TIMES_UP_ROUTE
+        TimesUpScreen(onClose = { navController.popBackStack() })
     }
 
     // Notifications Screen
@@ -269,7 +278,9 @@ fun NavGraphBuilder.flowAppGraph(
 
     composable(EQUALIZER_ROUTE) {
         currentRoute.value = EQUALIZER_ROUTE
-        EqualizerScreen(onBack = { navController.popBackStack() })
+        CompositionLocalProvider(LocalNewSettings provides rememberNewSettings()) {
+            EqualizerScreen(onBack = { navController.popBackStack() })
+        }
     }
 
     composable("categories") {

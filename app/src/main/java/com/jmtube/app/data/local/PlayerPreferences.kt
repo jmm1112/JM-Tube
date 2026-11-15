@@ -31,6 +31,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
 internal fun resolveMigratedHideWatchedPreference(
@@ -198,6 +200,8 @@ class PlayerPreferences(
         val HOME_VIEW_MODE = stringPreferencesKey("home_view_mode")
         val HOME_FEED_COLUMNS = stringPreferencesKey("home_feed_columns")
         val HOME_FEED_ENABLED = booleanPreferencesKey("home_feed_enabled")
+        val HOME_CHIPS_ENABLED = booleanPreferencesKey("home_chips_enabled")
+        val HOME_NEW_VIDEOS_BUTTON_ENABLED = booleanPreferencesKey("home_new_videos_button_enabled")
         val REFRESH_HOME_ON_RESELECT = booleanPreferencesKey("refresh_home_on_reselect")
         val RELATED_CARD_STYLE = stringPreferencesKey("related_card_style")
 
@@ -226,11 +230,20 @@ class PlayerPreferences(
         // SponsorBlock submit
         val SB_SUBMIT_ENABLED = booleanPreferencesKey("sb_submit_enabled")
         val SB_USER_ID = stringPreferencesKey("sb_user_id")
+        val SB_SKIP_NOTICE_ENABLED = booleanPreferencesKey("sb_skip_notice_enabled")
+        val SB_SKIP_BUTTON_STYLE = stringPreferencesKey("sb_skip_button_style")
 
         // DeArrow
         val DEARROW_ENABLED = booleanPreferencesKey("dearrow_enabled")
         val DEARROW_BADGE_ENABLED = booleanPreferencesKey("dearrow_badge_enabled")
         val DEARROW_RANDOM_FRAME = booleanPreferencesKey("dearrow_random_frame")
+
+        // AI channel list
+        val AI_LIST_BLOCK_ENABLED = booleanPreferencesKey("ai_list_block_enabled")
+        val AI_LIST_WARN_ENABLED = booleanPreferencesKey("ai_list_warn_enabled")
+        val AI_LIST_ALLOWED = stringPreferencesKey("ai_list_allowed")
+        val AI_LIST_REPORT_ENABLED = booleanPreferencesKey("ai_list_report_enabled")
+        val AI_LIST_REPORT_NAME = stringPreferencesKey("ai_list_report_name")
 
         // Notification preferences
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
@@ -292,6 +305,7 @@ class PlayerPreferences(
         val HIDE_WATCHED_SUBSCRIPTIONS = booleanPreferencesKey("hide_watched_subscriptions")
         val HIDE_WATCHED_SHORTS = booleanPreferencesKey("hide_watched_shorts")
         val WATCHED_THRESHOLD = stringPreferencesKey("watched_threshold")
+        val COUNT_IMPORTED_AS_WATCHED = booleanPreferencesKey("count_imported_as_watched")
         val SHARED_LINK_ACTION = stringPreferencesKey("shared_link_action")
         val DISABLE_SHORTS_PLAYER = booleanPreferencesKey("disable_shorts_player")
         val SHOW_SHORTS_PLAYER_PROMPT = booleanPreferencesKey("show_shorts_player_prompt")
@@ -337,6 +351,10 @@ class PlayerPreferences(
         val SUBSCRIPTION_SHOW_VIDEOS = booleanPreferencesKey("subscription_show_videos")
         val SUBSCRIPTION_SHOW_SHORTS = booleanPreferencesKey("subscription_show_shorts")
         val SUBSCRIPTION_SHOW_LIVE = booleanPreferencesKey("subscription_show_live")
+        val SUBSCRIPTION_SHOW_UPCOMING = booleanPreferencesKey("subscription_show_upcoming")
+        val SUBS_POSTS_CHIP = booleanPreferencesKey("subs_posts_chip")
+        val SUBS_UNGROUPED_ENABLED = booleanPreferencesKey("subs_ungrouped_enabled")
+        val SUBS_UNGROUPED_POSITION = intPreferencesKey("subs_ungrouped_position")
         val SUBSCRIPTION_SHORTS_EXCLUDED_CHANNELS = stringSetPreferencesKey("subscription_shorts_excluded_channels")
         val UPCOMING_VIDEO_REMINDER_IDS = stringSetPreferencesKey("upcoming_video_reminder_ids")
         val UPCOMING_VIDEO_REMINDERS = stringPreferencesKey("upcoming_video_reminders")
@@ -386,6 +404,9 @@ class PlayerPreferences(
         val APP_LANGUAGE = device(stringPreferencesKey("app_language"))
         val CONTENT_LANGUAGE = device(stringPreferencesKey("content_language"))
         val MUSIC_AUDIO_OFFLOAD_ENABLED = device(booleanPreferencesKey("music_audio_offload_enabled"))
+        val SETTINGS_FIRST_SEEN = device(stringPreferencesKey("settings_first_seen"))
+        val AI_LIST_SOURCE_URL = device(stringPreferencesKey("ai_list_source_url"))
+        val AI_LIST_SOURCE_KEY = device(stringPreferencesKey("ai_list_source_key"))
 
         // Buffer settings
         val MIN_BUFFER_MS = device(intPreferencesKey("min_buffer_ms"))
@@ -881,6 +902,27 @@ class PlayerPreferences(
         return newId
     }
 
+    /** Whether an automatic skip shows a message. The Notify action has its own message and ignores this. */
+    val sbSkipNoticeEnabled: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SB_SKIP_NOTICE_ENABLED] ?: true }
+
+    suspend fun setSbSkipNoticeEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.SB_SKIP_NOTICE_ENABLED] = enabled
+        }
+    }
+
+    val sbSkipButtonStyle: Flow<SponsorBlockSkipButtonStyle> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> SponsorBlockSkipButtonStyle.fromStored(preferences[Keys.SB_SKIP_BUTTON_STYLE]) }
+
+    suspend fun setSbSkipButtonStyle(style: SponsorBlockSkipButtonStyle) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.SB_SKIP_BUTTON_STYLE] = style.name
+        }
+    }
+
     // Slider Style preference.
     val sliderStyle: Flow<SliderStyle> =
         context.playerPreferencesDataStore.data
@@ -1338,6 +1380,22 @@ class PlayerPreferences(
         }
     }
 
+    val settingsFirstSeen: Flow<Map<String, Long>?> =
+        context.devicePreferencesDataStore.data
+            .map { preferences -> preferences[DeviceKeys.SETTINGS_FIRST_SEEN]?.let(::decodeFirstSeen) }
+            .distinctUntilChanged()
+
+    suspend fun updateSettingsFirstSeen(update: (Map<String, Long>?) -> Map<String, Long>) {
+        context.devicePreferencesDataStore.edit { preferences ->
+            val current = preferences[DeviceKeys.SETTINGS_FIRST_SEEN]?.let(::decodeFirstSeen)
+            val next = update(current)
+            if (next != current) preferences[DeviceKeys.SETTINGS_FIRST_SEEN] = Json.encodeToString(FirstSeenSerializer, next)
+        }
+    }
+
+    private fun decodeFirstSeen(raw: String): Map<String, Long>? =
+        runCatching { Json.decodeFromString(FirstSeenSerializer, raw) }.getOrNull()
+
     val newSettingsHighlight: Flow<Boolean> =
         context.playerPreferencesDataStore.data
             .map { preferences -> preferences[Keys.HIGHLIGHT_NEW_SETTINGS] ?: true }
@@ -1657,6 +1715,26 @@ class PlayerPreferences(
     suspend fun setRefreshHomeOnReselect(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.REFRESH_HOME_ON_RESELECT] = enabled
+        }
+    }
+
+    val homeChipsEnabled: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.HOME_CHIPS_ENABLED] ?: true }
+
+    suspend fun setHomeChipsEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.HOME_CHIPS_ENABLED] = enabled
+        }
+    }
+
+    val homeNewVideosButtonEnabled: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.HOME_NEW_VIDEOS_BUTTON_ENABLED] ?: true }
+
+    suspend fun setHomeNewVideosButtonEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.HOME_NEW_VIDEOS_BUTTON_ENABLED] = enabled
         }
     }
 
@@ -2119,6 +2197,75 @@ class PlayerPreferences(
     suspend fun setDeArrowRandomFrame(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.DEARROW_RANDOM_FRAME] = enabled
+        }
+    }
+
+    // AI channel list
+    val aiListBlockEnabled: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.AI_LIST_BLOCK_ENABLED] ?: false }
+
+    suspend fun setAiListBlockEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.AI_LIST_BLOCK_ENABLED] = enabled
+        }
+    }
+
+    val aiListWarnEnabled: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.AI_LIST_WARN_ENABLED] ?: false }
+
+    suspend fun setAiListWarnEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.AI_LIST_WARN_ENABLED] = enabled
+        }
+    }
+
+    /** The channels shown despite the AI list, as the JSON its repository writes. */
+    val aiListAllowed: Flow<String?> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.AI_LIST_ALLOWED] }
+
+    suspend fun updateAiListAllowed(transform: (String?) -> String) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.AI_LIST_ALLOWED] = transform(preferences[Keys.AI_LIST_ALLOWED])
+        }
+    }
+
+    /** The custom list source as entered, URL then public key; both null means Flow's own mirror. */
+    val aiListSource: Flow<Pair<String?, String?>> =
+        context.devicePreferencesDataStore.data
+            .map { preferences -> preferences[DeviceKeys.AI_LIST_SOURCE_URL] to preferences[DeviceKeys.AI_LIST_SOURCE_KEY] }
+            .distinctUntilChanged()
+
+    suspend fun setAiListSource(
+        url: String?,
+        key: String?,
+    ) {
+        context.devicePreferencesDataStore.edit { preferences ->
+            if (url.isNullOrBlank()) preferences.remove(DeviceKeys.AI_LIST_SOURCE_URL) else preferences[DeviceKeys.AI_LIST_SOURCE_URL] = url
+            if (key.isNullOrBlank()) preferences.remove(DeviceKeys.AI_LIST_SOURCE_KEY) else preferences[DeviceKeys.AI_LIST_SOURCE_KEY] = key
+        }
+    }
+
+    val aiListReportEnabled: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.AI_LIST_REPORT_ENABLED] ?: false }
+
+    suspend fun setAiListReportEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.AI_LIST_REPORT_ENABLED] = enabled
+        }
+    }
+
+    /** The name AiSList shows beside this viewer's reports on its public leaderboard. */
+    val aiListReportName: Flow<String> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.AI_LIST_REPORT_NAME].orEmpty() }
+
+    suspend fun setAiListReportName(name: String) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            if (name.isBlank()) preferences.remove(Keys.AI_LIST_REPORT_NAME) else preferences[Keys.AI_LIST_REPORT_NAME] = name.trim()
         }
     }
 
@@ -2981,6 +3128,40 @@ class PlayerPreferences(
         }
     }
 
+    val subscriptionShowUpcoming: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SUBSCRIPTION_SHOW_UPCOMING] ?: true }
+
+    suspend fun setSubscriptionShowUpcoming(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.SUBSCRIPTION_SHOW_UPCOMING] = enabled
+        }
+    }
+
+    val subscriptionPostsChip: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SUBS_POSTS_CHIP] ?: true }
+
+    suspend fun setSubscriptionPostsChip(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences -> preferences[Keys.SUBS_POSTS_CHIP] = enabled }
+    }
+
+    val subscriptionUngroupedEnabled: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SUBS_UNGROUPED_ENABLED] ?: false }
+
+    suspend fun setSubscriptionUngroupedEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences -> preferences[Keys.SUBS_UNGROUPED_ENABLED] = enabled }
+    }
+
+    val subscriptionUngroupedPosition: Flow<Int> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SUBS_UNGROUPED_POSITION] ?: -1 }
+
+    suspend fun setSubscriptionUngroupedPosition(position: Int) {
+        context.playerPreferencesDataStore.edit { preferences -> preferences[Keys.SUBS_UNGROUPED_POSITION] = position }
+    }
+
     // PiP Preferences
     val autoPipEnabled: Flow<Boolean> =
         context.playerPreferencesDataStore.data
@@ -3059,6 +3240,17 @@ class PlayerPreferences(
     suspend fun setWatchedThreshold(threshold: WatchedThreshold) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.WATCHED_THRESHOLD] = threshold.name
+        }
+    }
+
+    /** Rows from a YouTube history import count as watched, though Takeout doesn't say how far they were watched (#2060). */
+    val countImportedAsWatched: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.COUNT_IMPORTED_AS_WATCHED] ?: false }
+
+    suspend fun setCountImportedAsWatched(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.COUNT_IMPORTED_AS_WATCHED] = enabled
         }
     }
 
@@ -4338,18 +4530,24 @@ private fun MutablePreferences.restore(backup: SettingsBackup) {
     backup.stringSets.forEach { (k, v) -> this[stringSetPreferencesKey(k)] = v }
 }
 
-/** Action to take when a SponsorBlock segment is encountered. */
+/**
+ * What the player does with a SponsorBlock segment, in the order settings list them. The names are
+ * stored and synced, so they never change: [IGNORE] is "show in seek bar" and [SHOW_TOAST] is "notify".
+ */
 enum class SponsorBlockAction(
-    val displayName: String,
+    val displayName: String = "",
 ) {
     SKIP("Skip"),
-    MUTE("Mute"),
+    SKIP_ONCE("Skip once"),
+    SKIP_BUTTON("Skip button"),
     SHOW_TOAST("Notify only"),
+    MUTE("Mute"),
     IGNORE("Ignore"),
+    DISABLED("Disable"),
     ;
 
     companion object {
-        fun fromString(name: String): SponsorBlockAction = values().find { it.name == name } ?: SKIP
+        fun fromString(name: String): SponsorBlockAction = entries.find { it.name == name } ?: SKIP
     }
 }
 
@@ -4641,3 +4839,17 @@ enum class SharedLinkAction {
 const val LYRICS_ALIGN_LEFT = "left"
 const val LYRICS_ALIGN_CENTER = "center"
 const val LYRICS_ALIGN_RIGHT = "right"
+
+/** How the skip button looks over the video. Stored and synced by name. */
+enum class SponsorBlockSkipButtonStyle {
+    FULL,
+    COMPACT,
+    ICON_ONLY,
+    ;
+
+    companion object {
+        fun fromStored(stored: String?): SponsorBlockSkipButtonStyle = entries.firstOrNull { it.name == stored } ?: FULL
+    }
+}
+
+private val FirstSeenSerializer = MapSerializer(String.serializer(), Long.serializer())

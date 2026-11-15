@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jmtube.app.data.contentfilter.aislist.AiListRepository
 import com.jmtube.app.data.local.AppUiModePreferences
 import com.jmtube.app.data.recommendation.FlowNeuroEngine
 import com.jmtube.app.data.repository.DeArrowRepository
@@ -56,6 +57,7 @@ internal fun FlowRoot(
     splashController: SplashController,
     originalTitles: OriginalTitleRepository,
     deArrow: DeArrowRepository,
+    aiList: AiListRepository? = null,
     appIconController: AppIconController,
     appLockPreferences: AppLockPreferences? = null,
     onUiRoot: (AppUiRoot) -> Unit,
@@ -128,7 +130,7 @@ internal fun FlowRoot(
                 // Card preferences and watch progress are collected once here. Cards used to
                 // collect them individually, so a feed of ten opened ten Room observers and
                 // fifty DataStore collectors.
-                ProvideVideoCardState(originalTitles, deArrow) {
+                ProvideVideoCardState(originalTitles, deArrow, aiList) {
                     Box(
                         modifier =
                             Modifier

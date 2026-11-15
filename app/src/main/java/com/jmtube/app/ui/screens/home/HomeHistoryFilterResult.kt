@@ -17,11 +17,12 @@ internal fun filterHomeHistory(
     watchedThreshold: WatchedThreshold,
     continueWatchingEnabled: Boolean,
     hideWatchedShorts: Boolean,
+    countImported: Boolean = false,
 ): HomeHistoryFilterResult {
     val watchedIds by lazy(LazyThreadSafetyMode.NONE) {
         history
             .asSequence()
-            .filter { watchedThreshold.isWatched(it.position, it.duration) }
+            .filter { watchedThreshold.isWatched(it.position, it.duration, countImported) }
             .mapTo(HashSet()) { it.videoId }
     }
     val watchedVideoIds = if (hideWatchedVideos) watchedIds else emptySet()
