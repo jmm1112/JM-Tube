@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">JM Tube</string>
     <string name="app_launcher_name" translatable="false">JM Tube</string>
@@ -3660,7 +3660,7 @@
     <string name="crash_report_copied">Full report copied. Paste it into the Logs field.</string>
     <string name="ui_crashed_last_session">Flow crashed last session</string>
     <string name="ui_copy_log_description">Copy the log below and paste it into a GitHub issue so it can be fixed.</string>
-    <string name="ui_search_settings">Search settingsâ€¦</string>
+    <string name="ui_search_settings">Search settings</string>
     <string name="ui_custom_interest_title">Add Custom Interest</string>
     <string name="ui_custom_interest_subtitle">Type any topic you want to follow</string>
     <string name="ui_custom_interest_hint">Custom interest (e.g. Jazz, Astrophysics)</string>
