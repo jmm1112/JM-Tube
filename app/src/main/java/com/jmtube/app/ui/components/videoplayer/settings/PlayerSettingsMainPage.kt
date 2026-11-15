@@ -1,6 +1,7 @@
 package com.jmtube.app.ui.components.videoplayer.settings
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled._360
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.filled.AudioFile
 import androidx.compose.material.icons.filled.Bedtime
@@ -9,10 +10,12 @@ import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.HighQuality
 import androidx.compose.material.icons.filled.PictureInPicture
 import androidx.compose.material.icons.filled.QueryStats
+import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.WbTwilight
 import androidx.compose.material.icons.outlined.MoreTime
 import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material.icons.rounded.Repeat
@@ -38,7 +41,7 @@ private const val AUDIO_ROWS = 1
 private const val CAPTION_ROWS = 2
 private const val OVERLAY_ROWS = 3
 private const val EFFECT_ROWS = 3
-private const val DISPLAY_ROWS = 1
+private const val DISPLAY_ROWS = 2
 
 @Composable
 internal fun PlayerSettingsMainPage(
@@ -57,6 +60,13 @@ internal fun PlayerSettingsMainPage(
     onSkipSilenceToggle: (Boolean) -> Unit,
     onVolumeNormalizationToggle: (Boolean) -> Unit,
     onAmbientModeToggle: (Boolean) -> Unit,
+    ambientGlowEnabled: Boolean? = null,
+    onAmbientGlowToggle: (Boolean) -> Unit = {},
+    sphericalViewEnabled: Boolean? = null,
+    onSphericalViewToggle: (Boolean) -> Unit = {},
+    sphericalMotionEnabled: Boolean? = null,
+    onSphericalMotionToggle: (Boolean) -> Unit = {},
+    sphericalDragSpeed: Float? = null,
     sponsorBlockSegmentCount: Int = 0,
     sponsorBlockOffForVideo: Boolean = false,
     onSponsorBlockToggle: (off: Boolean) -> Unit = {},
@@ -209,19 +219,62 @@ internal fun PlayerSettingsMainPage(
         )
     }
 
+    val glowRows = if (ambientGlowEnabled != null) 1 else 0
+    val sphericalRows = listOfNotNull(sphericalViewEnabled, sphericalMotionEnabled, sphericalDragSpeed).size
+    val displayRows = DISPLAY_ROWS + glowRows + sphericalRows
     FlowSectionHeader(stringResource(R.string.player_settings_display))
     FlowRowGroup {
         FlowSwitchRow(
             leadingIcon = ImageVector.vectorResource(R.drawable.ic_ambient_mode),
             title = stringResource(R.string.player_settings_ambient_mode),
+            supportingText = stringResource(R.string.player_settings_ambient_mode_subtitle).takeIf { ambientGlowEnabled != null },
             checked = ambientModeEnabled,
-            shape = flowRowGroupShape(0, 2),
+            shape = flowRowGroupShape(0, displayRows),
             onCheckedChange = onAmbientModeToggle,
         )
+        if (ambientGlowEnabled != null) {
+            FlowSwitchRow(
+                leadingIcon = Icons.Filled.WbTwilight,
+                title = stringResource(R.string.player_settings_ambient_glow),
+                supportingText = stringResource(R.string.player_settings_ambient_glow_subtitle),
+                checked = ambientGlowEnabled,
+                shape = flowRowGroupShape(1, displayRows),
+                onCheckedChange = onAmbientGlowToggle,
+            )
+        }
+        if (sphericalViewEnabled != null) {
+            FlowSwitchRow(
+                leadingIcon = Icons.AutoMirrored.Filled._360,
+                title = stringResource(R.string.player_settings_spherical_view),
+                supportingText = stringResource(R.string.player_settings_spherical_view_summary),
+                checked = sphericalViewEnabled,
+                shape = flowRowGroupShape(1 + glowRows, displayRows),
+                onCheckedChange = onSphericalViewToggle,
+            )
+        }
+        if (sphericalMotionEnabled != null) {
+            FlowSwitchRow(
+                leadingIcon = Icons.Filled.ScreenRotation,
+                title = stringResource(R.string.player_settings_spherical_motion),
+                supportingText = stringResource(R.string.player_settings_spherical_motion_summary),
+                checked = sphericalMotionEnabled,
+                shape = flowRowGroupShape(glowRows + 2, displayRows),
+                onCheckedChange = onSphericalMotionToggle,
+            )
+        }
+        if (sphericalDragSpeed != null) {
+            FlowNavRow(
+                leadingIcon = Icons.Filled.Speed,
+                title = stringResource(R.string.player_settings_spherical_drag_speed),
+                trailingText = playbackSpeedLabel(sphericalDragSpeed),
+                shape = flowRowGroupShape(glowRows + sphericalRows, displayRows),
+                onClick = { onNavigateToPage(PlayerSettingsPage.SphericalDragSpeed) },
+            )
+        }
         FlowNavRow(
             leadingIcon = Icons.Filled.QueryStats,
             title = stringResource(R.string.stats_for_nerds),
-            shape = flowRowGroupShape(1, 2),
+            shape = flowRowGroupShape(displayRows - 1, displayRows),
             onClick = onStatsForNerds,
         )
     }

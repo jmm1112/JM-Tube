@@ -167,6 +167,7 @@ internal fun VideoStage(
                     scale = { screenState.zoomScale },
                     offsetX = { screenState.zoomOffsetX },
                     offsetY = { screenState.zoomOffsetY },
+                    panEnabled = !playerState.showsSpherical,
                     onTwoFingerDoubleTap = if (canSkipChapters) { forward -> skipChapter(forward) } else null,
                     onTransform = { newScale, newOffsetX, newOffsetY ->
                         screenState.zoomScale = newScale
@@ -213,6 +214,14 @@ internal fun VideoStage(
                         0f
                     },
                 ambientMode = prefs.ambientModeEnabled && !isMinimized && !localIsInPipMode,
+                ambientFrames = session.ambient.frames,
+                ambientGlow = session.ambient.glow,
+                spherical = playerState.showsSpherical,
+                sphericalMotion = prefs.sphericalMotionEnabled,
+                sphericalTouch = !isMinimized && !localIsInPipMode && !screenState.isTouchLocked,
+                sphericalStill = !playerState.playWhenReady || playerState.hasEnded,
+                sphericalZoom = { screenState.zoomScale },
+                sphericalDragSpeed = prefs.sphericalDragSpeed,
             )
             if (expandedSurfacesMounted && !localIsInPipMode) {
                 Media3SubtitleOverlay(

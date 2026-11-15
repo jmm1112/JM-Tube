@@ -87,6 +87,7 @@ internal fun BoxScope.TvPlayerSheets(
                             scope = scope,
                             rememberPlaybackSpeed = prefs.rememberPlaybackSpeed,
                             ambientModeEnabled = prefs.ambientModeEnabled,
+                            ambientGlowEnabled = prefs.ambientGlowEnabled,
                             groupedQualitySelectorEnabled = prefs.groupedQualitySelectorEnabled,
                             rememberSubtitleLanguage = { language ->
                                 scope.launch { prefs.preferences.setPreferredSubtitleLanguage(language) }

@@ -3,6 +3,7 @@ package com.jmtube.app.ui.screens.player
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -26,6 +27,9 @@ import com.jmtube.app.data.model.Video
 import com.jmtube.app.player.EnhancedPlayerManager
 import com.jmtube.app.player.GlobalPlayerState
 import com.jmtube.app.ui.components.rememberFeedGridLayout
+import com.jmtube.app.ui.components.videoplayer.ambient.AmbientFrameHolder
+import com.jmtube.app.ui.components.videoplayer.ambient.AmbientImmersiveLayer
+import com.jmtube.app.ui.components.videoplayer.ambient.AmbientPageGlow
 import com.jmtube.app.ui.components.videoplayer.sheet.PlaylistQueueDock
 import com.jmtube.app.ui.components.videoplayer.sheet.PlaylistQueueDockDefaults
 import com.jmtube.app.ui.components.videoplayer.sheet.PlaylistQueuePaneCard
@@ -71,6 +75,8 @@ internal fun EnhancedVideoPlayerScreen(
     screenState: PlayerScreenState, // Shared screenState from FlowApp
     isFullscreenShown: Boolean,
     prefs: VideoPlayerPreferencesState,
+    ambientGlowFrames: AmbientFrameHolder? = null,
+    ambientImmersive: Boolean = false,
     onVideoClick: (Video) -> Unit,
     onChannelClick: (String) -> Unit,
 ) {
@@ -90,12 +96,15 @@ internal fun EnhancedVideoPlayerScreen(
     val relatedCardStyle = prefs.relatedCardStyle
     val isInPipMode by GlobalPlayerState.isInPipMode.collectAsStateWithLifecycle()
     val playerState by EnhancedPlayerManager.getInstance().playerState.collectAsStateWithLifecycle()
+    val immersive = ambientImmersive && ambientGlowFrames != null
+    val dimOnScroll by rememberUpdatedState(prefs.ambientImmersiveScrollDim)
     Box(
         modifier =
             Modifier
                 .fillMaxSize()
                 .graphicsLayer { this.alpha = alpha() }
-                .background(MaterialTheme.colorScheme.background),
+                // The immersive light paints the page colour itself, under its light.
+                .then(if (immersive) Modifier else Modifier.background(MaterialTheme.colorScheme.background)),
     ) {
         val layoutMode =
             playerLayoutModeFor(
@@ -204,11 +213,23 @@ internal fun EnhancedVideoPlayerScreen(
         } else {
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 val relatedLayout = rememberFeedGridLayout(maxWidth, prefs.feedColumns)
+                val listState = rememberLazyListState()
+                if (ambientGlowFrames != null && immersive) {
+                    AmbientImmersiveLayer(frames = ambientGlowFrames, isScrolling = { dimOnScroll && listState.isScrollInProgress })
+                } else if (ambientGlowFrames != null) {
+                    AmbientPageGlow(
+                        frames = ambientGlowFrames,
+                        scrolledPx = {
+                            if (listState.firstVisibleItemIndex > 0) Float.MAX_VALUE else listState.firstVisibleItemScrollOffset.toFloat()
+                        },
+                    )
+                }
                 // Kept through fullscreen: the layout hides the page there, and keeping the list
                 // means leaving fullscreen, or waiting for the turn into it, never shows it empty.
                 if (!isInPipMode) {
                     LazyColumn(
                         Modifier.fillMaxSize(),
+                        state = listState,
                         contentPadding = PaddingValues(bottom = maxOf(ListEndPadding, dockReserve + QueueDockGap)),
                     ) {
                         item {

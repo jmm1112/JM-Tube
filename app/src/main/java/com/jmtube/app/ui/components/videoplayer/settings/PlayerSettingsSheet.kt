@@ -1,7 +1,6 @@
 package com.jmtube.app.ui.components.videoplayer.settings
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -19,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jmtube.app.R
+import com.jmtube.app.data.local.DEFAULT_SPHERICAL_DRAG_SPEED
 import com.jmtube.app.player.EnhancedPlayerState
 import com.jmtube.app.player.QualityOption
 import com.jmtube.app.ui.components.equalizer.EqQuickPanel
@@ -53,6 +53,14 @@ fun SettingsMenuDialog(
     onLoopToggle: (Boolean) -> Unit,
     ambientModeEnabled: Boolean = false,
     onAmbientModeToggle: (Boolean) -> Unit = {},
+    ambientGlowEnabled: Boolean? = null,
+    onAmbientGlowToggle: (Boolean) -> Unit = {},
+    sphericalViewEnabled: Boolean? = null,
+    onSphericalViewToggle: (Boolean) -> Unit = {},
+    sphericalMotionEnabled: Boolean? = null,
+    onSphericalMotionToggle: (Boolean) -> Unit = {},
+    sphericalDragSpeed: Float? = null,
+    onSphericalDragSpeedSelected: (Float) -> Unit = {},
     onCastClick: () -> Unit = {},
     onPipClick: () -> Unit = {},
     onSleepTimerClick: () -> Unit = {},
@@ -81,6 +89,7 @@ fun SettingsMenuDialog(
             PlayerSettingsPage.Subtitles -> stringResource(R.string.filter_subtitles)
             PlayerSettingsPage.SubtitleStyle -> stringResource(R.string.subtitle_style)
             PlayerSettingsPage.Equalizer -> stringResource(R.string.equalizer)
+            PlayerSettingsPage.SphericalDragSpeed -> stringResource(R.string.player_settings_spherical_drag_speed)
         }
     val backPage =
         when (currentPage) {
@@ -118,11 +127,8 @@ fun SettingsMenuDialog(
                 inSidePane = !enableVerticalDismiss,
                 title = currentTitle,
                 onClose = { sheetState.dismiss() },
-                modifier = dragModifier,
                 onBack = backPage?.let { page -> { currentPage = page } },
-                contentPadding = PaddingValues(start = 20.dp, end = 8.dp, top = 6.dp, bottom = 8.dp),
-                closeButtonSize = null,
-                dividerAlpha = 0.4f,
+                modifier = dragModifier,
             )
         },
     ) {
@@ -130,9 +136,8 @@ fun SettingsMenuDialog(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .weight(1f)
                     .verticalScroll(rememberScrollState())
-                    .padding(vertical = SheetContentVerticalPadding),
+                    .padding(bottom = SheetContentVerticalPadding),
         ) {
             when (currentPage) {
                 PlayerSettingsPage.Main -> {
@@ -155,6 +160,13 @@ fun SettingsMenuDialog(
                         onSkipSilenceToggle = onSkipSilenceToggle,
                         onVolumeNormalizationToggle = onVolumeNormalizationToggle,
                         onAmbientModeToggle = onAmbientModeToggle,
+                        ambientGlowEnabled = ambientGlowEnabled,
+                        onAmbientGlowToggle = onAmbientGlowToggle,
+                        sphericalViewEnabled = sphericalViewEnabled,
+                        onSphericalViewToggle = onSphericalViewToggle,
+                        sphericalMotionEnabled = sphericalMotionEnabled,
+                        onSphericalMotionToggle = onSphericalMotionToggle,
+                        sphericalDragSpeed = sphericalDragSpeed,
                         sponsorBlockSegmentCount = sponsorBlockSegmentCount,
                         sponsorBlockOffForVideo = sponsorBlockOffForVideo,
                         onSponsorBlockToggle = onSponsorBlockToggle,
@@ -233,6 +245,16 @@ fun SettingsMenuDialog(
                         onStyleChange = onSubtitleStyleChange,
                     )
                 }
+
+                PlayerSettingsPage.SphericalDragSpeed -> {
+                    PlayerSettingsSphericalDragSpeedPage(
+                        currentSpeed = sphericalDragSpeed ?: DEFAULT_SPHERICAL_DRAG_SPEED,
+                        onSpeedSelected = {
+                            onSphericalDragSpeedSelected(it)
+                            sheetState.dismiss()
+                        },
+                    )
+                }
             }
         }
     }
@@ -246,6 +268,7 @@ enum class PlayerSettingsPage {
     Subtitles,
     SubtitleStyle,
     Equalizer,
+    SphericalDragSpeed,
 }
 
 private val SheetContentVerticalPadding = 12.dp

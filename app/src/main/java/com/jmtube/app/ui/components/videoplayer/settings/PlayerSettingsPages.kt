@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.jmtube.app.R
+import com.jmtube.app.data.local.SPHERICAL_DRAG_SPEEDS
 import com.jmtube.app.player.AudioTrackOption
 import com.jmtube.app.player.QualityOption
 import com.jmtube.app.player.SubtitleOption
@@ -29,6 +30,7 @@ import com.jmtube.app.ui.components.shared.MediaQualitySelectorContent
 import com.jmtube.app.ui.components.shared.MediaQualitySelectorOption
 import com.jmtube.app.ui.components.shared.audioTrackFallbackLabel
 import com.jmtube.app.ui.components.shared.flowRowGroupShape
+import com.jmtube.app.ui.components.shared.playbackSpeedLabel
 
 @Composable
 internal fun PlayerSettingsQualityPage(
@@ -98,6 +100,23 @@ internal fun PlayerSettingsSpeedPage(
         onSpeedSelected = onSpeedSelected,
         onSpeedRowSelected = { onSpeedSelectionFinished() },
     )
+}
+
+@Composable
+internal fun PlayerSettingsSphericalDragSpeedPage(
+    currentSpeed: Float,
+    onSpeedSelected: (Float) -> Unit,
+) {
+    FlowRowGroup {
+        SPHERICAL_DRAG_SPEEDS.forEachIndexed { index, speed ->
+            FlowSelectionRow(
+                title = playbackSpeedLabel(speed),
+                selected = speed == currentSpeed,
+                shape = flowRowGroupShape(index, SPHERICAL_DRAG_SPEEDS.size),
+                onClick = { onSpeedSelected(speed) },
+            )
+        }
+    }
 }
 
 @Composable
