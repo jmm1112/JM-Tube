@@ -50,9 +50,14 @@ private val RulePattern = Regex("""^([-*_])\1{2,}$""")
  * Reads the Markdown GitHub releases are written in: the `#` title and release date lines
  * are dropped, `##` headings open sections, bullets and paragraphs become items, and bold text,
  * links, `#123` issues and `@user` mentions keep their meaning.
+ *
+ * Items are aggregated so that at most one "New", one "Modify", and one "Fixed" section are produced.
  */
 fun parseReleaseNotes(markdown: String): ReleaseNotes {
-    val sections = mutableListOf<NoteSection>()
+    val newItems = mutableListOf<NoteText>()
+    val modifyItems = mutableListOf<NoteText>()
+    val fixedItems = mutableListOf<NoteText>()
+
     var currentTitle = "New"
     var currentItems = mutableListOf<NoteText>()
 
@@ -65,18 +70,62 @@ fun parseReleaseNotes(markdown: String): ReleaseNotes {
         "about",
         "developer profile",
         "overview",
+        "verification",
     )
 
     fun flushSection() {
         if (currentItems.isNotEmpty()) {
             val lowerTitle = currentTitle.lowercase()
             if (!ignoredKeywords.any { lowerTitle.contains(it) }) {
-                val normalizedTitle = when {
-                    lowerTitle.contains("improve") || lowerTitle.contains("refine") || lowerTitle.contains("ui") || lowerTitle.contains("design") -> "Improved"
-                    lowerTitle.contains("fix") || lowerTitle.contains("bug") || lowerTitle.contains("repair") -> "Fixed"
+                val sectionCategory = when {
+                    lowerTitle == "modify" || lowerTitle == "modified" || lowerTitle.startsWith("modify") || lowerTitle.startsWith("modified") -> "Modify"
+                    lowerTitle == "fixed" || lowerTitle == "fix" || lowerTitle.startsWith("fixed") || lowerTitle.startsWith("fix") -> "Fixed"
+                    lowerTitle.contains("fix") || lowerTitle.contains("bug") || lowerTitle.contains("repair") || lowerTitle.contains("issue") -> "Fixed"
+                    lowerTitle.contains("modify") || lowerTitle.contains("modified") || lowerTitle.contains("improve") || lowerTitle.contains("improved") ||
+                        lowerTitle.contains("refine") || lowerTitle.contains("ui") || lowerTitle.contains("design") || lowerTitle.contains("change") ||
+                        lowerTitle.contains("update") || lowerTitle.contains("perf") || lowerTitle.contains("optimi") -> "Modify"
                     else -> "New"
                 }
-                sections += NoteSection(normalizedTitle, currentItems)
+
+                currentItems.forEach { item ->
+                    val plain = item.spans.joinToString("") {
+                        when (it) {
+                            is NoteSpan.Plain -> it.text
+                            is NoteSpan.Strong -> it.text
+                            is NoteSpan.Link -> it.text
+                        }
+                    }.trim().lowercase()
+
+                    when {
+                        plain.startsWith("[fix") || plain.startsWith("fix:") || plain.startsWith("fixed:") || plain.startsWith("bug:") -> {
+                            fixedItems += item
+                        }
+                        plain.startsWith("[modify") || plain.startsWith("modify:") || plain.startsWith("modified:") ||
+                            plain.startsWith("[improve") || plain.startsWith("improve:") || plain.startsWith("improved:") -> {
+                            modifyItems += item
+                        }
+                        plain.startsWith("[new") || plain.startsWith("new:") || plain.startsWith("feature:") || plain.startsWith("add:") || plain.startsWith("added:") -> {
+                            newItems += item
+                        }
+                        sectionCategory == "Fixed" -> {
+                            if (plain.contains("optimi") || plain.contains("perf") || plain.contains("speed") || plain.contains("memory") || plain.contains("battery")) {
+                                modifyItems += item
+                            } else {
+                                fixedItems += item
+                            }
+                        }
+                        sectionCategory == "Modify" -> {
+                            if (plain.contains("fix") || plain.contains("bug") || plain.contains("repair") || plain.contains("resolved")) {
+                                fixedItems += item
+                            } else {
+                                modifyItems += item
+                            }
+                        }
+                        else -> {
+                            newItems += item
+                        }
+                    }
+                }
             }
         }
         currentItems = mutableListOf()
@@ -101,6 +150,17 @@ fun parseReleaseNotes(markdown: String): ReleaseNotes {
         }
     }
     flushSection()
+
+    val sections = mutableListOf<NoteSection>()
+    if (newItems.isNotEmpty()) {
+        sections += NoteSection("New", newItems)
+    }
+    if (modifyItems.isNotEmpty()) {
+        sections += NoteSection("Modify", modifyItems)
+    }
+    if (fixedItems.isNotEmpty()) {
+        sections += NoteSection("Fixed", fixedItems)
+    }
 
     return ReleaseNotes(intro = emptyList(), sections = sections)
 }
