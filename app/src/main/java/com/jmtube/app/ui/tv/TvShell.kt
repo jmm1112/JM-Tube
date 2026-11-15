@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -51,6 +52,7 @@ import com.jmtube.app.ui.components.shared.MediaMiniBarDefaults
 import com.jmtube.app.ui.screens.home.HomeViewModel
 import com.jmtube.app.ui.screens.music.MusicPlayerViewModel
 import com.jmtube.app.ui.screens.music.MusicViewModel
+import com.jmtube.app.ui.screens.playon.LocalPlayOn
 import com.jmtube.app.ui.screens.search.SearchViewModel
 import com.jmtube.app.ui.screens.subscriptions.SubscriptionsViewModel
 import com.jmtube.app.ui.tv.components.TvNavRail
@@ -98,6 +100,8 @@ fun TvShell(
     }
     val currentRoot = currentRoute?.takeIf { it in rootRoutes } ?: lastRoot
     val miniPlayerShown = rememberUpdatedState(activeMusicTrack != null)
+    val playOn = LocalPlayOn.current
+    val elsewhere = playOn?.elsewhere?.collectAsStateWithLifecycle()?.value
     // Phone pages pad their ends by these insets, so they scroll clear of the floating mini player here too.
     val bottomInsets =
         remember(dimens) {
@@ -252,6 +256,9 @@ fun TvShell(
             onOtherEntry = { contentFocusRequester.requestFocus().also { taken -> railHoldsFocusForPage = !taken } },
             nowPlayingTitle = activeMusicTrack?.title,
             onOpenNowPlaying = onExpandMusic,
+            playingOnDevice = elsewhere?.name,
+            playingOnTitle = elsewhere?.now?.title.orEmpty(),
+            onOpenPlayOn = { playOn?.open?.value = true },
             profile = { expanded -> TvRailProfile(expanded, onOpenSettings = { navController.navigate(TvRoutes.settingsPage(it)) }) },
             modifier =
                 Modifier

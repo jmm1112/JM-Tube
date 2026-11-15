@@ -70,6 +70,7 @@ import com.jmtube.app.ui.screens.notifications.NotificationViewModel
 import com.jmtube.app.ui.screens.player.VideoPlayerViewModel
 import com.jmtube.app.ui.screens.playon.LocalPlayOn
 import com.jmtube.app.ui.screens.playon.PlayOnHost
+import com.jmtube.app.ui.screens.playon.remoteSlot
 import com.jmtube.app.ui.screens.sync.linked.LinkedSyncAlerts
 import com.jmtube.app.ui.screens.update.UPDATE_ROUTE
 import com.jmtube.app.ui.screens.update.UpdateLaunchEffect
@@ -376,13 +377,7 @@ fun FlowApp(
             }
         }
 
-        val remoteSession =
-            playOn
-                ?.elsewhere
-                ?.collectAsStateWithLifecycle()
-                ?.value
-                ?.now
-                ?.music == false
+        val remote = remoteSlot()
         val activeMiniPlayer =
             resolveActiveMiniPlayer(
                 hasVideo = playerUiState.cachedVideo != null,
@@ -391,7 +386,7 @@ fun FlowApp(
                 onShortsPlayer = isShortsPlayerRoute,
                 hasMusic = currentMusicTrack != null,
                 musicSuppressed = suppressMusicMiniAfterVideo,
-                remoteSession = remoteSession,
+                remoteSession = remote.session,
             )
         val isMusicSheetShown = activeMiniPlayer == ActiveMiniPlayer.Music
         val isPlayerCoveringContent =
@@ -412,7 +407,8 @@ fun FlowApp(
                 currentDestinationRoute != "onboarding" &&
                 !(currentDestinationRoute == SHORTS_ROUTE_PATTERN && currentTab == null)
         val showVideoBar = activeMiniPlayer == ActiveMiniPlayer.VideoBar && !isInPipMode
-        val showRemoteBar = activeMiniPlayer == ActiveMiniPlayer.Remote && !isInPipMode
+        val showRemoteBar =
+            !isInPipMode && remote.shows(activeMiniPlayer, activeVideo != null, musicPlayerSheetState.isDismissed, isShortsPlayerRoute)
         val isMiniBarObscuringContent =
             (isMusicSheetShown && !musicPlayerSheetState.isDismissed && !musicPlayerSheetState.isExpanded) || showVideoBar || showRemoteBar
         val motionScheme = MaterialTheme.motionScheme

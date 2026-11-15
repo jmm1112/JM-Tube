@@ -340,7 +340,7 @@
     <string name="no_timed_comments">No comments with a timestamp yet</string>
     <string name="comment_hearted_by_creator">Hearted by the creator</string>
     <string name="verified">Verified</string>
-    <string name="comments_with_count_template">Comments Â· %1$s</string>
+    <string name="comments_with_count_template">Comments · %1$s</string>
     <string name="no_comments_yet">No comments yet</string>
     <string name="add_comment_placeholder">Add a comment...</string>
     <string name="comment_edited">edited</string>
@@ -450,8 +450,8 @@
     <string name="hide_channel_shorts">Hide Shorts from this channel</string>
     <string name="show_channel_shorts">Show Shorts from this channel</string>
     <plurals name="course_lessons_count">
-        <item quantity="one">Course Â· %d lesson</item>
-        <item quantity="other">Course Â· %d lessons</item>
+        <item quantity="one">Course · %d lesson</item>
+        <item quantity="other">Course · %d lessons</item>
     </plurals>
     <plurals name="videos_count_template">
         <item quantity="one">%1$d video</item>
@@ -474,9 +474,9 @@
         <item quantity="one">%1$d item</item>
         <item quantity="other">%1$d items</item>
     </plurals>
-    <string name="metadata_separator">Â·</string>
-    <!-- Separator between the parts of a one-line detail list, e.g. "OPUS Â· 160kbps Â· English" -->
-    <string name="list_separator_dot">" Â· "</string>
+    <string name="metadata_separator">·</string>
+    <!-- Separator between the parts of a one-line detail list, e.g. "OPUS · 160kbps · English" -->
+    <string name="list_separator_dot">" · "</string>
     <string name="player_time_separator"> / </string>
     <string name="you">You</string>
     <string name="empty_downloads">No downloads yet</string>
@@ -535,7 +535,7 @@
     <string name="search_feature_hdr">HDR</string>
     <string name="search_feature_subtitles">Subtitles/CC</string>
     <string name="search_feature_creative_commons">Creative Commons</string>
-    <string name="search_feature_360">360Â°</string>
+    <string name="search_feature_360">360°</string>
     <string name="search_feature_vr180">VR180</string>
     <string name="search_feature_3d">3D</string>
     <string name="search_feature_location">Location</string>
@@ -666,7 +666,7 @@
     <string name="time_earlier">Earlier</string>
     <string name="notifications_group_new">New</string>
     <string name="notifications_group_last_week">Last 7 days</string>
-    <string name="notifications_meta">%1$s Â· %2$s</string>
+    <string name="notifications_meta">%1$s · %2$s</string>
     <string name="notifications_removed">Notification removed</string>
     <string name="notifications_already_in_watch_later">Already in Watch Later</string>
     <string name="notifications_save_to_watch_later">Save to Watch Later</string>
@@ -1005,16 +1005,16 @@
     <string name="lyrics_provider_unison">Unison</string>
     <string name="lyrics_provider_youtube_captions">YouTube captions</string>
     <string name="lyrics_provider_youtube_music">YouTube Music</string>
-    <string name="lyrics_provider_better_lyrics_desc">Word sync Â· Apple Music lyrics</string>
-    <string name="lyrics_provider_lrc_red_desc">Word sync Â· matched by recording</string>
+    <string name="lyrics_provider_better_lyrics_desc">Word sync · Apple Music lyrics</string>
+    <string name="lyrics_provider_lrc_red_desc">Word sync · matched by recording</string>
     <string name="lyrics_provider_lyrics_plus_desc">Word sync</string>
-    <string name="lyrics_provider_simpmusic_desc">Word sync Â· matched by video</string>
-    <string name="lyrics_provider_kugou_desc">Line sync Â· strong for Chinese songs</string>
+    <string name="lyrics_provider_simpmusic_desc">Word sync · matched by video</string>
+    <string name="lyrics_provider_kugou_desc">Line sync · strong for Chinese songs</string>
     <string name="lyrics_provider_paxsenix_desc">Word sync</string>
-    <string name="lyrics_provider_lrclib_desc">Line sync Â· open database</string>
-    <string name="lyrics_provider_unison_desc">Community lyrics Â· small catalogue</string>
-    <string name="lyrics_provider_youtube_captions_desc">Line sync Â· the video\'s captions</string>
-    <string name="lyrics_provider_youtube_music_desc">Plain text Â· the Lyrics tab</string>
+    <string name="lyrics_provider_lrclib_desc">Line sync · open database</string>
+    <string name="lyrics_provider_unison_desc">Community lyrics · small catalogue</string>
+    <string name="lyrics_provider_youtube_captions_desc">Line sync · the video\'s captions</string>
+    <string name="lyrics_provider_youtube_music_desc">Plain text · the Lyrics tab</string>
     <!-- Theme Names & Descriptions -->
     <string name="theme_name_system_default">System Default</string>
     <string name="theme_desc_system_default">Follows your device between light and dark.</string>
@@ -1929,7 +1929,7 @@
     <string name="donation_prompt_message">JM Tube is free, open source and ad-free. If it earned a spot on your phone, a little support keeps it going.</string>
     <string name="donation_method_open_collective" translatable="false">Open Collective</string>
     <string name="donation_method_patreon" translatable="false">Patreon</string>
-    <string name="donation_prompt_methods">Open Collective Â· Patreon Â· Bitcoin Â· Ethereum Â· Solana Â· USDT Â· Monero</string>
+    <string name="donation_prompt_methods">Open Collective · Patreon · Bitcoin · Ethereum · Solana · USDT · Monero</string>
     <string name="donation_prompt_support">Support development</string>
     <string name="donation_prompt_later">Maybe later</string>
     <string name="donation_prompt_never">Don\'t show again</string>
@@ -2327,7 +2327,7 @@
     <string name="section_music_videos_for_you">Music videos for you</string>
     <string name="section_live_performances">Live performances</string>
     <string name="section_new_releases">New releases</string>
-    <string name="subtitle_single_template">Single Â· %1$s</string>
+    <string name="subtitle_single_template">Single · %1$s</string>
     <string name="section_popular_artists">Popular artists</string>
     <string name="section_mixed_for_you">Mixed for you</string>
     <string name="section_moods_and_genres">Moods &amp; Genres</string>
@@ -2403,7 +2403,7 @@
     <string name="eq_band_count">%1$d of %2$d</string>
     <string name="eq_add_band">Add band</string>
     <string name="eq_band_title">Band %1$d</string>
-    <string name="eq_band_line">%1$s Â· %2$s</string>
+    <string name="eq_band_line">%1$s · %2$s</string>
     <string name="eq_band_q">Q %1$s</string>
     <string name="eq_type_peak">Peak</string>
     <string name="eq_type_low_shelf">Low shelf</string>
@@ -2570,7 +2570,7 @@
     <string name="downloads_confirm_delete_title">Ask before deleting</string>
     <string name="downloads_confirm_delete_summary">Swipe to delete skips this and can be undone</string>
     <string name="download_sheet_button">Download %1$s</string>
-    <string name="download_sheet_save_folder">%1$s Â· %2$s free</string>
+    <string name="download_sheet_save_folder">%1$s · %2$s free</string>
     <string name="download_sheet_change_folder">Change</string>
     <string name="download_sheet_all_languages">All languages</string>
     <string name="downloading_template">Downloading %1$s...</string>
@@ -2700,8 +2700,8 @@
     <string name="play_on_this_phone">This phone</string>
     <string name="play_on_this_tablet">This tablet</string>
     <string name="play_on_this_tv">This TV</string>
-    <string name="play_on_status_playing">Playing Â· %1$s</string>
-    <string name="play_on_status_paused">Paused Â· %1$s</string>
+    <string name="play_on_status_playing">Playing · %1$s</string>
+    <string name="play_on_status_paused">Paused · %1$s</string>
     <string name="play_on_status_ready">Ready</string>
     <string name="play_on_last_seen">Last seen %1$s</string>
     <string name="play_on_never_seen">Not seen yet</string>
@@ -2713,7 +2713,7 @@
     <string name="play_on_consent_once">Allow once</string>
     <string name="play_on_consent_decline">Decline</string>
     <string name="play_on_nothing_hint">Start a song or video, then pick where it plays.</string>
-    <string name="play_on_status_nearby">%1$s Â· same Wi-Fi</string>
+    <string name="play_on_status_nearby">%1$s · same Wi-Fi</string>
     <string name="play_on_moving">Moving playback</string>
     <string name="play_on_move_failed">Couldn\'t move playback</string>
     <string name="play_on_not_available">Not available</string>
@@ -2723,6 +2723,8 @@
     <string name="play_on_paused_here">Paused here</string>
     <string name="play_on_status_playing_short">Playing</string>
     <string name="play_on_status_paused_short">Paused</string>
+    <string name="play_on_play_here">Play here</string>
+    <string name="play_on_control_device">Control %1$s</string>
     <string name="play_on_manage_summary">Rename devices and choose which can play here</string>
     <string name="linked_consent_title">Playback from this device</string>
     <string name="linked_consent_ask">Ask each time</string>
@@ -3045,7 +3047,7 @@
     <string name="sync_cancel_session">Cancel sync</string>
     <string name="sync_expires_label">QR code expires</string>
     <string name="sync_expires_seconds">%1$ds</string>
-    <string name="sync_done_stats_summary">%1$d added Â· %2$d updated Â· %3$d skipped</string>
+    <string name="sync_done_stats_summary">%1$d added · %2$d updated · %3$d skipped</string>
     <string name="sync_scanning_hint">Hold the other device\'s QR code inside the frame.</string>
     <!-- Automated Backups -->
     <string name="auto_backup_title">Automated Backups</string>
@@ -3477,7 +3479,7 @@
     <string name="discord_presence_off">Off</string>
     <string name="discord_presence_not_connected">Not connected</string>
     <string name="discord_presence_ready">Linked and ready</string>
-    <string name="discord_presence_ready_as">Linked as %1$s Â· connects during playback</string>
+    <string name="discord_presence_ready_as">Linked as %1$s · connects during playback</string>
     <string name="discord_presence_connected">Connected</string>
     <string name="discord_presence_connected_as">Connected as %1$s</string>
     <string name="discord_presence_connected_account">Discord account: %1$s</string>
@@ -4087,7 +4089,7 @@
     <string name="font_system_only_note">Widgets and notifications keep the system font.</string>
     <string name="font_preview_glyphs">Aa</string>
     <string name="font_preview_title">Late night lo-fi mix</string>
-    <string name="font_preview_body">2.4M views Â· 3 weeks ago</string>
+    <string name="font_preview_body">2.4M views · 3 weeks ago</string>
     <string name="font_preview_label">Now playing</string>
     <string name="font_imported">Now using %1$s</string>
     <string name="font_import_not_font">Choose a .ttf or .otf file</string>
@@ -4120,7 +4122,7 @@
     <string name="settings_custom_group_surfaces">Background and surfaces</string>
     <string name="settings_custom_group_outline">Outline and scrim</string>
     <string name="settings_color_hex">Hex colour</string>
-    <string name="settings_value_pair">%1$s Â· %2$s</string>
+    <string name="settings_value_pair">%1$s · %2$s</string>
     <string name="settings_shorts_tab_disabled_summary">Shorts are turned off in Feeds &amp; content</string>
     <string name="settings_section_seek_bar">Seek bar</string>
     <string name="settings_section_music_player">Music player</string>
@@ -4369,7 +4371,7 @@
     <string name="settings_theme_role_muted_text">Muted text</string>
     <string name="settings_theme_role_outline">Outline</string>
     <string name="settings_theme_role_error">Error</string>
-    <string name="settings_theme_color_with_opacity">%1$s Â· %2$d%% opacity</string>
+    <string name="settings_theme_color_with_opacity">%1$s · %2$d%% opacity</string>
     <string name="settings_keywords_custom_themes">custom theme, palette, colours, colors, import, export, share, desktop</string>
     <plurals name="settings_custom_theme_imported">
         <item quantity="one">%1$d theme imported</item>
@@ -4488,7 +4490,7 @@
     <string name="recap_format_shorts">Shorts</string>
     <string name="recap_format_live">Live</string>
     <string name="recap_format_music">Music</string>
-    <string name="recap_format_share">%1$s Â· %2$s</string>
+    <string name="recap_format_share">%1$s · %2$s</string>
     <string name="recap_discoveries_title">New to you</string>
     <plurals name="recap_new_channels">
         <item quantity="one">%d new channel</item>
@@ -5098,7 +5100,7 @@
     <string name="player_appearance_bar_progress_none">None</string>
     <string name="sb_jump">Jump</string>
     <string name="player_appearance_mini_cover_morphing">Morphing</string>
-    <string name="lyrics_provider_netease_desc">Line sync Â· large catalogue</string>
+    <string name="lyrics_provider_netease_desc">Line sync · large catalogue</string>
     <string name="player_appearance_cover_ring_subtitle">Show progress around the cover too</string>
     <string name="player_appearance_bar_progress_wavy">Wavy line</string>
     <string name="settings_classic_loader_keywords">loader, spinner, progress, circle, loading animation</string>
@@ -5123,7 +5125,7 @@
     <string name="lyrics_provider_netease_hosts" translatable="false">music.163.com</string>
     <string name="mini_button_sleep_timer">Sleep timer</string>
     <string name="player_appearance_mini_cover_tap_title">Tap the cover</string>
-    <string name="player_settings_spherical_view">360Â° view</string>
+    <string name="player_settings_spherical_view">360° view</string>
     <string name="recent_searches_show_all">Show all</string>
     <string name="download_replaces_existing">Replaces the copy you already downloaded</string>
     <string name="cover_shape_diamond">Diamond</string>
@@ -5262,7 +5264,7 @@
     <string name="lyrics_animation_classic">Classic</string>
     <string name="eq_spatial_high">High</string>
     <string name="more_videos">More videos</string>
-    <string name="lyrics_provider_amll_desc">Word sync Â· community lyrics</string>
+    <string name="lyrics_provider_amll_desc">Word sync · community lyrics</string>
     <string name="content_settings_comment_gifs_subtitle">Show GIFs people attach to comments</string>
     <string name="sb_category_highlight">Highlight</string>
     <string name="keyboard_shortcut_related_videos">Related videos</string>
@@ -5288,8 +5290,9 @@
     <string name="player_appearance_more_videos_gesture_subtitle">Swipe up in fullscreen to see related videos</string>
     <string name="lyrics_glow">Held-note glow</string>
     <string name="download_already_running">This video is already downloading</string>
-    <string name="settings_watch_time_average_and_week">Daily average %1$s Â· %2$s this week</string>
+    <string name="settings_watch_time_average_and_week">Daily average %1$s · %2$s this week</string>
     <string name="tv_rail_now_playing_description">Now playing: %1$s</string>
+    <string name="tv_rail_playing_on_description">Playing on %1$s: %2$s</string>
     <string name="lyrics_background_moving">Moving</string>
     <string name="player_background_style_color">Solid Color</string>
     <string name="player_appearance_split_transport_subtitle">Previous and next sit flat against play/pause</string>

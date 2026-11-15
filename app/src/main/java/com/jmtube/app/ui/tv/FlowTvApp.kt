@@ -26,6 +26,7 @@ import com.jmtube.app.ui.components.music.common.ProvideMusicPlaybackState
 import com.jmtube.app.ui.components.music.sheet.LocalMusicMenus
 import com.jmtube.app.ui.components.music.sheet.MusicMenuSheets
 import com.jmtube.app.ui.components.music.sheet.rememberMusicMenus
+import com.jmtube.app.ui.components.settings.SettingsDestination
 import com.jmtube.app.ui.components.settings.SettingsTarget
 import com.jmtube.app.ui.components.shared.LocalFlowSheetPresenter
 import com.jmtube.app.ui.screens.home.HomeViewModel
@@ -71,8 +72,6 @@ fun FlowTvApp(
     LaunchedEffect(musicPlayerState.isPlaying) {
         if (musicPlayerState.isPlaying) musicSessionActive = true
     }
-    // Handoffs from other devices: the consent question, who took over, and the devices list.
-    PlayOnHost()
 
     fun play(video: Video) {
         EnhancedMusicPlayerManager.pause()
@@ -132,6 +131,9 @@ fun FlowTvApp(
         playById(videoId, isShort)
         onDeeplinkConsumed()
     }
+
+    // Handoffs from other devices: the consent question, who took over, and the devices list.
+    PlayOnHost(onManageDevices = { mediaNavigator.openSettings(SettingsTarget(SettingsDestination.SYNC)) })
 
     val musicMenus = rememberMusicMenus()
 
