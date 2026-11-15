@@ -711,6 +711,20 @@ class YouTubeRepository
                 CommentsPageResult(comments = page.comments, continuation = page.continuation)
             }
 
+        /** YouTube's Timed list for [videoId], read through any token of its comment section. Empty when there is none. */
+        suspend fun getTimedComments(
+            videoId: String,
+            sectionToken: String,
+        ): CommentsPageResult =
+            withContext(Dispatchers.IO) {
+                YouTube
+                    .timedComments(sectionToken, videoId)
+                    .onFailure { Log.w(TAG, "Timed comments for $videoId failed: ${it.message}") }
+                    .getOrNull()
+                    ?.let { CommentsPageResult(comments = it) }
+                    ?: CommentsPageResult.EMPTY
+            }
+
         /**
          * Fetch the first page of comments for a video.
          * Returns the comments and a next-page token (null if no more pages).

@@ -15,8 +15,9 @@ internal data class MusicOffloadState(
     val processing: Boolean = false,
     val playbackChanged: Boolean = false,
     val pausedLong: Boolean = false,
+    val crossfade: Boolean = false,
 ) {
-    val allowed: Boolean get() = enabledByUser && !processing && !playbackChanged && !pausedLong
+    val allowed: Boolean get() = enabledByUser && !processing && !playbackChanged && !pausedLong && !crossfade
 
     companion object {
         // Sonic's own threshold: a speed saved from a slider can read 0.99999994, which plays untouched.

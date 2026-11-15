@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.data
+﻿package com.jmtube.app.sync2.data
 
 import com.jmtube.app.sync2.changes.IncomingBatch
 import com.jmtube.app.sync2.changes.batchContent

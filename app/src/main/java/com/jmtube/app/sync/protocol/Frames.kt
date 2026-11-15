@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.protocol
+﻿package com.jmtube.app.sync.protocol
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

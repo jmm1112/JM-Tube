@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.live
+﻿package com.jmtube.app.sync2.live
 
 import com.jmtube.app.sync2.data.ConsentRow
 import com.jmtube.app.sync2.data.LinkedDatabase

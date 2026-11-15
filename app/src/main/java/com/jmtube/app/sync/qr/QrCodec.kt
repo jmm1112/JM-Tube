@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.qr
+﻿package com.jmtube.app.sync.qr
 
 import com.jmtube.app.sync.crypto.SyncBytes
 import kotlinx.serialization.EncodeDefault

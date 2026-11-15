@@ -245,25 +245,3 @@ internal fun HomeFeedBody(
         }
     }
 }
-
-/** Shown while a newer feed waits behind the cached cards of a launch (#1447). */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun HomeNewVideosButton(
-    visible: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()) + scaleIn(MaterialTheme.motionScheme.defaultSpatialSpec()),
-        exit = fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
-        modifier = modifier.padding(top = NewVideosTopPadding),
-    ) {
-        SmallExtendedFloatingActionButton(onClick = onClick, shape = CircleShape) {
-            Icon(imageVector = Icons.Rounded.ArrowUpward, contentDescription = null)
-            Spacer(Modifier.width(NewVideosIconSpacing))
-            Text(text = stringResource(R.string.home_new_videos))
-        }
-    }
-}

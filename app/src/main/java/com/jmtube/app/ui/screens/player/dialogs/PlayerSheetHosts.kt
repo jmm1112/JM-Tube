@@ -57,6 +57,7 @@ import com.jmtube.app.ui.screens.player.VideoPlayerViewModel
 import com.jmtube.app.ui.screens.player.state.PlayerCommentsUiState
 import com.jmtube.app.ui.screens.player.state.PlayerScreenState
 import com.jmtube.app.ui.screens.player.state.VideoPlayerUiState
+import com.jmtube.app.ui.screens.player.state.rememberPlayerCommentsTimedFollow
 import com.jmtube.app.ui.screens.player.state.selectCommentSort
 import com.jmtube.app.ui.screens.player.state.visibleComments
 import com.jmtube.app.utils.DateContext
@@ -295,6 +296,7 @@ internal fun PlayerCommentsPanelHost(
     onNavigateToChannel: (String) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
+    canFollowVideo: Boolean = true,
 ) {
     PlayerCommentsPanel(
         comments = commentsUiState.visibleComments(screenState),
@@ -304,8 +306,8 @@ internal fun PlayerCommentsPanelHost(
         selectedFilter = screenState.commentSortFilter,
         totalText = commentsUiState.totalText,
         artworkUrl = artworkUrl,
-        timedOnly = screenState.commentsTimedOnly,
-        onTimedChange = { screenState.commentsTimedOnly = it },
+        showTimed = true,
+        timedFollow = if (canFollowVideo) rememberPlayerCommentsTimedFollow(viewModel, screenState) else null,
         onFilterChanged = { filter ->
             commentsUiState.selectCommentSort(filter, videoId, screenState, viewModel)
         },
@@ -319,6 +321,9 @@ internal fun PlayerCommentsPanelHost(
         onLoadMore = { viewModel.loadMoreComments(videoId) },
         onClose = onClose,
         modifier = modifier,
+        listState = screenState.commentsListState,
+        threadState = screenState.commentThreads,
+        isDisabled = commentsUiState.isDisabled,
     )
 }
 
@@ -328,6 +333,7 @@ internal fun PlayerLiveChatColumn(
     isLoading: Boolean,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
+    canFollowVideo: Boolean = true,
 ) {
     Column(modifier.fillMaxHeight()) {
         Row(

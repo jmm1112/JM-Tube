@@ -1,4 +1,4 @@
-package com.jmtube.app.sync
+﻿package com.jmtube.app.sync
 
 import android.content.Context
 import com.jmtube.app.R

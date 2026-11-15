@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.engine
+﻿package com.jmtube.app.sync2.engine
 
 import com.jmtube.app.sync.crypto.SyncBytes
 import com.jmtube.app.sync.protocol.CollectionWire
@@ -13,6 +13,7 @@ import com.jmtube.app.sync2.crypto.sha256
 import com.jmtube.app.sync2.data.SnapshotDao
 import com.jmtube.app.sync2.store.ObjectType
 import com.jmtube.app.sync2.store.StorePaths
+import com.jmtube.app.sync2.store.checkSeq
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -45,12 +46,16 @@ data class Manifest(
     val vv: Map<String, Tip>,
 )
 
-internal fun parseManifest(content: ByteArray): Manifest =
-    try {
-        Json.decodeFromString(Manifest.serializer(), content.toString(Charsets.UTF_8))
-    } catch (_: SerializationException) {
-        reject(ProtocolError.PAYLOAD)
-    }
+internal fun parseManifest(content: ByteArray): Manifest {
+    val manifest =
+        try {
+            Json.decodeFromString(Manifest.serializer(), content.toString(Charsets.UTF_8))
+        } catch (_: SerializationException) {
+            reject(ProtocolError.PAYLOAD)
+        }
+    manifest.vv.values.forEach { checkSeq(it.seq) }
+    return manifest
+}
 
 suspend fun SnapshotDao.isDue(
     link: String,
@@ -82,8 +87,9 @@ suspend fun Session.writeSnapshot(
     exported: Map<String, CollectionWire>,
     link: String?,
 ) {
+    if (state.recoveryDue) return
     val epoch = state.epoch
-    val key = purposeKey(currentKey(), group, epoch, ObjectType.SNAPSHOT.purpose)
+    val key = purposeKey(sealingKey(), group, epoch, ObjectType.SNAPSHOT.purpose)
     val parts =
         exported.flatMap { (collection, wire) ->
             chunks(wire.lines).map { lines ->

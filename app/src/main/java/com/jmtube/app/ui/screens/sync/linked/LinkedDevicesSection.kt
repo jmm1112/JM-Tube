@@ -1,6 +1,5 @@
-package com.jmtube.app.ui.screens.sync.linked
+﻿package com.jmtube.app.ui.screens.sync.linked
 
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,7 +43,6 @@ internal fun LinkedDevicesSection(
         }
     }
 
-    HorizontalDivider()
     val words = state.words
     var scanning by rememberSaveable { mutableStateOf(false) }
     when {
@@ -76,9 +74,18 @@ internal fun LinkedDevicesSection(
                 onScanNewDevice = if (hostOnly) null else ({ scanning = true }),
                 onRename = viewModel::rename,
                 onRemove = viewModel::remove,
+                addedBy = viewModel::addedBy,
+                onAnswerRecoveryNotice = viewModel::answerRecoveryNotice,
+                onRemoveAfterNotice = viewModel::removeAfterNotice,
+                onReplaceWords = viewModel::replaceWords,
                 onLeave = viewModel::leave,
                 onForget = viewModel::forget,
+                onLoadContest = viewModel::loadContest,
+                onKeepSide = viewModel::keepSide,
                 onUpdateLogin = viewModel::updateLogin,
+                onStartLoginChange = viewModel::startLoginChange,
+                onFinishLoginChange = viewModel::finishLoginChange,
+                onCancelLoginChange = viewModel::cancelLoginChange,
                 consent = consent,
                 onConsent = viewModel::setConsent,
                 onAccept = viewModel::accept,
@@ -112,6 +119,9 @@ internal fun LinkedDevicesSection(
                 onShowCode = viewModel::showCode,
                 onRestore = viewModel::restore,
                 onRestoreFromWebDav = viewModel::restoreFromWebDav,
+                restoreDevices = state.restoreDevices,
+                onConfirmRestore = viewModel::confirmRestore,
+                onCancelRestore = viewModel::cancelRestore,
             )
         }
     }

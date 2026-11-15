@@ -6,8 +6,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -60,6 +64,7 @@ fun <T> SettingsToggleGroupRow(
 }
 
 /** A numeric setting on a slider that commits its value when the drag ends. */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsSliderRow(
     title: String,
@@ -73,6 +78,7 @@ fun SettingsSliderRow(
     summary: String? = null,
     enabled: Boolean = true,
     titleBadge: Boolean = false,
+    centered: Boolean = false,
 ) {
     var draft by remember(value) { mutableFloatStateOf(value) }
     SettingsControlRowFrame(shape = shape, modifier = modifier) {
@@ -87,14 +93,32 @@ fun SettingsSliderRow(
                 modifier = Modifier.alpha(if (enabled) 1f else DISABLED_ALPHA),
             )
         }
-        Slider(
-            value = draft,
-            onValueChange = { draft = it },
-            onValueChangeFinished = { onValueCommitted(draft) },
-            valueRange = valueRange,
-            steps = steps,
-            enabled = enabled,
-        )
+        if (centered) {
+            val sliderState = remember(steps, valueRange) {
+                SliderState(
+                    value = draft,
+                    steps = steps,
+                    valueRange = valueRange,
+                    onValueChangeFinished = { onValueCommitted(draft) },
+                )
+            }
+            sliderState.value = draft
+            Slider(
+                state = sliderState,
+                enabled = enabled,
+                track = { SliderDefaults.CenteredTrack(sliderState = it) },
+            )
+            draft = sliderState.value
+        } else {
+            Slider(
+                value = draft,
+                onValueChange = { draft = it },
+                onValueChangeFinished = { onValueCommitted(draft) },
+                valueRange = valueRange,
+                steps = steps,
+                enabled = enabled,
+            )
+        }
     }
 }
 

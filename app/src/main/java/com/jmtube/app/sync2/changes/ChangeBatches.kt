@@ -1,9 +1,11 @@
-package com.jmtube.app.sync2.changes
+﻿package com.jmtube.app.sync2.changes
 
 import com.jmtube.app.sync.apply.ReceivedCollection
 import com.jmtube.app.sync.protocol.CollectionWire
 import com.jmtube.app.sync.protocol.SyncCollection
 import com.jmtube.app.sync.protocol.SyncSerialization
+import com.jmtube.app.sync2.crypto.ProtocolError
+import com.jmtube.app.sync2.crypto.reject
 import com.jmtube.app.sync2.data.SentDao
 import com.jmtube.app.sync2.data.SentRecord
 import kotlinx.serialization.Serializable
@@ -134,11 +136,18 @@ suspend fun markSent(
     outgoing: Outgoing,
 ) = sentDao.upsert(outgoing.sent)
 
-fun parseBatch(content: ByteArray): IncomingBatch {
-    val lines = content.toString(Charsets.UTF_8).split('\n')
-    val header = Json.decodeFromString(BatchHeader.serializer(), lines.first())
-    return IncomingBatch(header.collection, header.link, header.head, content.size, lines.drop(1).filter { it.isNotEmpty() })
-}
+/** A batch whose header or a record the merges can't read is a payload error, which discards its object. */
+fun parseBatch(content: ByteArray): IncomingBatch =
+    try {
+        val lines = content.toString(Charsets.UTF_8).split('\n')
+        val header = Json.decodeFromString(BatchHeader.serializer(), lines.first())
+        val records = lines.drop(1).filter { it.isNotEmpty() }
+        records.forEach { recordKey(header.collection, Json.parseToJsonElement(it).jsonObject) }
+        SyncSerialization.checkRecords(header.collection, records)
+        IncomingBatch(header.collection, header.link, header.head, content.size, records)
+    } catch (_: IllegalArgumentException) {
+        reject(ProtocolError.PAYLOAD)
+    }
 
 /**
  * Applies batches of [link] from one sender through the FLOW-SYNC/1 merges, which run in one transaction

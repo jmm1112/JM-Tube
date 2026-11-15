@@ -1,22 +1,30 @@
-package com.jmtube.app.sync2.linking
+﻿package com.jmtube.app.sync2.linking
 
 import com.jmtube.app.sync.crypto.SyncBytes
 import com.jmtube.app.sync.crypto.SyncCrypto
 import com.jmtube.app.sync2.crypto.MemberSecrets
 import com.jmtube.app.sync2.crypto.ProtocolError
+import com.jmtube.app.sync2.crypto.recoveryKeys
+import com.jmtube.app.sync2.crypto.recoveryWords
 import com.jmtube.app.sync2.crypto.reject
 import com.jmtube.app.sync2.crypto.sealChain
 import com.jmtube.app.sync2.crypto.wrapEpochKey
 import com.jmtube.app.sync2.engine.Session
+import com.jmtube.app.sync2.roster.Cut
 import com.jmtube.app.sync2.roster.Draft
 import com.jmtube.app.sync2.roster.Entry
 import com.jmtube.app.sync2.roster.EpochField
 import com.jmtube.app.sync2.roster.Op
+import com.jmtube.app.sync2.roster.Role
 import com.jmtube.app.sync2.roster.applyEntry
 import com.jmtube.app.sync2.roster.buildEntry
 import com.jmtube.app.sync2.roster.epochDraft
+import com.jmtube.app.sync2.roster.installerGone
+import com.jmtube.app.sync2.roster.memberSubject
+import com.jmtube.app.sync2.roster.recoveryMember
 import com.jmtube.app.sync2.roster.sealDeviceMeta
 import com.jmtube.app.sync2.store.Appended
+import com.jmtube.app.sync2.store.StreamPosition
 
 /** A fresh epoch key, wrapped to every member after a change, with the previous key chained. */
 class NewEpoch(
@@ -54,17 +62,46 @@ suspend fun appendChecked(
     if (session.store.appendRoster(session.state.head, entry, wraps, chain) != Appended.Done) reject(ProtocolError.ROSTER_CHAIN)
 }
 
-/** Removes [removed] and starts a new epoch it never receives. The store also refuses it at once. */
-suspend fun removeDevice(
+/**
+ * Removes [removed] and starts a new epoch it never receives. The store also refuses it at once.
+ * Each log's `cut` is what this device saved reading it, unless a caller that saves nothing yet gives [read].
+ */
+suspend fun removeDevices(
     session: Session,
     device: MemberSecrets,
-    removed: String,
-) {
+    removed: List<String>,
+    read: Map<String, StreamPosition>? = null,
+): String? {
     val state = session.state
-    val remaining = state.members.filterKeys { it != removed }.mapValues { (_, member) -> member.kem }
+    val positions =
+        read?.mapValues { (_, at) -> Cut(at.seq, SyncBytes.toHex(at.hash)) }
+            ?: session.db
+                .groups()
+                .streams()
+                .associate { it.did to Cut(it.seq, it.hash) }
+    val cut = removed.mapNotNull { did -> positions[did]?.takeIf { it.seq > 0 }?.let { did to it } }.toMap()
+    val replacing = installerGone(state.members, removed)
+    val secret = SyncCrypto.randomBytes(32)
+    val next = recoveryKeys(secret)
+    val old = recoveryMember(state.members)?.key.takeIf { replacing }
+    val gone = removed + listOfNotNull(old)
+    val remaining =
+        state.members.filterKeys { it !in gone }.mapValues { (_, member) -> member.kem } +
+            if (replacing) mapOf(SyncBytes.toHex(next.did) to next.kemPublic) else emptyMap()
     val epoch = newEpoch(session.group, state.epoch + 1, remaining, session.currentKey())
-    val draft = Draft(Op.REMOVE, SyncBytes.toHex(device.did), remove = listOf(removed), epoch = epoch.field)
-    appendChecked(session, buildEntry(session.group, state, draft, listOf(device)), epoch.wraps, epoch.chain)
+    val draft =
+        Draft(
+            op = Op.REMOVE,
+            signer = SyncBytes.toHex(device.did),
+            add = if (replacing) listOf(memberSubject(next.sigPublic, next.kemPublic, Role.RECOVERY)) else null,
+            remove = gone,
+            cut = cut.ifEmpty { null },
+            epoch = epoch.field,
+        )
+    val signers = if (replacing) listOf(device, next) else listOf(device)
+    appendChecked(session, buildEntry(session.group, state, draft, signers), epoch.wraps, epoch.chain)
+    next.wipe()
+    return if (replacing) recoveryWords(secret).also { secret.fill(0) } else null
 }
 
 /**
@@ -76,9 +113,11 @@ suspend fun leaveGroup(
     device: MemberSecrets,
 ) {
     val did = SyncBytes.toHex(device.did)
+    val own = session.record
+    val cut = if (own.ownSeq > 0) mapOf(did to Cut(own.ownSeq, own.ownPrev)) else null
     appendChecked(
         session,
-        buildEntry(session.group, session.state, Draft(Op.LEAVE, did, remove = listOf(did)), listOf(device)),
+        buildEntry(session.group, session.state, Draft(Op.LEAVE, did, remove = listOf(did), cut = cut), listOf(device)),
         emptyMap(),
         null,
     )

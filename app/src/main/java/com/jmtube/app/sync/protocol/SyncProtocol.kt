@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.protocol
+﻿package com.jmtube.app.sync.protocol
 
 import com.jmtube.app.sync.apply.PeerInfo
 import com.jmtube.app.sync.apply.ReceivedCollection

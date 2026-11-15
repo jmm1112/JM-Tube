@@ -184,6 +184,37 @@ object LyricsUtils {
         return mergeRepeatedTimestampTranslations(result.sorted())
     }
 
+    internal data class LineMarkers(
+        val text: String,
+        val agent: String?,
+        val isBackground: Boolean,
+    )
+
+    internal fun lineMarkers(content: String): LineMarkers {
+        var text = content
+        val agentMatch = AGENT_REGEX.find(text)
+        if (agentMatch != null) text = text.replaceFirst(AGENT_REGEX, "")
+        val isBackground = BACKGROUND_REGEX.containsMatchIn(text)
+        if (isBackground) text = text.replaceFirst(BACKGROUND_REGEX, "")
+        return LineMarkers(text, agentMatch?.groupValues?.get(1), isBackground)
+    }
+
+    /** Lines saved before the markers were parsed still carry them in their text. */
+    fun withoutLineMarkers(entries: List<LyricsEntry>): List<LyricsEntry> {
+        if (entries.none { AGENT_REGEX.containsMatchIn(it.text) || BACKGROUND_REGEX.containsMatchIn(it.text) }) return entries
+        var lastNonBgAgent: String? = null
+        return entries.map { entry ->
+            val markers = lineMarkers(entry.text)
+            if (!markers.isBackground && markers.agent != null) lastNonBgAgent = markers.agent
+            if (markers.text == entry.text) return@map entry
+            entry.copy(
+                text = markers.text.trim(),
+                agent = entry.agent ?: (if (markers.isBackground) lastNonBgAgent ?: "bg" else markers.agent),
+                isBackground = entry.isBackground || markers.isBackground,
+            )
+        }
+    }
+
     private fun mergeRepeatedTimestampTranslations(entries: List<LyricsEntry>): List<LyricsEntry> {
         if (entries.size < 2) return entries
 

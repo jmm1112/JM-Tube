@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.linking
+﻿package com.jmtube.app.sync2.linking
 
 import com.jmtube.app.sync.protocol.SyncSerialization
 import com.jmtube.app.sync2.roster.Entry
@@ -26,7 +26,7 @@ data class StoreLocation(
 data class QrCode(
     val v: Int,
     val t: String,
-    val e: String,
+    val c: String,
     val r: String,
     val d: String,
     val s: StoreLocation? = null,

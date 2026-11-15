@@ -29,6 +29,7 @@ import com.jmtube.app.ui.screens.player.state.PlayerCommentsUiState
 import com.jmtube.app.ui.screens.player.state.PlayerScreenState
 import com.jmtube.app.ui.screens.player.state.PlayerSheet
 import com.jmtube.app.ui.screens.player.state.VideoPlayerUiState
+import com.jmtube.app.ui.screens.player.state.rememberPlayerCommentsTimedFollow
 import com.jmtube.app.ui.screens.player.state.transcriptTrackUrl
 import com.jmtube.app.ui.screens.player.state.visibleComments
 
@@ -78,8 +79,8 @@ internal fun PlayerBottomSheetsContainer(
             selectedFilter = screenState.commentSortFilter,
             totalText = commentsUiState.totalText,
             artworkUrl = video.thumbnailUrl,
-            timedOnly = screenState.commentsTimedOnly,
-            onTimedChange = { screenState.commentsTimedOnly = it },
+            showTimed = true,
+            timedFollow = rememberPlayerCommentsTimedFollow(viewModel, screenState),
             onFilterChanged = onSelectCommentSort,
             onLoadReplies = onLoadReplies,
             onLoadMoreReplies = onLoadMoreReplies,
@@ -95,6 +96,9 @@ internal fun PlayerBottomSheetsContainer(
             collapsedHeight = mediaSheetCollapsedHeight,
             onSheetProgressChange = onMediaSheetProgressChange,
             onDismiss = { screenState.closeSheet() },
+            listState = screenState.commentsListState,
+            threadState = screenState.commentThreads,
+            isDisabled = commentsUiState.isDisabled,
         )
     }
 

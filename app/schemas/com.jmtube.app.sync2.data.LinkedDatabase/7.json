@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 7,
-    "identityHash": "57b37d952a7b47008a755bf8c9e5897e",
+    "identityHash": "d4ec4e0b215c90882e80ca9aeb21cbe2",
     "entities": [
       {
         "tableName": "sent",
@@ -150,6 +150,24 @@
           "autoGenerate": false,
           "columnNames": [
             "seq"
+          ]
+        }
+      },
+      {
+        "tableName": "roster_pin",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hash` TEXT NOT NULL, PRIMARY KEY(`hash`))",
+        "fields": [
+          {
+            "fieldPath": "hash",
+            "columnName": "hash",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "hash"
           ]
         }
       },
@@ -519,7 +537,7 @@
       },
       {
         "tableName": "profile_names",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`link` TEXT NOT NULL, `name` TEXT NOT NULL, `hlc` TEXT NOT NULL, `deleted` INTEGER NOT NULL, `colorKey` TEXT NOT NULL DEFAULT '', `avatarKind` TEXT NOT NULL DEFAULT 'initial', `avatarEmoji` TEXT NOT NULL DEFAULT '', `photoVersion` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`link`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`link` TEXT NOT NULL, `name` TEXT NOT NULL, `hlc` TEXT NOT NULL, `deleted` INTEGER NOT NULL, PRIMARY KEY(`link`))",
         "fields": [
           {
             "fieldPath": "link",
@@ -544,34 +562,6 @@
             "columnName": "deleted",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "colorKey",
-            "columnName": "colorKey",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "''"
-          },
-          {
-            "fieldPath": "avatarKind",
-            "columnName": "avatarKind",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "'initial'"
-          },
-          {
-            "fieldPath": "avatarEmoji",
-            "columnName": "avatarEmoji",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "''"
-          },
-          {
-            "fieldPath": "photoVersion",
-            "columnName": "photoVersion",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
           }
         ],
         "primaryKey": {
@@ -621,7 +611,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '57b37d952a7b47008a755bf8c9e5897e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd4ec4e0b215c90882e80ca9aeb21cbe2')"
     ]
   }
 }

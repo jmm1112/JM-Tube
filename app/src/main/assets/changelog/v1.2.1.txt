@@ -1,9 +1,16 @@
 JM TUBE CHANGE LOG
 VERSION: 1.2.1
-DATE: 2026-11-14
+DATE: 2026-11-15
 STATUS: stable
 
 HIGHLIGHTS
+- Flow-Sync 2.0 Multi-Device Sync & Remote Control: End-to-end encrypted device linking protocol with QR code pairing, 12-word recovery seed phrase backup, real-time sync across devices, linked device management, and "Play on Device" remote streaming control
+- Modular Video Transcripts: Full interactive transcript sheet with instant keyword search, language selector menu, real-time auto-follow scrolling synchronized with video playback, and TXT/SRT export
+- Hierarchical Nested Comment Reply Threads: Dedicated nested comment reply threads with expandable branches, author badges, and fluid drawer animations
+- Comment Media Support: Rich GIF and image rendering support in comment sections with optional Wi-Fi only restriction
+- Landscape Fullscreen Side Panels: Configurable side panel width (Compact, Standard, Wide) to browse comments, transcripts, or playback queue side-by-side in fullscreen landscape mode
+- 360° Spherical Video Motion & Drag: Gyroscope motion sensor tracking and touch drag velocity controls for immersive spherical video viewing
+- Atmospheric Video Ambient Glow: Dynamic atmospheric lighting effect matching video colors rendered behind the player, with battery saver and immersive scroll dimming controls
 - Media Player Notification Widget Like Button: Added Like/Favorite button directly to the Android notification panel's media player widget with real-time background sync, allowing users to like or unlike the currently playing track without opening the app
 - Shorts Auto-Scroll Support: Added auto-scroll capability for the Shorts section that automatically scrolls and transitions to the next video when playback ends, with seamless repeat mode handling and comment/description sheet pause protection
 - Digital Wellbeing & Daily Watch Limits: Comprehensive daily watch limits with customizable countdown warnings, Time's Up screen lockout, and background DailyLimitGuard enforcement across video, music, and shorts
@@ -17,7 +24,6 @@ HIGHLIGHTS
 - Mini Player Synced Lyrics: Real-time synced lyric lines directly within the music mini player bar
 - Portrait Idle Progress Strip: Ultra-thin progress indicator displayed at the bottom of the video player when controls are hidden
 - Stats for Nerds Diagnostic Overlay: Comprehensive real-time player diagnostics displaying video format, resolution, audio loudness, dropped frames, decoder, and viewport metrics
-- Video Player Ambient Glow: Dynamic atmospheric lighting effect matching video colors rendered behind the player
 - Lyrics Share Card & Image Export: Create and export customized, high-resolution aesthetic lyric quote image cards with classic, poster, and expressive shape layouts
 - Extended Lyrics Providers: Integrated AMLL (word-synced TTML) and NetEase Cloud Music lyric providers into the automated lyrics fallback pipeline
 - Google Takeout Import Fix: Fixed invisible/blank song titles and channel names on imported Takeout history and playlists

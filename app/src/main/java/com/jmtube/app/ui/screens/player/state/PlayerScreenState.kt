@@ -1,7 +1,9 @@
 package com.jmtube.app.ui.screens.player.state
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.*
 import com.jmtube.app.ui.components.shared.CommentSortFilter
+import com.jmtube.app.ui.components.shared.CommentThreadState
 import com.jmtube.app.ui.components.videoplayer.overlay.ChapterSkipFeedback
 import com.jmtube.app.ui.components.videoplayer.settings.PlayerSettingsPage
 import com.jmtube.app.ui.components.videoplayer.subtitle.SubtitleStyle
@@ -39,6 +41,14 @@ class PlayerScreenState {
     var commentSortFilter by mutableStateOf(CommentSortFilter.TOP)
     var commentsTimedOnly by mutableStateOf(false)
 
+    // Outlives the comments sheet and panel, which leave composition on every close, collapse and rotation.
+    var commentsListState by mutableStateOf(LazyListState())
+        private set
+    val commentThreads = CommentThreadState()
+
+    // Written by the host from the player sheet's settled anchor; the comments sheet outlives a collapse.
+    var isPlayerExpanded by mutableStateOf(true)
+
     // Gesture States
     var brightnessLevel by mutableFloatStateOf(0.5f)
     var volumeLevel by mutableFloatStateOf(0.5f)
@@ -72,6 +82,7 @@ class PlayerScreenState {
     var showZoomIndicator by mutableStateOf(false)
     var zoomIndicatorSequence by mutableIntStateOf(0)
     var exitDragOffsetY by mutableFloatStateOf(0f)
+    var moreVideosDragY by mutableFloatStateOf(0f)
 
     // Speed Control
     var isSpeedBoostActive by mutableStateOf(false)
@@ -127,6 +138,7 @@ class PlayerScreenState {
 
     internal fun closeSheet() {
         activeSheet = PlayerSheet.None
+        moreVideosDragY = 0f
     }
 
     internal val isSettingsOpen: Boolean
@@ -143,6 +155,17 @@ class PlayerScreenState {
      */
     fun dismissMediaSheets() {
         closeSheet()
+    }
+
+    fun changeCommentSort(filter: CommentSortFilter) {
+        if (filter == commentSortFilter) return
+        commentSortFilter = filter
+        resetCommentsPlace()
+    }
+
+    fun resetCommentsPlace() {
+        commentsListState = LazyListState()
+        commentThreads.clear()
     }
 
     fun cycleResizeMode() {

@@ -300,6 +300,15 @@
             android:enabled="true"
             android:exported="false" />
 
+        <!-- Opened by the music service over the lock screen while the setting is on (#1859). -->
+        <activity
+            android:name=".ui.screens.lockscreen.LockScreenPlayerActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:taskAffinity="${applicationId}.lockscreen"
+            android:theme="@style/Theme.Flow" />
+
         <!-- Home-screen widgets (Jetpack Glance) -->
         <receiver
             android:name=".widget.core.action.WidgetPlaybackReceiver"
@@ -681,9 +690,6 @@
             android:name="com.jmtube.app.discord.DiscordLoginActivity"
             android:exported="false"
             android:theme="@style/Theme.Flow" />
-        <receiver
-            android:name="com.jmtube.app.updater.UpdateInstallReceiver"
-            android:exported="false" />
     </application>
 
 </manifest>

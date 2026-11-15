@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.linking
+﻿package com.jmtube.app.sync2.linking
 
 import com.jmtube.app.sync.crypto.SyncBytes
 import com.jmtube.app.sync.crypto.SyncCrypto
@@ -10,7 +10,9 @@ import com.jmtube.app.sync2.crypto.encodePayload
 import com.jmtube.app.sync2.crypto.memberId
 import com.jmtube.app.sync2.crypto.open
 import com.jmtube.app.sync2.crypto.pairingAad
+import com.jmtube.app.sync2.crypto.pairingCommit
 import com.jmtube.app.sync2.crypto.pairingKeys
+import com.jmtube.app.sync2.crypto.pairingProof
 import com.jmtube.app.sync2.crypto.pairingSlot
 import com.jmtube.app.sync2.crypto.reject
 import com.jmtube.app.sync2.crypto.seal
@@ -44,10 +46,12 @@ import com.jmtube.app.sync2.store.ServerStore
 import com.jmtube.app.sync2.store.Store
 import com.jmtube.app.sync2.store.StoreException
 import com.jmtube.app.sync2.store.WebDavStore
+import com.jmtube.app.sync2.store.kcName
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.selects.select
 import kotlinx.serialization.SerializationException
+import java.security.MessageDigest
 
 /** Sealed pairing messages over a pipe, numbered from 0 in each direction. */
 internal class Channel(
@@ -76,26 +80,30 @@ internal class Channel(
     }
 
     companion object {
-        /** The side that showed [offer], once the scanner's key arrived. Returns the six digits too. */
-        fun shower(
+        /** The side that showed [offer], once the scanner's key arrived: reveals its own. Returns the six digits too. */
+        suspend fun shower(
             pipe: Pipe,
             offer: Offer,
             scanner: ByteArray,
         ): Pair<Channel, String> {
+            pipe.send(offer.reveal())
             val keys = pairingKeys(offer.secret, scanner, offer.token, offer.public, scanner)
             return Channel(pipe, offer.token, keys.showerKey, keys.scannerKey) to keys.sas
         }
 
-        /** The side that read [code]: sends its key first. */
+        /** The side that read [code]: sends its key first, and takes the shower's only if the code committed to it. */
         suspend fun scanner(
             pipe: Pipe,
             code: Code,
         ): Pair<Channel, String> {
             val secret = SyncCrypto.randomBytes(KEY_SIZE)
             val public = agreementPublicKey(secret)
-            val keys = pairingKeys(secret, code.showerKey, code.token, code.showerKey, public)
-            pipe.sendKey(public)
-            return Channel(pipe, code.token, keys.scannerKey, keys.showerKey) to keys.sas
+            val (token, commitment) = code.token to code.commitment
+            pipe.send(public + pairingProof(token, public))
+            val shower = pipe.receive()
+            if (shower.size != KEY_SIZE || !MessageDigest.isEqual(pairingCommit(shower), commitment)) throw LinkedException.Declined()
+            val keys = pairingKeys(secret, shower, token, shower, public)
+            return Channel(pipe, token, keys.scannerKey, keys.showerKey) to keys.sas
         }
     }
 }
@@ -121,8 +129,9 @@ suspend fun addDevice(
     try {
         val (pipe, key) =
             coroutineScope {
-                val viaMailbox = mailbox?.let { MailboxPipe(it, slot, shower = true) }?.let { pipe -> async { pipe to pipe.receiveKey() } }
-                val viaLan = offer.listening?.let { listening -> async { listening.accept() } }
+                val viaMailbox =
+                    mailbox?.let { MailboxPipe(it, slot, shower = true) }?.let { pipe -> async { pipe to pipe.awaitScanner(offer.token) } }
+                val viaLan = offer.listening?.let { listening -> async { listening.accept(offer.token) } }
                 if (viaMailbox == null && viaLan == null) throw LinkedException.LanUnreachable()
                 select<Pair<Pipe, ByteArray>> {
                     if (viaMailbox != null) viaMailbox.onAwait { it }
@@ -301,7 +310,13 @@ class Welcomed internal constructor(
         try {
             if (server == null) {
                 local.addEntries(roster)
-                local.putKey(replayRoster(roster).epoch, me.did, SyncBytes.b64urlDecode(welcome.wrap ?: throw LinkedException.Unexpected()))
+                val state = replayRoster(roster)
+                local.putKey(
+                    state.epoch,
+                    kcName(SyncBytes.b64urlDecode(state.kc)),
+                    me.did,
+                    SyncBytes.b64urlDecode(welcome.wrap ?: throw LinkedException.Unexpected()),
+                )
             }
             db.groups().addEntries(roster)
             // A joined device never had recovery words to confirm; the device that created or restored the group did.
@@ -384,7 +399,7 @@ suspend fun answerShown(
 ): Welcomed {
     val listening = offer.listening ?: throw LinkedException.LanUnreachable()
     try {
-        val (pipe, key) = listening.accept()
+        val (pipe, key) = listening.accept(offer.token)
         val (channel, sas) = Channel.shower(pipe, offer, key)
         return newSide(channel, sas, device, meta, port, confirm) {
             pipe.awaitClosed()

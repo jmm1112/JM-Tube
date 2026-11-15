@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.crypto
+﻿package com.jmtube.app.sync2.crypto
 
 import java.security.MessageDigest
 
@@ -12,6 +12,7 @@ enum class Purpose(
     LIVE("live"),
     LAN("lan"),
     CHAIN("chain"),
+    STORE("store"),
 }
 
 fun epochCommitment(

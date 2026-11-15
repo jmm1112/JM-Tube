@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.lan
+﻿package com.jmtube.app.sync2.lan
 
 import android.content.Context
 import android.util.Log
@@ -100,17 +100,6 @@ class LanSync
         /** Devices of this group met on this network while this process runs, and when. */
         val nearby: StateFlow<Map<String, Long>> = seen.asStateFlow()
 
-        private fun pruneStalePeers() {
-            val cutoff = System.currentTimeMillis() - 45_000L
-            seen.update { current -> current.filterValues { timestamp -> timestamp > cutoff } }
-        }
-
-        fun evictPeer(peerId: String) {
-            seen.update { current -> current - peerId }
-            dialed.remove(peerId)
-            devices.lanPeers { current -> current - peerId }
-        }
-
         /**
          * Serves the group this device is in, starting over when it joins another one, the epoch moves
          * on or the network changes. Runs until every [start] has had its [stop].
@@ -122,12 +111,6 @@ class LanSync
             Log.i(TAG, "LAN sync started")
             running =
                 scope.launch {
-                    launch {
-                        while (true) {
-                            delay(15_000L)
-                            pruneStalePeers()
-                        }
-                    }
                     try {
                         db
                             .groups()
@@ -171,8 +154,6 @@ class LanSync
          * before it forgets the group (spec/live.md, LAN groups). [session] is from before the leave.
          */
         suspend fun farewell(session: Session) {
-            val myDid = SyncBytes.toHex(session.device.did)
-            evictPeer(myDid)
             withTimeoutOrNull(FAREWELL_MS) {
                 coroutineScope {
                     for (row in db.lan().addresses()) {
@@ -192,7 +173,6 @@ class LanSync
                     }
                 }
             }
-            seen.value = emptyMap()
         }
 
         private suspend fun session(): Session? {
@@ -200,7 +180,7 @@ class LanSync
             return open()
         }
 
-        private suspend fun open(): Session = Session.open(db, GroupStore(local, null), keys.load())
+        private suspend fun open(): Session = Session.openForLan(db, GroupStore(local, null), keys.load())
 
         /** Peers met in another group are no longer this device's. */
         private fun forgetPeers(id: String?) {
@@ -231,7 +211,12 @@ class LanSync
             coroutineScope {
                 val session = open()
                 val lanKey = purposeKey(session.currentKey(), session.group, session.state.epoch, Purpose.LAN)
-                val server = WsServer(SESSION_PATH) { connection -> accept(connection) }
+                // Outside the socket's scope: closing a link cancels that scope, and the session still has to be noted.
+                val greeter = LanGreeter { session() }
+                val server =
+                    WsServer(SESSION_PATH, MAX_LAN_FRAME) { connection ->
+                        if (greeter.takes(connection)) launch { accept(connection, greeter) }
+                    }
                 val discovery = LanDiscovery(context)
                 val name = "Flow-" + SyncBytes.toHex(SyncCrypto.randomBytes(2))
                 names += name
@@ -301,7 +286,7 @@ class LanSync
             if (!open.add(address)) return
             dialed[address] = System.currentTimeMillis()
             try {
-                val link = connect(address)?.let { meet(it, port, envelope) }
+                val link = meetDialed(address, port, envelope)
                 if (link != null) {
                     remember(link.peer, host, peerPort)
                 } else {
@@ -316,12 +301,15 @@ class LanSync
 
         private suspend fun connect(address: String): SyncConnection? =
             withTimeoutOrNull(CONNECT_TIMEOUT_MS) {
-                runCatching { WsClient(OkHttpClient()).connect("ws://$address$SESSION_PATH") }.getOrNull()
+                runCatching { WsClient(OkHttpClient(), MAX_LAN_FRAME).connect("ws://$address$SESSION_PATH") }.getOrNull()
             }
 
         /** A member that dialed this one is remembered where its hello says it listens. */
-        private suspend fun accept(connection: SyncConnection) {
-            val link = meet(connection, port = null) ?: return
+        private suspend fun accept(
+            connection: SyncConnection,
+            greeter: LanGreeter,
+        ) {
+            val link = meet(connection, greeter) ?: return
             val host = connection.remoteHost
             val port = link.peerPort
             if (host != null && port != null) remember(link.peer, LocalNetworkAddress.urlHost(host), port)
@@ -336,32 +324,55 @@ class LanSync
             devices.lanPeers { it + did }
         }
 
-        /**
-         * One session with another member, which this device dialed when it names its own [port]: both
-         * pull, live messages travel while it lasts, then the usual sync merges what arrived. Returns
-         * the closed link when it got that far.
-         */
+        /** One session with the member that dialed this device over [connection]. Returns the closed link when it got that far. */
         private suspend fun meet(
             connection: SyncConnection,
-            port: Int?,
-            envelope: ByteArray? = null,
+            greeter: LanGreeter,
+        ): LanLink? =
+            try {
+                greeter.greet(connection)?.let { (link, session) -> talk(link, session, "LAN session accepted") }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "LAN session failed: ${e.linkedError()}")
+                null
+            } finally {
+                connection.close()
+            }
+
+        /** One session with the member at [address], naming the [port] this device listens on. Returns the closed link when it got that far. */
+        private suspend fun meetDialed(
+            address: String,
+            port: Int,
+            envelope: ByteArray?,
         ): LanLink? {
+            var link: LanLink? = null
             try {
                 val session = session() ?: return null
-                val link = if (port == null) acceptLink(connection, session) else connectLink(connection, session, port)
-                converse(link, session, envelope = envelope)
-                seen.update { it + (link.peer to System.currentTimeMillis()) }
-                Log.i(TAG, if (port == null) "LAN session accepted" else "LAN session dialed")
-                sync.syncNow()
-                return link
+                link = dialLink(session, port) { connect(address) } ?: return null
+                return talk(link, session, "LAN session dialed", envelope)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 Log.w(TAG, "LAN session failed: ${e.linkedError()}")
                 return null
             } finally {
-                connection.close()
+                link?.close()
             }
+        }
+
+        /** Both pull, live messages travel while it lasts, then the usual sync merges what arrived. */
+        private suspend fun talk(
+            link: LanLink,
+            session: Session,
+            said: String,
+            envelope: ByteArray? = null,
+        ): LanLink {
+            converse(link, session, envelope = envelope)
+            seen.update { it + (link.peer to System.currentTimeMillis()) }
+            Log.i(TAG, said)
+            sync.syncNow()
+            return link
         }
 
         /**

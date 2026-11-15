@@ -3,7 +3,9 @@ package com.jmtube.app.ui.screens.settings.playback
 import android.content.Context
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import com.jmtube.app.data.local.CrossfadeCurve
 import com.jmtube.app.data.local.DEFAULT_BACKGROUND_PLAY_ENABLED
+import com.jmtube.app.data.local.DEFAULT_CROSSFADE_MS
 import com.jmtube.app.data.local.DEFAULT_KEEP_PLAYING_AFTER_SWIPE
 import com.jmtube.app.data.local.DEFAULT_SPEED_SWIPE_STEP
 import com.jmtube.app.data.local.DoubleTapSeekZone
@@ -113,6 +115,32 @@ class PlaybackSettingsViewModel
         val resumeFromHeadphones = preferences.resumeFromHeadphones.asState(true)
         val musicSideSwipes = preferences.musicSideSwipes.asState(false)
         val lyricsInMiniPlayer = preferences.lyricsInMiniPlayer.asState(false)
+        val crossfadeEnabled = preferences.musicCrossfadeEnabled.asState(false)
+        val crossfadeMs = preferences.musicCrossfadeMs.asState(DEFAULT_CROSSFADE_MS)
+        val crossfadeKeepAlbums = preferences.musicCrossfadeKeepAlbums.asState(true)
+        val crossfadeCurve = preferences.musicCrossfadeCurve.asState(CrossfadeCurve.EQUAL_POWER)
+        val crossfadeOnAutoAdvance = preferences.musicCrossfadeOnAutoAdvance.asState(true)
+        val crossfadeOnManualSkip = preferences.musicCrossfadeOnManualSkip.asState(true)
+
+        fun setCrossfadeCurve(curve: CrossfadeCurve) = write { preferences.setMusicCrossfadeCurve(curve) }
+        fun setCrossfadeOnAutoAdvance(enabled: Boolean) = write { preferences.setMusicCrossfadeOnAutoAdvance(enabled) }
+        fun setCrossfadeOnManualSkip(enabled: Boolean) = write { preferences.setMusicCrossfadeOnManualSkip(enabled) }
+        fun setCrossfadeEnabled(enabled: Boolean) = write { preferences.setMusicCrossfadeEnabled(enabled) }
+        fun setCrossfadeMs(ms: Long) = write { preferences.setMusicCrossfadeMs(ms.toInt()) }
+        fun setCrossfadeKeepAlbums(enabled: Boolean) = write { preferences.setMusicCrossfadeKeepAlbums(enabled) }
+
+        val lockScreenPlayer = preferences.lockScreenPlayer.asState(false)
+        val lyricsOnLockScreen = preferences.lyricsOnLockScreen.asState(false)
+        val lyricsOnLockScreenDelayMs = preferences.lyricsOnLockScreenDelayMs.asState(0)
+        val lyricsOnDemand = preferences.lyricsOnDemand.asState(false)
+        val lyricsSponsorBlockTiming = preferences.lyricsSponsorBlockTiming.asState(false)
+
+        fun setLockScreenPlayer(value: Boolean) = write { preferences.setLockScreenPlayer(value) }
+        fun setLyricsOnLockScreen(value: Boolean) = write { preferences.setLyricsOnLockScreen(value) }
+        fun setLyricsOnLockScreenDelayMs(delayMs: Int) = write { preferences.setLyricsOnLockScreenDelayMs(delayMs) }
+        fun setLyricsOnDemand(value: Boolean) = write { preferences.setLyricsOnDemand(value) }
+        fun setLyricsSponsorBlockTiming(value: Boolean) = write { preferences.setLyricsSponsorBlockTiming(value) }
+
         val chapterSkipGesture = preferences.chapterSkipGestureEnabled.asState(true)
         val normalizeVolume = preferences.videoVolumeNormalizationEnabled.asState(true)
         val lyricsProviders =

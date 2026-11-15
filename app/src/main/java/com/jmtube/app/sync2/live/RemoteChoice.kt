@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.live
+﻿package com.jmtube.app.sync2.live
 
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay

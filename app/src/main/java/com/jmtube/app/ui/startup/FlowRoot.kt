@@ -34,6 +34,7 @@ import com.jmtube.app.ui.IncomingLinks
 import com.jmtube.app.ui.components.profiles.ProfileSwitchingOverlay
 import com.jmtube.app.ui.components.security.AppLockOverlay
 import com.jmtube.app.ui.components.shared.ProvideChannelGroupLabels
+import com.jmtube.app.ui.components.shared.ProvideChannelOrganizer
 import com.jmtube.app.ui.components.shared.ProvideDateDisplaySettings
 import com.jmtube.app.ui.components.shared.card.ProvideVideoCardState
 import com.jmtube.app.ui.screens.crash.CrashReportScreen
@@ -161,22 +162,24 @@ internal fun FlowRoot(
                                         )
                                     }
                                 } else {
-                                    FlowApp(
-                                        currentTheme = theme.themeMode,
-                                        themeVariant = theme.themeVariant,
-                                        systemLightThemeMode = theme.systemLightThemeMode,
-                                        systemDarkThemeMode = theme.systemDarkThemeMode,
-                                        deeplinkVideoId = deeplinkVideoId,
-                                        isShort = isDeeplinkShort,
-                                        isSharedLink = isDeeplinkShared,
-                                        openMusicPlayerRequest = openMusicPlayerRequest,
-                                        onDeeplinkConsumed = links::consumeVideo,
-                                        pendingRoute = pendingRoute,
-                                        onPendingRouteConsumed = links::consumeRoute,
-                                        downloadVideoId = downloadVideoId,
-                                        onDownloadConsumed = links::consumeDownload,
-                                        onStartDestinationKnown = { splashController.contentReady = true },
-                                    )
+                                    ProvideChannelOrganizer {
+                                        FlowApp(
+                                            currentTheme = theme.themeMode,
+                                            themeVariant = theme.themeVariant,
+                                            systemLightThemeMode = theme.systemLightThemeMode,
+                                            systemDarkThemeMode = theme.systemDarkThemeMode,
+                                            deeplinkVideoId = deeplinkVideoId,
+                                            isShort = isDeeplinkShort,
+                                            isSharedLink = isDeeplinkShared,
+                                            openMusicPlayerRequest = openMusicPlayerRequest,
+                                            onDeeplinkConsumed = links::consumeVideo,
+                                            pendingRoute = pendingRoute,
+                                            onPendingRouteConsumed = links::consumeRoute,
+                                            downloadVideoId = downloadVideoId,
+                                            onDownloadConsumed = links::consumeDownload,
+                                            onStartDestinationKnown = { splashController.contentReady = true },
+                                        )
+                                    }
                                 }
                             }
                         }

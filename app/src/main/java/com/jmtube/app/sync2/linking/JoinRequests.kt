@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.linking
+﻿package com.jmtube.app.sync2.linking
 
 import com.jmtube.app.sync.crypto.SyncBytes
 import com.jmtube.app.sync.crypto.SyncCrypto

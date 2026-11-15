@@ -1,4 +1,4 @@
-package com.jmtube.app.ui.screens.sync.linked
+﻿package com.jmtube.app.ui.screens.sync.linked
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.jmtube.app.sync2.device.WebDavLogin
+import com.jmtube.app.sync2.engine.ContestSide
+import com.jmtube.app.sync2.linking.RestoreDevice
 import com.jmtube.app.sync2.live.LiveConsent
 import com.jmtube.app.sync2.live.LiveDevices
 import com.jmtube.app.sync2.live.deviceKind
@@ -25,6 +27,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -44,12 +47,31 @@ internal data class LinkedUiState(
     val kinds: Map<String, String> = emptyMap(),
     /** Recovery words to show once, until the user proves they wrote them down. */
     val words: String? = null,
+    /** The group's devices while the user chooses which a restore keeps. */
+    val restoreDevices: List<RestoreDevice>? = null,
     val busy: Boolean = false,
     val syncing: Boolean = false,
     val error: LinkedError? = null,
+    /** The sides to choose between while two devices have removed each other. */
+    val contest: List<ContestSide> = emptyList(),
+    /** A removed device can still reach the WebDAV folder until its login changes. */
+    val loginDue: Boolean = false,
+    /** The devices yet to read the login this device sent, while that change is under way. */
+    val loginWaiting: List<String>? = null,
+    /** The device behind a change of the recovery key, until the user answers, and when this device learned of it. */
+    val recoveryNoticeDevice: String? = null,
+    val recoveryNoticeAt: Long? = null,
+    /** The device that set the recovery key left: nothing is written until it is replaced. */
+    val recoveryDue: Boolean = false,
 ) {
     val linked: Boolean get() = storeUrl != null
 }
+
+/** A restore waiting for the user's choice: the group's [devices], and how to go on with the ones to keep. */
+private class PendingRestore(
+    val devices: List<RestoreDevice>,
+    val run: suspend (keep: Set<String>) -> String,
+)
 
 /** What the screen itself holds: the words being shown and the outcome of the last action. */
 private data class Local(
@@ -58,8 +80,11 @@ private data class Local(
     /** Devices met on this network while the app runs. */
     val nearby: Set<String> = emptySet(),
     val words: String? = null,
+    val restore: PendingRestore? = null,
     val busy: Boolean = false,
     val error: LinkedError? = null,
+    val contest: List<ContestSide> = emptyList(),
+    val loginWaiting: List<String>? = null,
 )
 
 @HiltViewModel
@@ -87,6 +112,12 @@ internal class LinkedDevicesViewModel
 
         private val local = MutableStateFlow(Local())
 
+        init {
+            viewModelScope.launch {
+                actions.replacedWords.filterNotNull().collect { words -> local.update { it.copy(words = words) } }
+            }
+        }
+
         val state: StateFlow<LinkedUiState> =
             combine(
                 actions.group,
@@ -96,20 +127,26 @@ internal class LinkedDevicesViewModel
                 combine(local, live.devices) { l, peers -> l to peers },
             ) { group, lastSync, nearby, syncing, (l, peers) ->
                 val kinds = peers.mapNotNull { (did, peer) -> peer.kind?.let { did to it } }.toMap()
-                val currentDevices = runCatching { actions.devices() }.getOrNull() ?: l.devices
-                val own = currentDevices?.firstOrNull { it.thisDevice }?.id
+                val own = l.devices?.firstOrNull { it.thisDevice }?.id
                 LinkedUiState(
-                    storeUrl = group?.storeUrl,
-                    recoverySaved = group?.recoverySaved ?: true,
-                    lastSync = lastSync,
-                    devices = currentDevices,
-                    requests = l.requests,
-                    nearby = nearby,
-                    kinds = if (own != null) kinds + (own to ownKind) else kinds,
-                    words = l.words,
-                    busy = l.busy,
-                    syncing = syncing,
-                    error = l.error ?: lastSync?.error,
+                    group?.storeUrl,
+                    group?.recoverySaved ?: true,
+                    lastSync,
+                    l.devices,
+                    l.requests,
+                    nearby,
+                    if (own != null) kinds + (own to ownKind) else kinds,
+                    l.words,
+                    l.restore?.devices,
+                    l.busy,
+                    syncing,
+                    l.error ?: lastSync?.error,
+                    l.contest,
+                    group?.loginDue != null,
+                    if (group?.loginSent != null) l.loginWaiting.orEmpty() else null,
+                    group?.recoveryNoticeDevice,
+                    group?.recoveryNoticeAt,
+                    group?.recoveryDue == true,
                 )
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LinkedUiState())
 
@@ -156,7 +193,11 @@ internal class LinkedDevicesViewModel
             }
         }
 
-        fun refreshDevices() = run { local.update { it.copy(devices = actions.devices()) } }
+        fun refreshDevices() =
+            run {
+                local.update { it.copy(devices = actions.devices()) }
+                refreshLoginWaiting()
+            }
 
         fun create(
             url: String,
@@ -174,12 +215,34 @@ internal class LinkedDevicesViewModel
             user: String,
             password: String,
             words: String,
-        ) = run { local.update { it.copy(words = actions.restoreFromWebDav(url, user, password, words)) } }
+        ) = run {
+            val devices = actions.previewRestoreFromWebDav(url, user, password, words)
+            local.update { state ->
+                state.copy(restore = PendingRestore(devices) { actions.restoreFromWebDav(url, user, password, words, it) })
+            }
+        }
 
         fun updateLogin(
             user: String,
             password: String,
         ) = run { actions.updateLogin(user, password) }
+
+        fun startLoginChange(
+            user: String,
+            password: String,
+        ) = run {
+            actions.startLoginChange(user, password)
+            refreshLoginWaiting()
+        }
+
+        fun finishLoginChange() = run { actions.finishLoginChange() }
+
+        fun cancelLoginChange() = run { actions.cancelLoginChange() }
+
+        private suspend fun refreshLoginWaiting() {
+            val waiting = actions.loginWaiting()
+            local.update { it.copy(loginWaiting = waiting) }
+        }
 
         fun resetAndCreate(
             url: String,
@@ -191,13 +254,28 @@ internal class LinkedDevicesViewModel
         fun restore(
             url: String,
             words: String,
-        ) = run { local.update { it.copy(words = actions.restore(url, words)) } }
+        ) = run {
+            val devices = actions.previewRestore(url, words)
+            local.update { state -> state.copy(restore = PendingRestore(devices) { actions.restore(url, words, it) }) }
+        }
+
+        /** Goes on with the restore the user was asked about, keeping [keep]. */
+        fun confirmRestore(keep: Set<String>) =
+            run {
+                val pending = local.value.restore ?: return@run
+                val words = pending.run(keep)
+                local.update { it.copy(words = words, restore = null) }
+            }
+
+        fun cancelRestore() = local.update { it.copy(restore = null, error = null) }
 
         fun confirmWordsSaved() =
             run {
                 actions.confirmRecoverySaved()
                 local.update { it.copy(words = null) }
             }
+
+        fun replaceWords() = run { local.update { it.copy(words = actions.replaceRecoveryWords()) } }
 
         fun rename(
             id: String,
@@ -207,10 +285,24 @@ internal class LinkedDevicesViewModel
             local.update { it.copy(devices = actions.devices()) }
         }
 
-        fun remove(id: String) =
+        fun remove(
+            id: String,
+            also: List<String> = emptyList(),
+        ) = run {
+            val words = actions.remove(id, also)
+            local.update { it.copy(words = words ?: it.words, devices = actions.devices()) }
+        }
+
+        suspend fun addedBy(id: String): List<String> = runCatching { actions.addedBy(id) }.getOrDefault(emptyList())
+
+        fun answerRecoveryNotice() = run { actions.answerRecoveryNotice() }
+
+        /** The user said the change wasn't theirs. */
+        fun removeAfterNotice(id: String) =
             run {
-                actions.remove(id)
-                local.update { it.copy(devices = actions.devices()) }
+                val words = actions.remove(id, emptyList())
+                actions.answerRecoveryNotice()
+                local.update { it.copy(words = words ?: it.words, devices = actions.devices()) }
             }
 
         fun leave() =
@@ -230,6 +322,14 @@ internal class LinkedDevicesViewModel
             }
 
         fun syncNow() = actions.syncNow()
+
+        fun loadContest() = run { local.update { it.copy(contest = actions.contest()) } }
+
+        fun keepSide(entry: String) =
+            run {
+                actions.keepSide(entry)
+                local.update { it.copy(contest = emptyList()) }
+            }
 
         fun enterCode(
             code: String,

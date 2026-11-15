@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.service
+﻿package com.jmtube.app.sync2.service
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred

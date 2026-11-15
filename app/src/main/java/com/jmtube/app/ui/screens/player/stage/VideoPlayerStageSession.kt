@@ -9,6 +9,7 @@ import com.jmtube.app.ui.components.videoplayer.PlayerDraggableState
 import com.jmtube.app.ui.screens.player.VideoPlayerViewModel
 import com.jmtube.app.ui.screens.player.effects.AudioSystemInfo
 import com.jmtube.app.ui.screens.player.effects.PipPreferences
+import com.jmtube.app.ui.screens.player.state.PlayerCommentsUiState
 import com.jmtube.app.ui.screens.player.state.PlayerScreenState
 import com.jmtube.app.ui.screens.player.state.VideoPlayerPreferencesState
 import com.jmtube.app.ui.screens.player.state.VideoPlayerUiState
@@ -28,6 +29,7 @@ internal class VideoPlayerStageSession(
     val screenState: PlayerScreenState,
     val playerState: EnhancedPlayerState,
     val uiState: VideoPlayerUiState,
+    val commentsUiState: PlayerCommentsUiState,
     val viewModel: VideoPlayerViewModel,
     val sheetState: PlayerDraggableState,
     val prefs: VideoPlayerPreferencesState,
@@ -35,4 +37,5 @@ internal class VideoPlayerStageSession(
     val pipPreferences: PipPreferences,
     /** Whether the window shows the fullscreen layout yet, which trails the request while it rotates. */
     val isFullscreenShown: Boolean,
+    val ambient: PlayerAmbient,
 )

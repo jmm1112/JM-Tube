@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.live
+﻿package com.jmtube.app.sync2.live
 
 import android.content.Context
 import android.media.AudioManager

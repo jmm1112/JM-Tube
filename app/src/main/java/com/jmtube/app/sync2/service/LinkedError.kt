@@ -1,5 +1,6 @@
-package com.jmtube.app.sync2.service
+﻿package com.jmtube.app.sync2.service
 
+import com.jmtube.app.sync2.crypto.ProtocolError
 import com.jmtube.app.sync2.crypto.ProtocolException
 import com.jmtube.app.sync2.engine.LinkedException
 import com.jmtube.app.sync2.store.StoreException
@@ -22,6 +23,13 @@ enum class LinkedError(
     LOCAL(retryable = true),
     NOT_LINKED,
     REMOVED,
+    REMOVAL_UNCONFIRMED,
+    CONTESTED(retryable = true),
+    ROLLED_BACK(retryable = true),
+    RECOVERY_DUE(retryable = false),
+    ROSTER_CHANGED(retryable = true),
+    RESTORE_UNFINISHED(retryable = true),
+    GROUP_OUTDATED,
     DECLINED,
     TIMED_OUT,
     JOIN_DECLINED,
@@ -31,7 +39,6 @@ enum class LinkedError(
     LAN_UNREACHABLE,
     SERVER_HAS_GROUP,
     NEEDS_MEMBER,
-    NO_PROFILE_SYNCED,
     UNEXPECTED,
     STOPPED,
 }
@@ -74,7 +81,11 @@ fun Throwable.linkedError(): LinkedError =
             LinkedError.REMOVED
         }
 
-        is StoreException.Malformed, is ProtocolException -> {
+        is ProtocolException -> {
+            if (error == ProtocolError.ROSTER_GROUP) LinkedError.GROUP_OUTDATED else LinkedError.PROTOCOL
+        }
+
+        is StoreException.Malformed, is StoreException.TooLarge -> {
             LinkedError.PROTOCOL
         }
 
@@ -84,6 +95,30 @@ fun Throwable.linkedError(): LinkedError =
 
         is LinkedException.Removed -> {
             LinkedError.REMOVED
+        }
+
+        is LinkedException.RemovalUnconfirmed -> {
+            LinkedError.REMOVAL_UNCONFIRMED
+        }
+
+        is LinkedException.Contested -> {
+            LinkedError.CONTESTED
+        }
+
+        is LinkedException.RecoveryDue -> {
+            LinkedError.RECOVERY_DUE
+        }
+
+        is LinkedException.RestoreUnfinished -> {
+            LinkedError.RESTORE_UNFINISHED
+        }
+
+        is LinkedException.RosterRolledBack -> {
+            LinkedError.ROLLED_BACK
+        }
+
+        is LinkedException.RosterRewritten -> {
+            LinkedError.ROSTER_CHANGED
         }
 
         is LinkedException.Declined -> {
@@ -120,10 +155,6 @@ fun Throwable.linkedError(): LinkedError =
 
         is LinkedException.NeedsMember -> {
             LinkedError.NEEDS_MEMBER
-        }
-
-        is LinkedException.NoProfileSynced -> {
-            LinkedError.NO_PROFILE_SYNCED
         }
 
         is LinkedException.Unexpected -> {

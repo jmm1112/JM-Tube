@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.merge
+﻿package com.jmtube.app.sync.merge
 
 import com.jmtube.app.sync.canonical.BrainCounters
 import com.jmtube.app.sync.canonical.BrainFlags

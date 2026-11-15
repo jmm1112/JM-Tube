@@ -1,4 +1,4 @@
-package com.jmtube.app.ui.screens.sync
+﻿package com.jmtube.app.ui.screens.sync
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay

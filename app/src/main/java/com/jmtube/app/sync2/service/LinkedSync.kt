@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.service
+﻿package com.jmtube.app.sync2.service
 
 import android.content.Context
 import android.util.Log
@@ -24,6 +24,7 @@ import com.jmtube.app.sync2.data.serverUrl
 import com.jmtube.app.sync2.data.webDavUrl
 import com.jmtube.app.sync2.device.DeviceKeys
 import com.jmtube.app.sync2.device.StoreCredentials
+import com.jmtube.app.sync2.device.WebDavLogin
 import com.jmtube.app.sync2.engine.LinkedException
 import com.jmtube.app.sync2.engine.Session
 import com.jmtube.app.sync2.engine.collectGarbage
@@ -31,6 +32,7 @@ import com.jmtube.app.sync2.engine.isDue
 import com.jmtube.app.sync2.engine.writeSnapshot
 import com.jmtube.app.sync2.linking.DeviceMeta
 import com.jmtube.app.sync2.linking.deviceNames
+import com.jmtube.app.sync2.linking.finishRestore
 import com.jmtube.app.sync2.linking.rotateEpoch
 import com.jmtube.app.sync2.store.FileLayout
 import com.jmtube.app.sync2.store.GroupStore
@@ -38,7 +40,9 @@ import com.jmtube.app.sync2.store.LocalStore
 import com.jmtube.app.sync2.store.Remote
 import com.jmtube.app.sync2.store.ServerStore
 import com.jmtube.app.sync2.store.StoreException
+import com.jmtube.app.sync2.store.StoreLogin
 import com.jmtube.app.sync2.store.WebDavStore
+import com.jmtube.app.sync2.store.checkFolder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -93,6 +97,9 @@ class LinkedSync
 
         val lastSync: StateFlow<LastSync?> = last.asStateFlow()
 
+        /** New recovery words a restore's removal had to make, to show once. */
+        val replacedWords = MutableStateFlow<String?>(null)
+
         val syncing: StateFlow<Boolean> = active.asStateFlow()
 
         /** Each device a sync the user asked for applied changes from. */
@@ -129,6 +136,28 @@ class LinkedSync
             return Session.open(db, store, device)
         }
 
+        /**
+         * Whether the folder takes [login] and still holds the group. If so it replaces the saved one, whatever
+         * was pending, and the change this device had under way.
+         */
+        suspend fun adoptLogin(login: StoreLogin): Boolean {
+            val record = db.groups().group() ?: return false
+            val folder = record.webDavUrl ?: return false
+            val conditional = checkFolder(WebDavStore.connect(folder, login.user, login.password), record.groupId) ?: return false
+            credentials.save(WebDavLogin(login.user, login.password, conditional))
+            credentials.forgetPending()
+            db.groups().forgetLoginChange()
+            return true
+        }
+
+        /** The folder refused the login: tries the pending one once, and otherwise nothing more is sent until the user enters one. */
+        private suspend fun onLoginRefused() {
+            val login = credentials.webDav() ?: return
+            if (login.refused) return
+            val adopted = credentials.pending()?.let { pending -> runCatching { adoptLogin(pending) }.getOrDefault(false) } ?: false
+            if (adopted) LinkedSyncWorker.syncSoon(context) else credentials.save(login.copy(refused = true))
+        }
+
         /** [announce]: say what arrived, for a sync the user asked for; the others stay silent. */
         suspend fun syncNow(announce: Boolean = false): LastSync =
             running.withLock {
@@ -145,8 +174,9 @@ class LinkedSync
                         // Nothing more goes to a WebDAV server that refused the login until the user enters it again.
                         when (e) {
                             is LinkedException.Removed -> reset.removed()
+                            is LinkedException.RemovalUnconfirmed -> LinkedSyncWorker.cancel(context)
                             is StoreException.SignInRefused -> LinkedSyncWorker.cancel(context)
-                            is StoreException.LoginRefused -> credentials.webDav()?.let { credentials.save(it.copy(refused = true)) }
+                            is StoreException.LoginRefused -> onLoginRefused()
                         }
                         e.linkedError()
                     } finally {
@@ -197,9 +227,21 @@ class LinkedSync
                 }
             val reading = if (offline == null) store else GroupStore(local, null)
             var session = Session.open(db, reading, device)
+            if (session.removalPending) {
+                // It needs the store to take the removal; what it read stays for this sync once that's done.
+                if (offline != null) throw offline
+                // A read that isn't finished doesn't remove: the next sync goes on from what it holds (spec/protocol.md, Recovery, step 6).
+                if (store.cutShort) throw LinkedException.RestoreUnfinished()
+                session =
+                    finishRestore(session, device, { replacedWords.value = it }) {
+                        store.download(me, record.serverCursor, objects = false)
+                        Session.open(db, reading, device)
+                    }
+                if (session.removalPending) return
+            }
             val links = profiles.links(session) ?: return
             // A device left: start the epoch it never receives before writing anything, then read the roster back (spec/protocol.md, Leaving).
-            if (session.state.rotate && offline == null) {
+            if (session.state.rotate && !session.state.recoveryDue && offline == null) {
                 if (rotateEpoch(session, device)) db.snapshots().snapshotSoon()
                 store.download(me, record.serverCursor, objects = false)
                 session = Session.open(db, reading, device)
@@ -207,12 +249,15 @@ class LinkedSync
             exchange(session, links, announce)
             if (offline != null) throw offline
             session.collectGarbage(links.mapTo(HashSet<String?>()) { it.link } + null)
-            db.groups().setUploaded(store.upload(me, db.groups().group()?.uploaded ?: 0))
+            val uploaded = store.upload(me, db.groups().group()?.uploaded ?: 0)
+            db.groups().setUploaded(uploaded.cursor)
             // The sync is done; a failed look for devices asking to join only waits for the next one.
             try {
                 server(record, device)?.joinRequests()?.firstOrNull()?.let { NotificationHelper.showJoinRequest(context, it.name) }
             } catch (_: StoreException) {
             }
+            // Everything else in this sync is done; the user still has to hear that the device's changes aren't going out.
+            uploaded.refused?.let { throw it }
         }
 
         /**
@@ -269,6 +314,7 @@ class LinkedSync
             val pulled = session.pull(links.mapTo(HashSet<String?>()) { it.link } + null)
             if (pushed > 0 || merged > 0 || pulled.batches.isNotEmpty()) indicator.show()
             route(pulled.batches)
+            pulled.login?.let { credentials.savePending(it) }
             session.finish(pulled)
             if (announce) {
                 counts.filterValues { it > 0 }.forEach { (sender, changes) ->

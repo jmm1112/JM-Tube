@@ -78,6 +78,9 @@ data class SubscriptionsUiState(
     val ungroupedEnabled: Boolean = false,
     val ungroupedPosition: Int = UNGROUPED_LAST,
     val showPostsChip: Boolean = true,
+    val pinnedChannelIds: List<String> = emptyList(),
+    /** Channels with uploads the viewer hasn't seen, marked with a dot in Quick access (#1755). */
+    val newUploadChannelIds: Set<String> = emptySet(),
     val refreshStage: SubscriptionRefreshStage = SubscriptionRefreshStage.RSS,
     val refreshProcessedChannels: Int = 0,
     val refreshTotalChannels: Int = 0,

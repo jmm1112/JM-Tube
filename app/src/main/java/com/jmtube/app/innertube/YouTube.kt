@@ -1,6 +1,7 @@
 package com.jmtube.app.innertube
 
 import android.util.Log
+import com.jmtube.app.data.model.Comment
 import com.jmtube.app.data.model.VideoCollaborator
 import com.jmtube.app.innertube.models.AccountInfo
 import com.jmtube.app.innertube.models.AlbumItem
@@ -21,6 +22,7 @@ import com.jmtube.app.innertube.models.SongItem
 import com.jmtube.app.innertube.models.WatchEndpoint
 import com.jmtube.app.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_ATV
 import com.jmtube.app.innertube.models.YouTubeClient
+import com.jmtube.app.innertube.models.YouTubeClient.Companion.ANDROID_MUSIC
 import com.jmtube.app.innertube.models.YouTubeClient.Companion.WEB
 import com.jmtube.app.innertube.models.YouTubeClient.Companion.WEB_REMIX
 import com.jmtube.app.innertube.models.YouTubeLocale
@@ -90,6 +92,8 @@ import com.jmtube.app.innertube.pages.explore.ranked
 import com.jmtube.app.innertube.pages.explore.toExploreDestinationShell
 import com.jmtube.app.innertube.pages.explore.trendingVideoChart
 import com.jmtube.app.innertube.pages.parseYouTubeViewCount
+import com.jmtube.app.innertube.pages.TimedLyricLine
+import com.jmtube.app.innertube.pages.timedLyricLines
 import com.jmtube.app.innertube.pages.reel.ReelLockup
 import com.jmtube.app.innertube.pages.reel.ReelOverlay
 import com.jmtube.app.innertube.pages.reel.ReelParams
@@ -110,6 +114,7 @@ import com.jmtube.app.innertube.pages.search.SearchSuggestion
 import com.jmtube.app.innertube.pages.search.parseSearchSuggestions
 import com.jmtube.app.innertube.pages.search.toSearchResultsPage
 import com.jmtube.app.innertube.pages.toCommentRepliesPage
+import com.jmtube.app.innertube.pages.toTimedComments
 import com.jmtube.app.innertube.pages.toVideoCommentsPage
 import com.jmtube.app.innertube.pages.toVideoDescriptionPage
 import com.jmtube.app.innertube.pages.toVideoPlaylistPage
@@ -2455,6 +2460,17 @@ object YouTube {
                 .toVideoCommentsPage(ownVideoId)
         }
 
+    /** YouTube's Timed comments for the section [continuation] opens, in playback order. */
+    suspend fun timedComments(
+        continuation: String,
+        ownVideoId: String?,
+    ): Result<List<Comment>> =
+        runCatching {
+            Json
+                .parseToJsonElement(innerTube.timedComments(continuation).bodyAsText())
+                .toTimedComments(ownVideoId)
+        }
+
     suspend fun commentReplies(
         continuation: String,
         ownVideoId: String?,
@@ -2642,6 +2658,11 @@ object YouTube {
                 continuation = playlistPanelRenderer.continuations?.getContinuation(),
                 endpoint = endpoint,
             )
+        }
+
+    suspend fun timedLyrics(endpoint: BrowseEndpoint): Result<List<TimedLyricLine>> =
+        runCatching {
+            timedLyricLines(innerTube.browse(YouTubeClient.ANDROID_MUSIC, endpoint.browseId, endpoint.params).body<JsonObject>())
         }
 
     suspend fun lyrics(endpoint: BrowseEndpoint): Result<String?> =

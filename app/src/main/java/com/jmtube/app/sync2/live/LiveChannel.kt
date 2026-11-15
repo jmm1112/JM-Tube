@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.live
+﻿package com.jmtube.app.sync2.live
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -7,6 +7,7 @@ import com.jmtube.app.platform.DeviceFormFactorDetector
 import com.jmtube.app.sync2.data.GroupRecord
 import com.jmtube.app.sync2.data.LinkedDatabase
 import com.jmtube.app.sync2.data.LiveCounterRow
+import com.jmtube.app.sync2.data.RosterRow
 import com.jmtube.app.sync2.device.DeviceKeys
 import com.jmtube.app.sync2.engine.Session
 import com.jmtube.app.sync2.linking.deviceNames
@@ -47,7 +48,7 @@ class LiveChannel
         private val transports = MutableStateFlow<Set<LiveTransport>>(emptySet())
         private val arrivals = MutableSharedFlow<LiveReceived>(extraBufferCapacity = 64)
         private val sealed = MutableSharedFlow<ByteArray>(extraBufferCapacity = 16)
-        private var cached: Pair<GroupRecord, Session>? = null
+        private var cached: Pair<Pair<GroupRecord, List<RosterRow>>, Session>? = null
 
         /** Whether any device can be reached now, through the server or the LAN. */
         val connected: StateFlow<Set<LiveTransport>> = transports.asStateFlow()
@@ -65,10 +66,10 @@ class LiveChannel
             return { transports.update { it - transport } }
         }
 
-        /** Sends [message] to every reachable device; returns its counter, or null when this device isn't linked. */
+        /** Sends [message] to every reachable device; returns its counter, or null when this device isn't linked or a restore is unfinished. */
         suspend fun send(message: LiveMessage): Long? =
             lock.withLock {
-                val session = session() ?: return null
+                val session = session()?.takeUnless { it.removalPending } ?: return null
                 val seq = (db.live().counter(session.me) ?: 0) + 1
                 // Saved before it leaves, so a crash can't make a counter repeat.
                 db.live().setCounter(LiveCounterRow(session.me, seq))
@@ -97,12 +98,12 @@ class LiveChannel
 
         private fun presence(): LiveMessage.Presence = LiveMessage.Presence(listOf("play", "remote"), deviceKind(context))
 
-        /** A session on what this device holds, kept until the group's record changes. */
+        /** A session on what this device holds, kept until the group's record or roster changes. */
         private suspend fun session(): Session? {
-            val record = db.groups().group() ?: return null
-            cached?.takeIf { it.first == record }?.let { return it.second }
+            val current = (db.groups().group() ?: return null) to db.groups().roster()
+            cached?.takeIf { it.first == current }?.let { return it.second }
             return try {
-                Session.open(db, GroupStore(local, null), keys.load()).also { cached = record to it }
+                Session.open(db, GroupStore(local, null), keys.load()).also { cached = current to it }
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {

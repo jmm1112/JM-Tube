@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.service
+﻿package com.jmtube.app.sync2.service
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -10,16 +10,21 @@ import com.jmtube.app.sync2.crypto.MemberSecrets
 import com.jmtube.app.sync2.data.GroupRecord
 import com.jmtube.app.sync2.data.LAN_STORE
 import com.jmtube.app.sync2.data.LinkedDatabase
+import com.jmtube.app.sync2.data.RosterPinRow
 import com.jmtube.app.sync2.data.webDavUrl
 import com.jmtube.app.sync2.device.DeviceKeys
 import com.jmtube.app.sync2.device.StoreCredentials
 import com.jmtube.app.sync2.device.WebDavLogin
+import com.jmtube.app.sync2.engine.ContestSide
 import com.jmtube.app.sync2.engine.LinkedException
 import com.jmtube.app.sync2.engine.Session
+import com.jmtube.app.sync2.engine.contestSides
+import com.jmtube.app.sync2.engine.loginWaiting
 import com.jmtube.app.sync2.lan.LanSync
 import com.jmtube.app.sync2.lan.lanPort
 import com.jmtube.app.sync2.linking.Code
 import com.jmtube.app.sync2.linking.DeviceMeta
+import com.jmtube.app.sync2.linking.RestoreDevice
 import com.jmtube.app.sync2.linking.StoreLocation
 import com.jmtube.app.sync2.linking.addDevice
 import com.jmtube.app.sync2.linking.addScanned
@@ -32,17 +37,23 @@ import com.jmtube.app.sync2.linking.deviceNames
 import com.jmtube.app.sync2.linking.join
 import com.jmtube.app.sync2.linking.listen
 import com.jmtube.app.sync2.linking.newOffer
+import com.jmtube.app.sync2.linking.previewServerRestore
+import com.jmtube.app.sync2.linking.previewWebDavRestore
 import com.jmtube.app.sync2.linking.readCode
-import com.jmtube.app.sync2.linking.removeDevice
+import com.jmtube.app.sync2.linking.removeDevices
 import com.jmtube.app.sync2.linking.renameDevice
+import com.jmtube.app.sync2.linking.replaceRecovery
 import com.jmtube.app.sync2.linking.restoreGroup
 import com.jmtube.app.sync2.linking.restoreWebDavGroup
 import com.jmtube.app.sync2.roster.Role
+import com.jmtube.app.sync2.roster.devicesAddedBy
+import com.jmtube.app.sync2.roster.recoveryMember
 import com.jmtube.app.sync2.store.FileLayout
 import com.jmtube.app.sync2.store.JoinRequest
 import com.jmtube.app.sync2.store.LocalStore
 import com.jmtube.app.sync2.store.ServerStore
 import com.jmtube.app.sync2.store.StoreException
+import com.jmtube.app.sync2.store.StoreLogin
 import com.jmtube.app.sync2.store.WebDavStore
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -89,6 +100,8 @@ data class LinkedDevice(
     val name: String,
     val platform: String,
     val thisDevice: Boolean,
+    /** It set the current recovery key, so its leaving stops the others writing. */
+    val setRecoveryKey: Boolean = false,
     /** When the server last heard from it; null in a group without a server. */
     val seen: Long? = null,
 )
@@ -124,8 +137,12 @@ class LinkedActions
         private suspend fun linked(): GroupRecord = db.groups().group() ?: throw LinkedException.NotLinked()
 
         /** Fresh device keys for a group this device is about to create, join or restore (spec/crypto.md, Device keys). */
-        private suspend fun newMembership(): MemberSecrets {
+        private suspend fun checkNotLinked() {
             if (db.groups().group() != null) throw LinkedException.AlreadyLinked()
+        }
+
+        private suspend fun newMembership(): MemberSecrets {
+            checkNotLinked()
             return keys.fresh()
         }
 
@@ -148,11 +165,13 @@ class LinkedActions
                 } catch (_: StoreException) {
                     null
                 }.orEmpty()
+            val installer = recoveryMember(session.state.members)?.value?.installer
             return session.state.members
                 .filterValues { it.role == Role.DEVICE }
                 .keys
-                .map { id -> LinkedDevice(id, names[id]?.name.orEmpty(), names[id]?.platform.orEmpty(), id == me, seen[id]) }
-                .sortedByDescending { it.thisDevice }
+                .map { id ->
+                    LinkedDevice(id, names[id]?.name.orEmpty(), names[id]?.platform.orEmpty(), id == me, id == installer, seen[id])
+                }.sortedByDescending { it.thisDevice }
         }
 
         /** Creates a group on a fresh server and returns the recovery words to show once. */
@@ -199,34 +218,86 @@ class LinkedActions
                 linkedNow()
             }
 
-        /** Restores the group with the recovery words and returns the new words to show once. */
+        /** The devices of the group the recovery words open, for the user to choose from. Writes nothing. */
+        suspend fun previewRestore(
+            url: String,
+            words: String,
+        ): List<RestoreDevice> {
+            checkNotLinked()
+            return previewServerRestore(url.trim(), words)
+        }
+
+        /** The devices of the group in a WebDAV folder that the recovery words open. Writes nothing. */
+        suspend fun previewRestoreFromWebDav(
+            url: String,
+            user: String,
+            password: String,
+            words: String,
+        ): List<RestoreDevice> {
+            checkNotLinked()
+            return previewWebDavRestore(WebDavStore.connect(url.trim(), user, password), words)
+        }
+
+        /** Restores the group with the recovery words, keeping the devices in [keep], and returns the new words to show once. */
         suspend fun restore(
             url: String,
             words: String,
-        ): String = restoreGroup(db, url.trim(), words, newMembership(), meta()).also { linkedNow() }
+            keep: Set<String>,
+        ): String = restoreGroup(db, url.trim(), words, newMembership(), meta(), keep).also { linkedNow() }
 
-        /** Restores the group from a WebDAV folder with the recovery words and returns the new words to show once. */
+        /** Restores the group from a WebDAV folder with the recovery words, keeping the devices in [keep], and returns the new words to show once. */
         suspend fun restoreFromWebDav(
             url: String,
             user: String,
             password: String,
             words: String,
+            keep: Set<String>,
         ): String {
-            val restored = restoreWebDavGroup(db, WebDavStore.connect(url.trim(), user, password), words, newMembership(), meta())
+            val restored = restoreWebDavGroup(db, WebDavStore.connect(url.trim(), user, password), words, newMembership(), meta(), keep)
             credentials.save(WebDavLogin(user, password))
             return restored.also { linkedNow() }
         }
 
-        /** Replaces a WebDAV login the server refused, then syncs with it. */
+        /** Replaces a WebDAV login the server refused, once the folder takes the new one and still holds the group, then syncs with it. */
         suspend fun updateLogin(
             user: String,
             password: String,
         ) {
-            credentials.save(WebDavLogin(user, password))
+            if (!sync.adoptLogin(StoreLogin(user, password))) throw LinkedException.Unexpected()
             syncNow()
         }
 
-        suspend fun confirmRecoverySaved() = db.groups().setRecoverySaved(true)
+        /** Sends the other devices a new login for the folder, before the user sets it there. Opening the session re-reads the roster, and fails while it is contested. */
+        suspend fun startLoginChange(
+            user: String,
+            password: String,
+        ) {
+            val login = StoreLogin(user.trim(), password)
+            session().writeLogin(login)
+            credentials.savePending(login)
+            syncNow()
+        }
+
+        /** The user set the new login at the provider: checks it, and uses it from now on. */
+        suspend fun finishLoginChange() {
+            val login = credentials.pending() ?: throw LinkedException.Unexpected()
+            if (!sync.adoptLogin(login)) throw LinkedException.Unexpected()
+            syncNow()
+        }
+
+        /** Stops a change this device started. A device that read the login still holds it, and only tries it if the folder refuses the current one. */
+        suspend fun cancelLoginChange() {
+            credentials.forgetPending()
+            db.groups().setLoginSent(null)
+        }
+
+        /** The devices yet to read the login this device sent, or null with no change under way. */
+        suspend fun loginWaiting(): List<String>? = loginWaiting(db, SyncBytes.toHex(keys.load().did))
+
+        suspend fun confirmRecoverySaved() {
+            db.groups().setRecoverySaved(true)
+            sync.replacedWords.value = null
+        }
 
         suspend fun rename(
             id: String,
@@ -237,10 +308,31 @@ class LinkedActions
             renameDevice(session, keys.load(), id, current.copy(name = name.trim().take(NAME_LIMIT)))
         }
 
-        suspend fun remove(id: String) {
-            removeDevice(session(), keys.load(), id)
-            db.snapshots().snapshotSoon()
+        /** Replaces the recovery words, so the old ones stop working, and returns the new words to show once. */
+        suspend fun replaceRecoveryWords(): String {
+            val words = replaceRecovery(session(), keys.load())
+            db.groups().setRecoverySaved(false)
+            return words
         }
+
+        /** Removes [id] and [also], and returns the new recovery words to show once when they had to be replaced with it. */
+        suspend fun remove(
+            id: String,
+            also: List<String>,
+        ): String? {
+            // The cut names what this device has read, so read what it can first (spec/protocol.md, Removal).
+            sync.syncNow()
+            val words = removeDevices(session(), keys.load(), also + id)
+            if (words != null) db.groups().setRecoverySaved(false)
+            db.snapshots().snapshotSoon()
+            return words
+        }
+
+        /** The current devices [id] added, for the user to remove with it if they don't recognise them. */
+        suspend fun addedBy(id: String): List<String> = devicesAddedBy(session().entries, id)
+
+        /** The user answered the notice that the recovery key changed. */
+        suspend fun answerRecoveryNotice() = db.groups().setRecoveryNotice(null, null)
 
         /** Leaves the group, telling the others ([LinkedReset.leave]). */
         suspend fun leave() = reset.leave()
@@ -250,10 +342,26 @@ class LinkedActions
 
         fun keepGroup() = reset.keepGroup()
 
+        /** The sides to choose between while two devices have removed each other. */
+        suspend fun contest(): List<ContestSide> {
+            val record = db.groups().group() ?: return emptyList()
+            val device = keys.load()
+            return contestSides(db, sync.groupStore(record, device), device)
+        }
+
+        /** Keeps one side on this device, and syncs from it. */
+        suspend fun keepSide(entry: String) {
+            if (contest().none { it.entry == entry }) throw LinkedException.Unexpected()
+            db.groups().addRosterPin(RosterPinRow(entry))
+            LinkedSyncWorker.syncSoon(context, announce = true)
+        }
+
         /** Forgets the group and this device's keys without telling the others, as after being removed. */
         suspend fun forget() = reset.forget()
 
         val syncing: StateFlow<Boolean> = sync.syncing
+
+        val replacedWords: StateFlow<String?> = sync.replacedWords
 
         fun syncNow() = LinkedSyncWorker.syncSoon(context, announce = true)
 

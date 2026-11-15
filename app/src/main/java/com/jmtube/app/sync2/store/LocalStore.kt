@@ -1,8 +1,10 @@
-package com.jmtube.app.sync2.store
+﻿package com.jmtube.app.sync2.store
 
 import com.jmtube.app.sync2.data.HeldDao
 import com.jmtube.app.sync2.data.HeldRow
 import com.jmtube.app.sync2.roster.Entry
+import com.jmtube.app.sync2.roster.ForkResolution
+import com.jmtube.app.sync2.roster.ValidEntries
 import com.jmtube.app.sync2.roster.canonicalEntry
 import com.jmtube.app.sync2.roster.entryHash
 import com.jmtube.app.sync2.roster.parseEntry
@@ -52,7 +54,19 @@ class LocalStore(
                 .sortedBy { it.seq }
         }
 
-    private suspend fun resolved(): List<Entry> = resolveForks(entries())
+    /** What the rule makes of what this device holds, within the group it has verified. */
+    suspend fun resolved(): ForkResolution {
+        val genesis = held.genesis()?.let { parseEntry(Json.parseToJsonElement(it)) }
+        return resolveForks(genesis?.group, entries(), held.rosterPins().toSet(), genesis?.let(::entryHash))
+    }
+
+    /** What decides whether a new entry counts, given what this device holds. */
+    internal suspend fun validEntries(): ValidEntries {
+        val genesis = held.genesis()?.let { parseEntry(Json.parseToJsonElement(it)) }
+        val valid = ValidEntries(genesis?.group, genesis?.let(::entryHash))
+        entries().forEach(valid::admit)
+        return valid
+    }
 
     suspend fun addEntries(entries: List<Entry>) =
         withContext(Dispatchers.IO) {
@@ -61,25 +75,41 @@ class LocalStore(
 
     suspend fun putKey(
         epoch: Int,
+        kc: String,
         name: String,
         bytes: ByteArray,
     ) {
-        withContext(Dispatchers.IO) { write(StorePaths.key(epoch, name), bytes) }
+        withContext(Dispatchers.IO) { write(StorePaths.key(epoch, kc, name), bytes) }
+    }
+
+    override suspend fun forgetKey(
+        epoch: Int,
+        kc: String,
+        name: String,
+    ) {
+        withContext(Dispatchers.IO) { file(StorePaths.key(epoch, kc, name)).delete() }
     }
 
     /** Holds an entry with its wraps and chain box, wraps first (spec/store.md, Writing rules). */
     suspend fun hold(
         entry: Entry,
-        epoch: Int,
+        below: List<Entry>,
         wraps: Map<String, ByteArray>,
         chain: ByteArray?,
     ) {
-        wraps.forEach { (did, wrap) -> putKey(epoch, did, wrap) }
-        chain?.let { putKey(epoch, "chain", it) }
+        val (epoch, kc) = wrapsEpoch(entry, below)
+        wraps.forEach { (did, wrap) -> putKey(epoch, kc, did, wrap) }
+        chain?.let { putKey(epoch, kc, "chain", it) }
         addEntries(listOf(entry))
     }
 
-    override suspend fun rosterAfter(after: Long): List<Entry> = resolved().filter { it.seq > after }
+    override suspend fun rosterAfter(after: Long): List<Entry> = resolved().chain.filter { it.seq > after }
+
+    override suspend fun rosterView(): List<Entry> = entries()
+
+    override val linear: Boolean get() = false
+
+    override val heldHere: Boolean get() = true
 
     override suspend fun appendRoster(
         head: String,
@@ -87,17 +117,18 @@ class LocalStore(
         wraps: Map<String, String>,
         chain: String?,
     ): Appended {
-        val current = resolved()
+        val current = resolved().chain
         val currentHead = current.lastOrNull()?.let(::entryHash).orEmpty()
         if (currentHead != head) return Appended.Conflict(currentHead)
-        hold(entry, epochOf(entry, current), wraps.mapValues { (_, wrap) -> wrapBytes(wrap) }, chain?.let(::wrapBytes))
+        hold(entry, current, wraps.mapValues { (_, wrap) -> wrapBytes(wrap) }, chain?.let(::wrapBytes))
         return Appended.Done
     }
 
     override suspend fun key(
         epoch: Int,
+        kc: String,
         name: String,
-    ): ByteArray? = withContext(Dispatchers.IO) { read(StorePaths.key(epoch, name)) }
+    ): ByteArray? = withContext(Dispatchers.IO) { read(StorePaths.key(epoch, kc, name)) }
 
     override suspend fun putObject(
         path: String,

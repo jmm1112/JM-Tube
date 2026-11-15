@@ -1,15 +1,19 @@
-package com.jmtube.app.sync2.store
+﻿package com.jmtube.app.sync2.store
 
 import com.jmtube.app.sync2.roster.Entry
 import com.jmtube.app.sync2.roster.canonicalEntry
 import com.jmtube.app.sync2.roster.entryHash
 import com.jmtube.app.sync2.roster.parseEntry
-import com.jmtube.app.sync2.roster.resolveForks
+import com.jmtube.app.sync2.roster.winningChain
 import kotlinx.serialization.json.Json
 import java.util.concurrent.ConcurrentHashMap
 
 private val DID = Regex("[0-9a-f]{32}")
 private val LOG_NAME = Regex("([0-9a-f]{16})\\.o")
+
+/** How many files and bytes of `roster/` one read takes. Far above a real group's: a roster holds at most 4,096 small entries. */
+private const val ROSTER_FILES = 16_384
+private const val ROSTER_BYTES = 64L * 1024 * 1024
 
 /**
  * The store layout (spec/store.md) on plain files. Roster appends aren't linearized, so competing
@@ -19,15 +23,41 @@ class FileLayout(
     private val files: FileStore,
     private val me: String,
 ) : Remote {
-    private suspend fun entry(path: String): Entry? =
-        files.get(path)?.let { runCatching { parseEntry(Json.parseToJsonElement(it.decodeToString())) }.getOrNull() }
+    private fun entry(bytes: ByteArray): Entry? = runCatching { parseEntry(Json.parseToJsonElement(bytes.decodeToString())) }.getOrNull()
 
-    private suspend fun rosterPaths(): List<String> = files.list("roster").filter { it.endsWith(".r") }.map { "roster/$it" }
+    suspend fun rosterPaths(): List<String> =
+        files
+            .list("roster")
+            .filter { it.endsWith(".r") }
+            .map { "roster/$it" }
+            .sorted()
 
-    /** Every roster entry stored, fork candidates included. */
-    private suspend fun entries(): List<Entry> = rosterPaths().mapNotNull { entry(it) }
+    /** Every roster entry stored, fork candidates included. All of them stay in memory, so past the limits nothing is answered. */
+    private suspend fun entries(): List<Entry> {
+        val paths = rosterPaths()
+        if (paths.size > ROSTER_FILES) throw StoreException.Malformed()
+        var bytes = 0L
+        return paths.mapNotNull { path ->
+            oneItem { files.get(path) }?.let { file ->
+                bytes += file.size
+                if (bytes > ROSTER_BYTES) throw StoreException.Malformed()
+                entry(file)
+            }
+        }
+    }
 
-    override suspend fun rosterAfter(after: Long): List<Entry> = resolveForks(entries()).filter { it.seq > after }
+    @Volatile
+    private var pins: Set<String> = emptySet()
+
+    override suspend fun rosterAfter(after: Long): List<Entry> = winningChain(entries(), pins).filter { it.seq > after }
+
+    override suspend fun rosterView(): List<Entry> = entries()
+
+    override val linear: Boolean get() = false
+
+    override fun usePins(pins: Set<String>) {
+        this.pins = pins
+    }
 
     /** Wraps and the chain box first, then the entry (spec/store.md, Writing rules). */
     override suspend fun appendRoster(
@@ -36,20 +66,21 @@ class FileLayout(
         wraps: Map<String, String>,
         chain: String?,
     ): Appended {
-        val current = resolveForks(entries())
+        val current = winningChain(entries(), pins)
         val currentHead = current.lastOrNull()?.let(::entryHash).orEmpty()
         if (currentHead != head) return Appended.Conflict(currentHead)
-        val epoch = epochOf(entry, current)
-        wraps.forEach { (did, wrap) -> files.put(StorePaths.key(epoch, did), wrapBytes(wrap)) }
-        chain?.let { files.put(StorePaths.key(epoch, "chain"), wrapBytes(it)) }
+        val (epoch, kc) = wrapsEpoch(entry, current)
+        wraps.forEach { (did, wrap) -> files.put(StorePaths.key(epoch, kc, did), wrapBytes(wrap)) }
+        chain?.let { files.put(StorePaths.key(epoch, kc, "chain"), wrapBytes(it)) }
         files.put(StorePaths.roster(entry.seq, entryHash(entry)), canonicalEntry(entry).toByteArray())
         return Appended.Done
     }
 
     override suspend fun key(
         epoch: Int,
+        kc: String,
         name: String,
-    ): ByteArray? = files.get(StorePaths.key(epoch, name))
+    ): ByteArray? = files.get(StorePaths.key(epoch, kc, name))
 
     override suspend fun putObject(
         path: String,
@@ -62,30 +93,63 @@ class FileLayout(
         if (path.startsWith("dev/$me/")) files.delete(path)
     }
 
-    /** Copies the roster entries [local] doesn't hold, fork candidates included, so it resolves forks as every device does. */
+    /**
+     * Copies the roster entries [local] doesn't hold, fork candidates included, so it resolves forks as every device does.
+     * One file at a time, lowest `seq` first, keeping only what counts: anything else is read again next time, up to the limits.
+     */
     suspend fun pullRoster(local: LocalStore) {
         val held = local.entries().map { StorePaths.roster(it.seq, entryHash(it)) }.toSet()
-        local.addEntries(rosterPaths().filter { it !in held }.mapNotNull { entry(it) })
+        val fresh = rosterPaths().filter { it !in held }.take(ROSTER_FILES)
+        if (fresh.isEmpty()) return
+        val valid = local.validEntries()
+        var bytes = 0L
+        for (path in fresh) {
+            if (bytes > ROSTER_BYTES) return
+            val file = oneItem { files.get(path) } ?: continue
+            bytes += file.size
+            val entry = entry(file) ?: continue
+            if (valid.admit(entry) != null) local.addEntries(listOf(entry))
+        }
     }
 
     /**
      * Copies every other sender's log objects after the last one [local] holds, reading the next `seq`
-     * until there is none (spec/store.md, WebDAV). A sender never read starts at its oldest object.
-     * When the store tags folders, nothing is read while the tag stays the same.
+     * until there is none, or a file that isn't that object (spec/store.md, WebDAV). A sender never read starts at its oldest object.
+     * When the store tags folders, nothing is read while the tag stays the same. False when [budget] ended the read.
      */
-    suspend fun pullLogs(local: LocalStore) {
+    suspend fun pullLogs(
+        local: LocalStore,
+        budget: ReadBudget = ReadBudget(),
+    ): Boolean {
         val tag = files.tag("dev")
-        if (tag != null && tags[files.location] == tag) return
+        if (tag != null && tags[files.location] == tag) return true
+        val check = ObjectCheck(me, local.resolved().chain)
         val tips = local.logTips()
+        var whole = true
         for (did in files.list("dev").filter { it != me && DID.matches(it) }) {
             var seq = tips[did]?.plus(1) ?: oldest(did) ?: continue
             while (true) {
                 val path = StorePaths.log(did, seq)
-                local.putObject(path, files.get(path) ?: break)
+                val bytes =
+                    try {
+                        files.get(path)
+                    } catch (e: StoreException) {
+                        if (!e.stopsOnlyItsItem) throw e
+                        whole = false
+                        break
+                    } ?: break
+                // A store that answers every path, with an error page say, would otherwise never end the log.
+                if (!check.admits(path, bytes)) {
+                    whole = false
+                    break
+                }
+                local.putObject(path, bytes)
+                if (!budget.take(1)) return false
                 seq++
             }
         }
-        tag?.let { tags[files.location] = it }
+        if (whole) tag?.let { tags[files.location] = it }
+        return true
     }
 
     /** The oldest log object of [did] still stored, from its first shard only. */

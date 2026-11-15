@@ -1,4 +1,4 @@
-package com.jmtube.app.ui.screens.sync
+﻿package com.jmtube.app.ui.screens.sync
 
 import android.os.Build
 import android.widget.Toast
@@ -25,7 +25,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -50,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import com.jmtube.app.R
 import com.jmtube.app.sync.SyncState
 import com.jmtube.app.sync.protocol.ApplyStats
+import com.jmtube.app.ui.components.shared.FlowSpinner
 import com.jmtube.app.ui.components.shared.LocalDpadNavigation
 import com.jmtube.app.utils.copyPlainText
 import kotlinx.coroutines.delay
@@ -326,7 +326,7 @@ internal fun SyncBusyContent(label: String) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        LoadingIndicator()
+        FlowSpinner()
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,

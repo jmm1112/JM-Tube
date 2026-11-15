@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.lan
+﻿package com.jmtube.app.sync2.lan
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit

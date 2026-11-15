@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.crypto
+﻿package com.jmtube.app.sync2.crypto
 
 import cash.z.ecc.android.bip39.Mnemonics
 

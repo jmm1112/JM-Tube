@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.service
+﻿package com.jmtube.app.sync2.service
 
 import android.app.Notification
 import android.content.Context

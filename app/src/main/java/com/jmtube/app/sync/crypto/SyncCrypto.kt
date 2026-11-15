@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.crypto
+﻿package com.jmtube.app.sync.crypto
 
 import java.security.SecureRandom
 import javax.crypto.Cipher

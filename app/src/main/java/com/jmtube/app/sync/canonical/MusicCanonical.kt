@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.canonical
+﻿package com.jmtube.app.sync.canonical
 
 import kotlinx.serialization.Serializable
 

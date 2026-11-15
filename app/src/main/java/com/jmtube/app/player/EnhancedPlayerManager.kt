@@ -41,10 +41,12 @@ import com.jmtube.app.innertube.models.response.PlayerResponse
 import com.jmtube.app.player.analytics.PlaybackAnalyticsLogger
 import com.jmtube.app.player.stats.PlayerStatsReadings
 import com.jmtube.app.player.analytics.RenderedFirstFrameListener
+import com.jmtube.app.player.analytics.SphericalVideoListener
 import com.jmtube.app.player.audio.AudioEffectsEntryPoint
 import com.jmtube.app.player.audio.AudioFeaturesManager
 import com.jmtube.app.player.audio.AudioSessionAnnouncer
 import com.jmtube.app.player.audio.eq.EqualizerAudioProcessor
+import com.jmtube.app.player.cache.DiskReadAhead
 import com.jmtube.app.player.cache.PlayerCacheManager
 import com.jmtube.app.player.config.PlayerConfig
 import com.jmtube.app.player.config.VideoSizeCap
@@ -541,6 +543,7 @@ class EnhancedPlayerManager private constructor() {
     val playbackCompletedEvent: SharedFlow<PlaybackCompletion> = _playbackCompletedEvent.asSharedFlow()
 
     private var audioFeaturesManager: AudioFeaturesManager? = null
+    private var diskReadAhead: DiskReadAhead? = null
     private var analyticsLogger: PlaybackAnalyticsLogger? = null
     private var mediaLoader: MediaLoader? = null
 
@@ -764,6 +767,20 @@ class EnhancedPlayerManager private constructor() {
         player?.addAnalyticsListener(
             RenderedFirstFrameListener(currentVideoId = { currentVideoId }) { videoId -> _firstFrameVideoId.value = videoId },
         )
+        player?.addAnalyticsListener(
+            SphericalVideoListener { spherical ->
+                if (_playerState.value.isSphericalVideo != spherical) {
+                    _playerState.value = _playerState.value.copy(isSphericalVideo = spherical)
+                }
+            },
+        )
+        diskReadAhead =
+            player?.let { built ->
+                cacheManager?.let { cache ->
+                    DiskReadAhead(context.applicationContext, built, cache, PlayerPreferences(context), scope)
+                        .also(built::addAnalyticsListener)
+                }
+            }
         player?.let { built ->
             audioSessionAnnouncer =
                 AudioSessionAnnouncer(effects.audioSessionRegistry(), AudioEffect.CONTENT_TYPE_MOVIE) {
@@ -3399,6 +3416,8 @@ class EnhancedPlayerManager private constructor() {
         surfaceManager?.release(player)
         audioSessionAnnouncer?.detach()
         audioSessionAnnouncer = null
+        diskReadAhead?.release()
+        diskReadAhead = null
         player?.release()
         player = null
         playerFactory.clearPreferences()

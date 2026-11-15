@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.service
+﻿package com.jmtube.app.sync2.service
 
 import android.content.Context
 import androidx.lifecycle.DefaultLifecycleObserver

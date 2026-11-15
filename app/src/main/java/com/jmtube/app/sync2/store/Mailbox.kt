@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.store
+﻿package com.jmtube.app.sync2.store
 
 /**
  * The pairing mailbox (spec/store.md, Pairing mailbox): a short-lived slot where two devices

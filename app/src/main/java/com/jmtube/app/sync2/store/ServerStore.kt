@@ -1,12 +1,14 @@
-package com.jmtube.app.sync2.store
+﻿package com.jmtube.app.sync2.store
 
 import com.jmtube.app.sync.crypto.SyncBytes
 import com.jmtube.app.sync.qr.LocalNetworkAddress
+import com.jmtube.app.sync.transport.MessageLimit
 import com.jmtube.app.sync2.crypto.MemberSecrets
 import com.jmtube.app.sync2.crypto.sign
 import com.jmtube.app.sync2.crypto.tag
 import com.jmtube.app.sync2.engine.LinkedException
 import com.jmtube.app.sync2.roster.Entry
+import com.jmtube.app.sync2.roster.MAX_ROSTER_ENTRIES
 import com.jmtube.app.sync2.roster.entryJson
 import com.jmtube.app.sync2.roster.parseEntry
 import kotlinx.coroutines.Dispatchers
@@ -40,11 +42,15 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import java.io.IOException
 import java.net.UnknownHostException
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 /** Refresh a token this long before it expires. */
 private const val TOKEN_MARGIN_MS = 60_000L
 private const val LIVE_PING_S = 15L
+
+/** The most a live message or a server notice may hold (spec/store.md, Untrusted input). */
+internal const val MAX_LIVE_MESSAGE = 64L * 1024
 private val JSON = "application/json".toMediaType()
 private val BYTES = "application/octet-stream".toMediaType()
 
@@ -61,9 +67,20 @@ class ServerStore private constructor(
 ) : ChangeList,
     Remote {
     private val session = Mutex()
-    private var token: Pair<String, Long>? = null
+    private val tokenKey = "$base ${SyncBytes.toHex(member.did)}"
+
+    /** A token and the instance and group it was issued for. */
+    private class Issued(
+        val value: String,
+        val expires: Long,
+        val instance: String,
+        val group: String,
+    )
 
     companion object {
+        // Shared by every store of the process, so each sync run doesn't sign in again.
+        private val tokens = ConcurrentHashMap<String, Issued>()
+
         /**
          * Prepares a connection to [url] for [member]. HTTPS anywhere; plain HTTP only to a private
          * address or a `.local` name. [instance] and [group] are the ids pinned at pairing; a device
@@ -85,12 +102,18 @@ class ServerStore private constructor(
 
     private fun url(path: String): HttpUrl = base.resolve(path) ?: throw StoreException.Malformed()
 
-    /** The whole body is read here, on the IO dispatcher, so callers never read the network from their own thread. */
-    private suspend fun send(request: Request): Response =
+    /**
+     * The whole body, up to [limit] bytes, is read here, on the IO dispatcher, so callers never read the network from
+     * their own thread.
+     */
+    private suspend fun send(
+        request: Request,
+        limit: Long = MAX_RESPONSE,
+    ): Response =
         withContext(Dispatchers.IO) {
             try {
                 client.newCall(request).execute().use { response ->
-                    response.newBuilder().body(response.body.bytes().toResponseBody(response.body.contentType())).build()
+                    response.newBuilder().body(response.body.bytesUpTo(limit).toResponseBody(response.body.contentType())).build()
                 }
             } catch (e: IOException) {
                 throw StoreException.Network(e)
@@ -143,13 +166,23 @@ class ServerStore private constructor(
         val expires = issued["expires"]?.jsonPrimitive?.longOrNull ?: throw StoreException.Malformed()
         instance = instanceId
         group = groupId
-        token = value to expires
+        tokens[tokenKey] = Issued(value, expires, instanceId, groupId)
         return value
     }
 
     private suspend fun token(renew: Boolean): String =
         session.withLock {
-            token?.takeIf { (_, expires) -> !renew && expires > System.currentTimeMillis() + TOKEN_MARGIN_MS }?.first ?: signIn()
+            val held =
+                tokens[tokenKey]?.takeIf {
+                    !renew &&
+                        it.expires > System.currentTimeMillis() + TOKEN_MARGIN_MS &&
+                        instance.let { pinned -> pinned == null || pinned == it.instance } &&
+                        group.let { pinned -> pinned == null || pinned == it.group }
+                }
+            if (held == null) return@withLock signIn()
+            instance = held.instance
+            group = held.group
+            held.value
         }
 
     /** Sends an authenticated request, signing in again once if the token was refused. */
@@ -158,6 +191,7 @@ class ServerStore private constructor(
         path: String,
         body: RequestBody? = null,
         headers: Map<String, String> = emptyMap(),
+        limit: Long = MAX_RESPONSE,
     ): Response {
         for (renew in listOf(false, true)) {
             val request =
@@ -168,7 +202,7 @@ class ServerStore private constructor(
                     .header("Authorization", "Bearer ${token(renew)}")
                     .apply { headers.forEach { (name, value) -> header(name, value) } }
                     .build()
-            val response = send(request)
+            val response = send(request, limit)
             if (response.code != 401 || renew) return response
             response.close()
         }
@@ -176,7 +210,7 @@ class ServerStore private constructor(
     }
 
     private suspend fun getBytes(path: String): ByteArray? =
-        authorized("GET", path).use { response ->
+        authorized("GET", path, limit = MAX_OBJECT_SIZE.toLong()).use { response ->
             if (response.code == 404) null else check(response).body.bytes()
         }
 
@@ -269,6 +303,7 @@ class ServerStore private constructor(
             .pingInterval(LIVE_PING_S, TimeUnit.SECONDS)
             .readTimeout(0, TimeUnit.SECONDS)
             .callTimeout(0, TimeUnit.SECONDS)
+            .addInterceptor(MessageLimit(MAX_LIVE_MESSAGE))
             .build()
             .newWebSocket(request, listener)
     }
@@ -302,6 +337,20 @@ class ServerStore private constructor(
             ?.map(::parseEntry)
             ?: throw StoreException.Malformed()
 
+    /** The whole roster, page by page. A page that doesn't advance, or one past a roster's limit, ends the read. */
+    override suspend fun rosterView(): List<Entry> {
+        val entries = ArrayList<Entry>()
+        var after = -1L
+        while (true) {
+            val page = rosterAfter(after)
+            val last = page.lastOrNull()?.seq ?: return entries
+            if (last <= after) throw StoreException.Malformed()
+            after = last
+            entries += page
+            if (entries.size > MAX_ROSTER_ENTRIES) throw StoreException.Malformed()
+        }
+    }
+
     override suspend fun appendRoster(
         head: String,
         entry: Entry,
@@ -323,8 +372,10 @@ class ServerStore private constructor(
         return Appended.Done
     }
 
+    /** The server names a wrap by epoch alone: only one entry can start an epoch there. */
     override suspend fun key(
         epoch: Int,
+        kc: String,
         name: String,
     ): ByteArray? = getBytes("v1/keys/${epochName(epoch)}/$name.k")
 

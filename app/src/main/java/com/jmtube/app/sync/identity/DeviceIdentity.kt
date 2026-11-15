@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.identity
+﻿package com.jmtube.app.sync.identity
 
 import android.content.Context
 import android.os.Build
@@ -13,6 +13,12 @@ import kotlinx.coroutines.flow.first
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+
+/** A local edit's stamp: [nowMs], but never before [seen], the newest stamp applied, nor past the largest one. */
+internal fun editStamp(
+    nowMs: Long,
+    seen: Long,
+): Long = maxOf(nowMs, if (seen < Long.MAX_VALUE) seen + 1 else seen)
 
 private val Context.syncIdentityDataStore by safePreferencesDataStore(name = "sync_identity", scope = StoreScope.DEVICE)
 
@@ -40,13 +46,7 @@ class DeviceIdentity
             return store.edit { it[KEY_DEVICE_ID] = it[KEY_DEVICE_ID] ?: generated }[KEY_DEVICE_ID]!!
         }
 
-        suspend fun deviceName(): String {
-            val saved = store.data.first()[KEY_DEVICE_NAME]
-            if (saved.isNullOrBlank() || saved.startsWith("Flow (") || saved.startsWith("JM Tube (")) {
-                return defaultDeviceName()
-            }
-            return saved
-        }
+        suspend fun deviceName(): String = store.data.first()[KEY_DEVICE_NAME]?.takeIf { it.isNotBlank() } ?: defaultDeviceName()
 
         suspend fun setDeviceName(name: String) {
             store.edit { it[KEY_DEVICE_NAME] = name.trim().take(64) }
@@ -56,7 +56,7 @@ class DeviceIdentity
          * When a local edit happens, for its stamp: never before a stamp this device has applied, so an
          * edit made after reading another device's change wins even when this clock is behind.
          */
-        suspend fun editTime(): Long = maxOf(System.currentTimeMillis(), (store.data.first()[KEY_CLOCK] ?: 0L) + 1)
+        suspend fun editTime(): Long = editStamp(System.currentTimeMillis(), store.data.first()[KEY_CLOCK] ?: 0L)
 
         /** Remembers [physicalMs] if it is the newest time among the stamps this device has applied. */
         suspend fun observe(physicalMs: Long) {
@@ -71,7 +71,7 @@ class DeviceIdentity
 
         private fun defaultDeviceName(): String {
             val model = Build.MODEL?.trim().orEmpty()
-            return if (model.isEmpty()) "Android Device" else model
+            return if (model.isEmpty()) "Flow (Android)" else "Flow ($model)"
         }
 
         companion object {

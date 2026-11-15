@@ -2,6 +2,7 @@ package com.jmtube.app.ui.screens.settings.playback
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BatteryAlert
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -9,6 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jmtube.app.R
 import com.jmtube.app.data.local.PlayerRelatedCardStyle
 import com.jmtube.app.data.local.SpeedSwipeSide
+import com.jmtube.app.service.SessionLyricDelay
 import com.jmtube.app.ui.components.equalizer.equalizerSummary
 import com.jmtube.app.ui.components.settings.SettingsDestination
 import com.jmtube.app.ui.components.settings.SettingsListScope
@@ -16,14 +18,19 @@ import com.jmtube.app.ui.components.settings.SettingsTarget
 import com.jmtube.app.ui.components.settings.SettingsToggleGroupRow
 import com.jmtube.app.ui.components.settings.choice
 import com.jmtube.app.ui.components.settings.nav
+import com.jmtube.app.ui.components.settings.slider
 import com.jmtube.app.ui.components.settings.switch
 import com.jmtube.app.ui.components.settings.toggleGroup
 import com.jmtube.app.ui.components.shared.FlowNavRow
 import com.jmtube.app.ui.components.shared.FlowSwitchRow
 import com.jmtube.app.ui.components.shared.FlowToggleOption
 import com.jmtube.app.ui.screens.settings.index.DestinationIndex
+import com.jmtube.app.ui.screens.settings.index.PlaybackCrossfadeIndex
 import com.jmtube.app.ui.screens.settings.index.PlaybackGesturesIndex
 import com.jmtube.app.ui.screens.settings.index.PlaybackIndex
+import com.jmtube.app.ui.screens.settings.index.PlaybackLyricsIndex
+import java.util.Locale
+import kotlin.math.abs
 
 private const val UNLIMITED_TITLE_LINES = 0
 
@@ -161,12 +168,43 @@ internal fun SettingsListScope.playbackSections(
     group(key = "playback.music", header = R.string.settings_section_music) {
         switch(PlaybackIndex.endlessRadio, viewModel.endlessRadio, viewModel::setEndlessRadio)
         switch(PlaybackIndex.pauseMusicWhenMuted, viewModel.pauseMusicWhenMuted, viewModel::setPauseMusicWhenMuted)
+        switch(PlaybackCrossfadeIndex.crossfade, viewModel.crossfadeEnabled, viewModel::setCrossfadeEnabled)
+        if (state.crossfadeEnabled) {
+            choice(PlaybackCrossfadeIndex.crossfadeDuration, onClick = { openDialog(PlaybackDialog.CROSSFADE_DURATION) }) {
+                val ms by viewModel.crossfadeMs.collectAsStateWithLifecycle()
+                crossfadeDurationLabel(ms.toLong())
+            }
+            switch(PlaybackCrossfadeIndex.crossfadeOnAutoAdvance, viewModel.crossfadeOnAutoAdvance, viewModel::setCrossfadeOnAutoAdvance)
+            switch(PlaybackCrossfadeIndex.crossfadeOnManualSkip, viewModel.crossfadeOnManualSkip, viewModel::setCrossfadeOnManualSkip)
+            switch(PlaybackCrossfadeIndex.crossfadeKeepAlbums, viewModel.crossfadeKeepAlbums, viewModel::setCrossfadeKeepAlbums)
+            choice(PlaybackCrossfadeIndex.crossfadeCurve, onClick = { openDialog(PlaybackDialog.CROSSFADE_CURVE) }) {
+                val curve by viewModel.crossfadeCurve.collectAsStateWithLifecycle()
+                crossfadeCurveLabel(curve)
+            }
+        }
         switch(PlaybackIndex.musicResume, viewModel.musicResume, viewModel::setMusicResume)
         switch(PlaybackIndex.resumeFromHeadphones, viewModel.resumeFromHeadphones, viewModel::setResumeFromHeadphones)
         switch(PlaybackIndex.musicSideSwipes, viewModel.musicSideSwipes, viewModel::setMusicSideSwipes)
-        switch(PlaybackIndex.lyricsInMiniPlayer, viewModel.lyricsInMiniPlayer, viewModel::setLyricsInMiniPlayer)
         switch(PlaybackIndex.musicVideoSwitch, viewModel.musicVideoSwitch, viewModel::setMusicVideoSwitch)
-        choice(PlaybackIndex.lyricsProviders, onClick = { openDialog(PlaybackDialog.LYRICS) }) {
+        entryRow(PlaybackIndex.lockScreenPlayer) { shape ->
+            LockScreenPlayerSwitch(viewModel.lockScreenPlayer, viewModel::setLockScreenPlayer, shape)
+        }
+        switch(PlaybackLyricsIndex.lyricsOnLockScreen, viewModel.lyricsOnLockScreen, viewModel::setLyricsOnLockScreen)
+        if (state.lyricsOnLockScreen) {
+            slider(
+                entry = PlaybackLyricsIndex.lyricsOnLockScreenTiming,
+                value = state.lyricsOnLockScreenDelayMs.toFloat(),
+                onValueCommitted = { viewModel.setLyricsOnLockScreenDelayMs(SessionLyricDelay.snap(it)) },
+                valueRange = -SessionLyricDelay.MAX_MS.toFloat()..SessionLyricDelay.MAX_MS.toFloat(),
+                steps = 2 * SessionLyricDelay.MAX_MS / SessionLyricDelay.STEP_MS - 1,
+                valueLabel = { lyricsTimingLabel(SessionLyricDelay.snap(it)) },
+                centered = true,
+            )
+        }
+        switch(PlaybackLyricsIndex.lyricsInMiniPlayer, viewModel.lyricsInMiniPlayer, viewModel::setLyricsInMiniPlayer)
+        switch(PlaybackLyricsIndex.lyricsSponsorBlockTiming, viewModel.lyricsSponsorBlockTiming, viewModel::setLyricsSponsorBlockTiming)
+        switch(PlaybackLyricsIndex.lyricsOnDemand, viewModel.lyricsOnDemand, viewModel::setLyricsOnDemand)
+        choice(PlaybackLyricsIndex.lyricsProviders, onClick = { openDialog(PlaybackDialog.LYRICS) }) {
             val providers by viewModel.lyricsProviders.collectAsStateWithLifecycle()
             pluralStringResource(
                 R.plurals.lyrics_providers_enabled,
@@ -252,4 +290,16 @@ private fun SettingsListScope.shortsPlayerSection(
     switch(PlaybackIndex.shortsBackgroundPlay, viewModel.shortsBackgroundPlay, viewModel::setShortsBackgroundPlay)
     switch(PlaybackIndex.shortsPip, viewModel.shortsPip, viewModel::setShortsPip)
     switch(PlaybackIndex.shortsContinueIntoFeed, viewModel.shortsContinueIntoFeed, viewModel::setShortsContinueIntoFeed)
+}
+
+private const val MS_PER_SECOND = 1000f
+
+@Composable
+private fun lyricsTimingLabel(delayMs: Int): String {
+    val seconds = String.format(Locale.getDefault(), "%.1f", abs(delayMs) / MS_PER_SECOND)
+    return when {
+        delayMs < 0 -> stringResource(R.string.lyrics_timing_earlier, seconds)
+        delayMs > 0 -> stringResource(R.string.lyrics_timing_later, seconds)
+        else -> stringResource(R.string.lyrics_timing_on_time)
+    }
 }

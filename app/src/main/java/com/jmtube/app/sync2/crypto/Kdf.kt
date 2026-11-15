@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.crypto
+﻿package com.jmtube.app.sync2.crypto
 
 import com.jmtube.app.sync.crypto.SyncCrypto
 import java.nio.ByteBuffer

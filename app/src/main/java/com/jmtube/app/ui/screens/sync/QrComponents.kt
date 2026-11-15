@@ -1,4 +1,4 @@
-package com.jmtube.app.ui.screens.sync
+﻿package com.jmtube.app.ui.screens.sync
 
 import android.graphics.Bitmap
 import android.graphics.Color

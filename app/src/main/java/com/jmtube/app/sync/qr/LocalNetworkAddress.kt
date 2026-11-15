@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.qr
+﻿package com.jmtube.app.sync.qr
 
 import java.net.Inet4Address
 import java.net.Inet6Address

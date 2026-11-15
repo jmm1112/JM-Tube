@@ -47,10 +47,16 @@ import dagger.hilt.android.AndroidEntryPoint
 import com.jmtube.app.MainActivity
 import com.jmtube.app.R
 import com.jmtube.app.data.audio.eq.EqualizerRepository
+import com.jmtube.app.data.localmedia.LocalLyricsReader
+import com.jmtube.app.data.lyrics.MusicVideoLyricsTiming
+import com.jmtube.app.player.crossfade.CrossfadePolicy
+import com.jmtube.app.player.crossfade.MusicCrossfader
 import com.jmtube.app.data.download.DownloadUtil
 import com.jmtube.app.data.download.LegacySongDownloads
 import com.jmtube.app.data.local.PlayerPreferences
+import com.jmtube.app.data.local.BufferProfile
 import com.jmtube.app.data.local.QueuePersistence
+import kotlinx.coroutines.flow.combine
 import com.jmtube.app.data.localmedia.LocalMediaIds
 import com.jmtube.app.data.music.YouTubeMusicService
 import com.jmtube.app.data.music.model.MusicTrack
@@ -131,6 +137,11 @@ class Media3MusicService : MediaLibraryService() {
         private const val RADIO_POOL_LOW_WATER = 15
         private const val MUSIC_URI_SCHEME = "music"
 
+        private const val ACTION_SKIP_TO = "ACTION_SKIP_TO"
+        private const val EXTRA_SKIP_INDEX = "index"
+        private const val EXTRA_SKIP_MEDIA_ID = "mediaId"
+        private val CommandSkipTo = SessionCommand(ACTION_SKIP_TO, Bundle.EMPTY)
+
         private val CommandToggleShuffle = SessionCommand(ACTION_TOGGLE_SHUFFLE, Bundle.EMPTY)
         private val CommandToggleRepeat = SessionCommand(ACTION_TOGGLE_REPEAT, Bundle.EMPTY)
         private val CommandStop = SessionCommand(ACTION_STOP, Bundle.EMPTY)
@@ -153,6 +164,20 @@ class Media3MusicService : MediaLibraryService() {
          */
         fun requestStop(controller: MediaController): ListenableFuture<SessionResult> =
             controller.sendCustomCommand(CommandStop, Bundle.EMPTY)
+
+        fun requestSkip(
+            controller: MediaController,
+            index: Int,
+            mediaId: String,
+        ) {
+            controller.sendCustomCommand(
+                CommandSkipTo,
+                Bundle().apply {
+                    putInt(EXTRA_SKIP_INDEX, index)
+                    putString(EXTRA_SKIP_MEDIA_ID, mediaId)
+                },
+            )
+        }
     }
 
     private lateinit var mediaLibrarySession: MediaLibrarySession
@@ -247,6 +272,7 @@ class Media3MusicService : MediaLibraryService() {
     lateinit var videoSwitch: MusicVideoSwitch
 
     private val prefs by lazy { PlayerPreferences(this) }
+    private val lockScreenPlayer by lazy { LockScreenPlayerLauncher(this) }
 
     @Inject
     lateinit var widgetContentSync: dagger.Lazy<com.jmtube.app.widget.core.refresh.WidgetContentSync>
@@ -274,6 +300,19 @@ class Media3MusicService : MediaLibraryService() {
 
     @Inject
     lateinit var lyricsHelper: com.jmtube.app.data.lyrics.LyricsHelper
+
+    @Inject
+    lateinit var crossfadePause: com.jmtube.app.player.crossfade.CrossfadeSessionPause
+
+    @Inject
+    lateinit var localLyrics: LocalLyricsReader
+
+    @Inject
+    lateinit var videoLyricsTiming: MusicVideoLyricsTiming
+
+    private var crossfader: MusicCrossfader? = null
+    private var sessionLyrics: SessionLyrics? = null
+    private lateinit var musicSourceFactory: MusicMediaSourceFactory
 
     @OptIn(UnstableApi::class)
     override fun onCreate() {
@@ -348,6 +387,7 @@ class Media3MusicService : MediaLibraryService() {
         // the moment it changes, so a restart or a new song keeps it.
         lifecycleScope.launch { player.repeatMode = prefs.musicRepeatMode.first() }
         videoSwitch.attach(lifecycleScope, prefs.musicVideoSwitch)
+        lockScreenPlayer.attach(lifecycleScope, prefs.lockScreenPlayer)
 
         lifecycleScope.launch {
             prefs.playDuringCalls
@@ -363,7 +403,66 @@ class Media3MusicService : MediaLibraryService() {
             mediaId
                 ?.takeIf { loudnessNormalizationEnabled && !LocalMediaIds.isLocal(it) }
                 ?.let(MusicPlayerUtils::cachedLoudnessGainDb)
-        player.volume = LoudnessGain.volume(gainDb)
+        player.volume = LoudnessGain.volume(gainDb) * (crossfader?.sessionScale ?: 1f)
+    }
+
+    private fun musicRenderers(tailEqualizer: EqualizerAudioProcessor): androidx.media3.exoplayer.RenderersFactory =
+        object : androidx.media3.exoplayer.DefaultRenderersFactory(this) {
+            override fun buildAudioSink(
+                context: android.content.Context,
+                enableFloatOutput: Boolean,
+                enableAudioTrackPlaybackParams: Boolean,
+            ): androidx.media3.exoplayer.audio.AudioSink? =
+                androidx.media3.exoplayer.audio.DefaultAudioSink
+                    .Builder(context)
+                    .setAudioProcessors(arrayOf(tailEqualizer))
+                    .build()
+        }.setExtensionRendererMode(androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+
+    /** The player that plays the outgoing song's last seconds during a crossfade; see [MusicCrossfader]. */
+    private fun buildCrossfadeTail(skipOverlapMs: Long?): ExoPlayer {
+        val tailEqualizer = EqualizerAudioProcessor().apply { setSpec(equalizerRepository.processingSpec.value) }
+        return ExoPlayer
+            .Builder(this)
+            .setMediaSourceFactory(musicSourceFactory)
+            .setRenderersFactory(musicRenderers(tailEqualizer))
+            .setAudioAttributes(musicAudioAttributes, false)
+            .setLoadControl(skipOverlapMs?.let(LoadControlFactory::forSkipTail) ?: LoadControlFactory.forMusic())
+            .build()
+            .also { tail ->
+                tail.trackSelectionParameters =
+                    tail.trackSelectionParameters
+                        .buildUpon()
+                        .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, true)
+                        .build()
+                if (player.audioSessionId != C.AUDIO_SESSION_ID_UNSET) tail.setAudioSessionId(player.audioSessionId)
+            }
+    }
+
+    private fun crossfadeMoment(settings: CrossfadePolicy.Settings): CrossfadePolicy.Moment {
+        val next = player.nextMediaItemIndex.takeIf { it != C.INDEX_UNSET }?.let(player::getMediaItemAt)
+        return CrossfadePolicy.Moment(
+            fadeMs = settings.fadeMs,
+            playing = player.playWhenReady,
+            hasNext = next != null,
+            repeatsOne = player.repeatMode == Player.REPEAT_MODE_ONE,
+            durationMs = player.duration.takeIf { it != C.TIME_UNSET } ?: 0L,
+            speed = player.playbackParameters.speed,
+            showsVideo = C.TRACK_TYPE_VIDEO !in player.trackSelectionParameters.disabledTrackTypes,
+            pausesAtEndOfSong = com.jmtube.app.player.SleepTimerManager.pauseAtEndOfMedia,
+            nextIsSameAlbum = next != null && sameAlbum(player.currentMediaItem?.mediaId, next.mediaId),
+            keepAlbumsGapless = settings.keepAlbumsGapless,
+        )
+    }
+
+    private fun sameAlbum(
+        currentId: String?,
+        nextId: String,
+    ): Boolean {
+        val queue = com.jmtube.app.player.EnhancedMusicPlayerManager.queue.value
+        val current = queue.firstOrNull { it.videoId == currentId } ?: return false
+        val next = queue.firstOrNull { it.videoId == nextId } ?: return false
+        return (current.albumId != null && current.albumId == next.albumId) || (current.album.isNotBlank() && current.album == next.album)
     }
 
     private fun applyPlayDuringCallsPreference(playDuringCalls: Boolean) {
@@ -439,7 +538,7 @@ class Media3MusicService : MediaLibraryService() {
     }
 
     private fun initializePlayer() {
-        val mediaSourceFactory =
+        musicSourceFactory =
             MusicMediaSourceFactory(
                 audio =
                     DefaultMediaSourceFactory(downloadUtil.getPlayerDataSourceFactory())
@@ -448,25 +547,14 @@ class Media3MusicService : MediaLibraryService() {
                 maxVideoHeight = { MusicVideoFormats.maxHeight(NetworkState.isOnWifi(this)) },
             )
 
-        val renderersFactory =
-            object : androidx.media3.exoplayer.DefaultRenderersFactory(this) {
-                override fun buildAudioSink(
-                    context: android.content.Context,
-                    enableFloatOutput: Boolean,
-                    enableAudioTrackPlaybackParams: Boolean,
-                ): androidx.media3.exoplayer.audio.AudioSink? =
-                    androidx.media3.exoplayer.audio.DefaultAudioSink
-                        .Builder(context)
-                        .setAudioProcessors(arrayOf(equalizer))
-                        .build()
-            }.setExtensionRendererMode(androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+        val renderersFactory = musicRenderers(equalizer)
 
         val loadControl = LoadControlFactory.forMusic()
 
         player =
             ExoPlayer
                 .Builder(this)
-                .setMediaSourceFactory(mediaSourceFactory)
+                .setMediaSourceFactory(musicSourceFactory)
                 .setRenderersFactory(renderersFactory)
                 .setAudioAttributes(musicAudioAttributes, handlesAudioFocus)
                 .setHandleAudioBecomingNoisy(true)
@@ -492,6 +580,23 @@ class Media3MusicService : MediaLibraryService() {
         // order, the player's shuffle flag reorders nothing on its own, whichever controller sets it.
         player.setShuffleOrder(ShuffleOrder.UnshuffledShuffleOrder(0))
         musicResume.attach(player)
+        crossfader = MusicCrossfader(player, ::buildCrossfadeTail, ::crossfadeMoment, ::applyLoudnessGain).also { it.attach() }
+        lifecycleScope.launch {
+            combine(
+                combine(prefs.musicCrossfadeEnabled, prefs.musicCrossfadeMs, crossfadePause.paused) { enabled: Boolean, ms: Int, paused: Boolean ->
+                    CrossfadePolicy.chosenFadeMs(enabled && !paused, ms)
+                },
+                prefs.musicCrossfadeKeepAlbums,
+                prefs.musicCrossfadeCurve,
+                prefs.musicCrossfadeOnAutoAdvance,
+                prefs.musicCrossfadeOnManualSkip,
+            ) { fadeMs, keepGapless, curve, onAuto, onManual ->
+                CrossfadePolicy.Settings(fadeMs, keepGapless, curve, onAuto, onManual)
+            }.collect { settings ->
+                crossfader?.setSettings(settings)
+                updateOffload { it.copy(crossfade = settings.fadeMs > 0) }
+            }
+        }
 
         player.addListener(
             object : Player.Listener {
@@ -524,6 +629,7 @@ class Media3MusicService : MediaLibraryService() {
                     applyLoudnessGain()
 
                     mediaItem?.let { item ->
+                        sessionLyrics?.load(item)
                         val videoId = item.mediaId
                         val title = item.mediaMetadata.title?.toString()
                         val artist = item.mediaMetadata.artist?.toString()
@@ -1358,7 +1464,23 @@ class Media3MusicService : MediaLibraryService() {
     private fun sessionPlayer(): Player =
         SessionPlayer(player, { mediaLibrarySession.controllerForCurrentRequest }) {
             updateOffload { it.copy(pausedLong = false) }
-        }.also { it.follow(lifecycleScope) }
+        }.also {
+            it.follow(lifecycleScope)
+            sessionLyrics =
+                SessionLyrics(
+                    this,
+                    player,
+                    it,
+                    lifecycleScope,
+                    lyricsHelper,
+                    localLyrics,
+                    prefs.lyricsOnLockScreen,
+                    prefs.lyricsOnLockScreenDelayMs,
+                    prefs.lyricsOnDemand,
+                    videoLyricsTiming,
+                    isSavingData = { NetworkState.isDataSaverOn(this) || prefs.bufferProfile.first() == BufferProfile.DATASAVER },
+                )
+        }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaLibrarySession? =
         mediaLibrarySession.takeUnless {
@@ -1399,6 +1521,11 @@ class Media3MusicService : MediaLibraryService() {
 
     override fun onDestroy() {
         MusicServiceState.isRunning = false
+        lockScreenPlayer.release()
+        sessionLyrics?.release()
+        sessionLyrics = null
+        crossfader?.release()
+        crossfader = null
         // Flush the in-flight listen session before the player goes away.
         finalizeListenSession()
 
@@ -1451,6 +1578,7 @@ class Media3MusicService : MediaLibraryService() {
     }
 
     private fun updateLocks(isPlaybackActive: Boolean) {
+        lockScreenPlayer.setPlaying(isPlaybackActive)
         lockReleaseJob?.cancel()
         lockReleaseJob = null
 
@@ -1887,6 +2015,7 @@ class Media3MusicService : MediaLibraryService() {
             // even when the app was never opened (#1221).
             if (session.isCar(controller)) {
                 MusicServiceState.carConnected()
+                sessionLyrics?.carChanged()
                 com.jmtube.app.player.EnhancedMusicPlayerManager
                     .initialize(applicationContext, musicDownloads::isDownloaded)
             }
@@ -1897,6 +2026,7 @@ class Media3MusicService : MediaLibraryService() {
                     .add(CommandToggleRepeat)
                     .add(CommandToggleLike)
                     .add(CommandStop)
+                    .add(CommandSkipTo)
                     .build()
             val isLiked = com.jmtube.app.player.EnhancedMusicPlayerManager.isLiked.value
             val customButtons = buildCustomButtons(isLiked)
@@ -1923,7 +2053,10 @@ class Media3MusicService : MediaLibraryService() {
             session: MediaSession,
             controller: MediaSession.ControllerInfo,
         ) {
-            if (session.isCar(controller)) MusicServiceState.carDisconnected()
+            if (session.isCar(controller)) {
+                MusicServiceState.carDisconnected()
+                sessionLyrics?.carChanged()
+            }
         }
 
         private fun MediaSession.isCar(controller: MediaSession.ControllerInfo) =
@@ -2002,6 +2135,11 @@ class Media3MusicService : MediaLibraryService() {
 
             if (customCommand.customAction == ACTION_STOP) {
                 stopPlaybackAndService()
+                return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
+            }
+
+            if (customCommand.customAction == ACTION_SKIP_TO) {
+                crossfader?.skipTo(args.getInt(EXTRA_SKIP_INDEX), args.getString(EXTRA_SKIP_MEDIA_ID).orEmpty())
                 return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
             }
 

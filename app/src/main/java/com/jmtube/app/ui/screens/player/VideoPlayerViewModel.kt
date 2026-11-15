@@ -145,6 +145,7 @@ class VideoPlayerViewModel
         val isLoadingMoreComments: StateFlow<Boolean> = comments.isLoadingMore
         val commentSortOptions: StateFlow<List<VideoCommentSort>> = comments.sortOptions
         val commentTotalText: StateFlow<String?> = comments.totalText
+        val commentsDisabled: StateFlow<Boolean> = comments.isDisabled
         val descriptionState: StateFlow<VideoDescriptionPage?> = descriptions.description
         val transcriptState: StateFlow<TranscriptState> = transcripts.state
 
@@ -602,6 +603,18 @@ class VideoPlayerViewModel
             videoId: String,
             sort: VideoCommentSort,
         ) = comments.selectSort(videoId, sort)
+
+        val timedCommentsFollow: StateFlow<Boolean> =
+            playerPreferences.timedCommentsFollow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+        fun setTimedCommentsFollow(enabled: Boolean) {
+            viewModelScope.launch { playerPreferences.setTimedCommentsFollow(enabled) }
+        }
+
+        fun selectTimedComments(
+            videoId: String,
+            orders: List<VideoCommentSort>,
+        ) = comments.selectTimed(videoId, orders)
 
         fun loadCommentReplies(comment: Comment) {
             val videoId = _uiState.value.cachedVideo?.id ?: return

@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.changes
+﻿package com.jmtube.app.sync2.changes
 
 import com.jmtube.app.sync.protocol.SyncCollection
 

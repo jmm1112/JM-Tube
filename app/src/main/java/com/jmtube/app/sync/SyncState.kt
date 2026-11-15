@@ -1,4 +1,4 @@
-package com.jmtube.app.sync
+﻿package com.jmtube.app.sync
 
 import com.jmtube.app.sync.protocol.ApplyStats
 import com.jmtube.app.sync.protocol.TransferSummary

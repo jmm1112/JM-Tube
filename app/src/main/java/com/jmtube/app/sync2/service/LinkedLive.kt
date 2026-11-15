@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.service
+﻿package com.jmtube.app.sync2.service
 
 import android.util.Log
 import com.jmtube.app.di.ApplicationScope

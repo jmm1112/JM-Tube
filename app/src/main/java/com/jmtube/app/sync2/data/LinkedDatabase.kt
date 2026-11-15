@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.data
+﻿package com.jmtube.app.sync2.data
 
 import androidx.room.AutoMigration
 import androidx.room.ColumnInfo
@@ -46,6 +46,7 @@ interface SentDao {
         SentRecord::class,
         GroupRecord::class,
         RosterRow::class,
+        RosterPinRow::class,
         StreamRow::class,
         SnapshotRow::class,
         AckRow::class,
@@ -61,7 +62,7 @@ interface SentDao {
         ProfileNameRow::class,
         LinkReadRow::class,
     ],
-    version = 6,
+    version = 10,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -69,6 +70,10 @@ interface SentDao {
         AutoMigration(from = 3, to = 4),
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6, spec = SentPerLink::class),
+        AutoMigration(from = 6, to = 7),
+        AutoMigration(from = 7, to = 8),
+        AutoMigration(from = 8, to = 9),
+        AutoMigration(from = 9, to = 10),
     ],
 )
 abstract class LinkedDatabase : RoomDatabase() {

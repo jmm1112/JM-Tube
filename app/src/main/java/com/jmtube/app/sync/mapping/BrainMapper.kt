@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.mapping
+﻿package com.jmtube.app.sync.mapping
 
 import com.jmtube.app.data.recommendation.TimeBucket
 import com.jmtube.app.sync.canonical.BrainCounters

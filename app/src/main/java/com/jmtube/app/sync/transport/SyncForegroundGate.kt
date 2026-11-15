@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.transport
+﻿package com.jmtube.app.sync.transport
 
 /**
  * Orders stop requests against the service's own start. Android kills the app when a service started

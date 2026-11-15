@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.changes
+﻿package com.jmtube.app.sync2.changes
 
 import androidx.room.InvalidationTracker
 import com.jmtube.app.data.local.AppDatabase

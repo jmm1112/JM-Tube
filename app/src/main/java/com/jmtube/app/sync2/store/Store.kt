@@ -1,17 +1,28 @@
-package com.jmtube.app.sync2.store
+﻿package com.jmtube.app.sync2.store
 
 import com.jmtube.app.sync.crypto.SyncBytes
 import com.jmtube.app.sync2.crypto.ProtocolError
 import com.jmtube.app.sync2.crypto.reject
 import com.jmtube.app.sync2.roster.Entry
-import com.jmtube.app.sync2.roster.RosterState
-import com.jmtube.app.sync2.roster.applyEntry
+import com.jmtube.app.sync2.roster.EpochField
 import kotlinx.serialization.Serializable
 import java.io.IOException
 
 /** What the sync engine needs from a store: the Flow server, plain file stores through [FileLayout], and what a device holds. */
 interface Store {
     suspend fun rosterAfter(after: Long): List<Entry>
+
+    /** Every roster entry the store shows, fork candidates included. */
+    suspend fun rosterView(): List<Entry> = rosterAfter(-1)
+
+    /** Whether the store orders appends, so it has no honest way to change an entry it answered with. */
+    val linear: Boolean get() = true
+
+    /** Whether this is what the device itself holds, rather than a store's answer. */
+    val heldHere: Boolean get() = false
+
+    /** The entries this device chose between sides of a contested roster, for a store that picks a winner itself. */
+    fun usePins(pins: Set<String>) = Unit
 
     suspend fun appendRoster(
         head: String,
@@ -20,8 +31,10 @@ interface Store {
         chain: String?,
     ): Appended
 
+    /** A wrap or chain box: [kc] is the `<kc:16>` of its path. */
     suspend fun key(
         epoch: Int,
+        kc: String,
         name: String,
     ): ByteArray?
 
@@ -34,6 +47,13 @@ interface Store {
 
     /** Deletes an object; one that is already gone counts as deleted. */
     suspend fun deleteObject(path: String)
+
+    /** Lets go of a held wrap or chain box that failed its checks, so the next sync asks for it again. */
+    suspend fun forgetKey(
+        epoch: Int,
+        kc: String,
+        name: String,
+    ) = Unit
 }
 
 /** A group's shared store: a Flow server, or files through [FileLayout]. Both carry the pairing mailbox. */
@@ -47,11 +67,48 @@ interface ChangeList : Store {
     suspend fun changes(cursor: Long): Pair<List<ChangedObject>, Long>
 }
 
-/** The epoch an appended [entry]'s wraps belong to: the one it starts, or the current one on [chain]. */
-internal fun epochOf(
+/** Where a wrap or chain box lives under `keys/`: its epoch, its `<kc:16>`, and a member's id or `chain`. */
+data class KeyName(
+    val epoch: Int,
+    val kc: String,
+    val name: String,
+)
+
+/** An epoch's `<kc:16>`, from the `kc` an entry names. */
+internal fun kcNameOf(field: EpochField): String = kcName(wrapBytes(field.kc))
+
+/** The epoch and `<kc:16>` an appended [entry]'s wraps belong to: the epoch it starts, or the one in force on [chain]. */
+internal fun wrapsEpoch(
     entry: Entry,
     chain: List<Entry>,
-): Int = entry.epoch?.n ?: chain.fold(null as RosterState?) { state, e -> applyEntry(state, e) }?.epoch ?: 0
+): Pair<Int, String> {
+    val field = entry.epoch ?: chain.lastOrNull { it.epoch != null }?.epoch ?: reject(ProtocolError.ROSTER_CHAIN)
+    return field.n to kcNameOf(field)
+}
+
+/**
+ * The wraps and chain boxes a store holds for [me] along [chain] and for the [standing] entries that lost: a chain box for
+ * every epoch after genesis, and [me]'s wrap only for the epochs since it joined.
+ */
+internal fun keyNames(
+    chain: List<Entry>,
+    standing: List<Entry>,
+    me: String,
+): List<KeyName> {
+    val names = ArrayList<KeyName>()
+    for ((index, entry) in (chain + standing).withIndex()) {
+        val started = entry.epoch
+        if (started != null) {
+            val kc = kcNameOf(started)
+            if (started.n > 0) names += KeyName(started.n, kc, "chain")
+            if (me in started.to) names += KeyName(started.n, kc, me)
+        } else if (entry.add.orEmpty().any { it.did == me }) {
+            val (epoch, kc) = wrapsEpoch(entry, chain.take(index))
+            names += KeyName(epoch, kc, me)
+        }
+    }
+    return names
+}
 
 /** A wrap or chain box as an append carries it, in base64url. */
 internal fun wrapBytes(b64: String): ByteArray =
@@ -112,4 +169,27 @@ sealed class StoreException(
     class InstanceChanged : StoreException("This is not the server instance this device paired with")
 
     class Malformed : StoreException("The server sent an invalid response")
+
+    /** An answer past the size it may have (spec/store.md, Untrusted input). */
+    class TooLarge : StoreException("The server sent more than an answer may hold")
+
+    /** Whether this read failed for the one item asked for, not because the store is out of reach, wants a login or asks for time (spec/store.md, Untrusted input). */
+    val stopsOnlyItsItem: Boolean
+        get() =
+            when (this) {
+                is TooLarge -> true
+                is Refused -> status in 400..499 && status !in NOT_ABOUT_THE_ITEM
+                else -> false
+            }
 }
+
+/** 4xx answers that say something about the store or this device rather than the item asked for. */
+private val NOT_ABOUT_THE_ITEM = setOf(401, 407, 408, 429)
+
+/** What [read] answers, or null when it failed for that one item. */
+internal suspend fun <T> oneItem(read: suspend () -> T?): T? =
+    try {
+        read()
+    } catch (e: StoreException) {
+        if (e.stopsOnlyItsItem) null else throw e
+    }

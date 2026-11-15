@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.transport
+﻿package com.jmtube.app.sync.transport
 
 import android.util.Log
 import java.net.Inet4Address

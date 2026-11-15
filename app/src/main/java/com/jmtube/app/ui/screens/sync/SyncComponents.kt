@@ -1,4 +1,4 @@
-package com.jmtube.app.ui.screens.sync
+﻿package com.jmtube.app.ui.screens.sync
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

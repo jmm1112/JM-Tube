@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.mapping
+﻿package com.jmtube.app.sync.mapping
 
 import com.jmtube.app.data.local.ChannelSubscription
 import com.jmtube.app.data.local.LikedVideoInfo

@@ -1,4 +1,4 @@
-package com.jmtube.app.ui.screens.sync.linked
+﻿package com.jmtube.app.ui.screens.sync.linked
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable

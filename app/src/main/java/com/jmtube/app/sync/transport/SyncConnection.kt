@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.transport
+﻿package com.jmtube.app.sync.transport
 
 /**
  * A single full-duplex binary message channel for one FLOW-SYNC/1 session, abstracting over the

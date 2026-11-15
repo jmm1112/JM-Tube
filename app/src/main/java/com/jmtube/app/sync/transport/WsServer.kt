@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.transport
+﻿package com.jmtube.app.sync.transport
 
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
@@ -20,9 +20,11 @@ import kotlinx.coroutines.launch
  * (OS-assigned ephemeral port, read back for the QR). CIO is pure-Kotlin/coroutine so it runs on
  * Android. v1 handles a single 1↔1 session per server instance. [path] is FLOW-SYNC/1's unless
  * FLOW-SYNC/2 serves on its own; with [onConnection], every connection goes to it instead of [awaitConnection].
+ * A frame over [maxFrame] bytes closes the connection.
  */
 class WsServer(
     private val path: String = QrPath.PATH,
+    private val maxFrame: Long = Long.MAX_VALUE,
     private val onConnection: (suspend (SyncConnection) -> Unit)? = null,
 ) {
     private var server: EmbeddedServer<*, *>? = null
@@ -37,6 +39,9 @@ class WsServer(
                     // vanished without closing is only noticed when our pings go unanswered.
                     pingPeriodMillis = PING_PERIOD_MS
                     timeoutMillis = PING_TIMEOUT_MS
+                    maxFrameSize = maxFrame
+                    // Ktor queues without a limit by default, so the socket would keep being read for nobody.
+                    channels { incoming = bounded(QUEUED_FRAMES) }
                 }
                 routing {
                     webSocket(path) {
@@ -44,8 +49,10 @@ class WsServer(
                         val handler = onConnection
                         if (handler != null) {
                             launch { handler(conn) }
-                        } else if (!connectionDeferred.isCompleted) {
-                            connectionDeferred.complete(conn)
+                        } else if (!connectionDeferred.complete(conn)) {
+                            // One session per server: nothing would ever read this connection.
+                            conn.close()
+                            return@webSocket
                         }
                         try {
                             for (frame in incoming) {
@@ -84,15 +91,18 @@ class WsServer(
     }
 }
 
+private const val QUEUED_FRAMES = 4
+
 /** Wraps a Ktor server [DefaultWebSocketSession] as a [SyncConnection]. */
 private class KtorServerConnection(
     private val session: DefaultWebSocketSession,
     override val remoteHost: String,
 ) : SyncConnection {
-    private val inbound = Channel<ByteArray>(Channel.UNLIMITED)
+    private val inbound = Channel<ByteArray>(QUEUED_FRAMES)
 
+    /** Waits while frames are queued, so the socket isn't read further until someone receives them. */
     suspend fun deliver(bytes: ByteArray) {
-        inbound.trySend(bytes)
+        inbound.send(bytes)
     }
 
     fun onClosed() {

@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.data
+﻿package com.jmtube.app.sync2.data
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao
@@ -27,6 +27,15 @@ val GroupRecord.webDavUrl: String? get() = storeUrl.takeIf { it.startsWith(WEBDA
 /** The Flow server the group lives on, or null for a group on WebDAV or on its devices alone. */
 val GroupRecord.serverUrl: String? get() = storeUrl.takeIf { it != LAN_STORE && webDavUrl == null }
 
+/** The devices a restore keeps, or null when no restore is unfinished. */
+val GroupRecord.keptDevices: Set<String>? get() = restoreKeep?.split(',')?.filterTo(HashSet()) { it.isNotEmpty() }
+
+/** A roster entry the user kept between sides of a contested roster. It never leaves this device. */
+@Entity(tableName = "roster_pin")
+data class RosterPinRow(
+    @PrimaryKey val hash: String,
+)
+
 /** The group this device belongs to, where its store is, and how far it has written and read. */
 @Entity(tableName = "group_record")
 data class GroupRecord(
@@ -43,6 +52,17 @@ data class GroupRecord(
     @ColumnInfo(defaultValue = "0") val serverCursor: Long = 0,
     /** This device's own log objects up to this `seq` are on the server. */
     @ColumnInfo(defaultValue = "0") val uploaded: Long = 0,
+    /** The epoch of the last `remove` applied, until a login at that epoch or later is read. */
+    val loginDue: Int? = null,
+    /** The `seq` of the login this device last wrote, while that change is under way. */
+    val loginSent: Long? = null,
+    /** The device behind a change of the recovery key from elsewhere, until the user answers, and when this device learned of it. */
+    val recoveryNoticeDevice: String? = null,
+    val recoveryNoticeAt: Long? = null,
+    /** The device that set the recovery key left: nothing is written until it is replaced. */
+    @ColumnInfo(defaultValue = "0") val recoveryDue: Boolean = false,
+    /** The devices a restore keeps, comma-separated, until it has signed out the rest (spec/protocol.md, Recovery). */
+    val restoreKeep: String? = null,
     @PrimaryKey val id: Int = 1,
 )
 
@@ -81,6 +101,31 @@ interface GroupDao {
     @Query("UPDATE group_record SET uploaded = :heldCursor WHERE id = 1")
     suspend fun setUploaded(heldCursor: Long)
 
+    @Query("UPDATE group_record SET loginDue = :epoch WHERE id = 1")
+    suspend fun setLoginDue(epoch: Int?)
+
+    @Query("UPDATE group_record SET loginSent = :seq WHERE id = 1")
+    suspend fun setLoginSent(seq: Long?)
+
+    /** A login sealed under [epoch] was read or written. */
+    @Query("UPDATE group_record SET loginDue = NULL WHERE id = 1 AND loginDue <= :epoch")
+    suspend fun noteLogin(epoch: Int)
+
+    @Query("UPDATE group_record SET loginDue = NULL, loginSent = NULL WHERE id = 1")
+    suspend fun forgetLoginChange()
+
+    @Query("UPDATE group_record SET recoveryNoticeDevice = :device, recoveryNoticeAt = :at WHERE id = 1")
+    suspend fun setRecoveryNotice(
+        device: String?,
+        at: Long?,
+    )
+
+    @Query("UPDATE group_record SET recoveryDue = :due WHERE id = 1")
+    suspend fun setRecoveryDue(due: Boolean)
+
+    @Query("UPDATE group_record SET restoreKeep = NULL WHERE id = 1")
+    suspend fun forgetRestoreKeep()
+
     @Query("UPDATE group_record SET recoverySaved = :saved WHERE id = 1")
     suspend fun setRecoverySaved(saved: Boolean)
 
@@ -105,6 +150,12 @@ interface GroupDao {
         clearRoster()
         addRoster(rows)
     }
+
+    @Query("SELECT hash FROM roster_pin")
+    suspend fun rosterPins(): List<String>
+
+    @Upsert
+    suspend fun addRosterPin(pin: RosterPinRow)
 
     @Query("SELECT * FROM streams")
     suspend fun streams(): List<StreamRow>

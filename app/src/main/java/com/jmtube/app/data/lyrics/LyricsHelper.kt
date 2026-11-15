@@ -14,6 +14,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.OkHttpClient
@@ -21,6 +24,13 @@ import java.util.Collections
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+
+/** A song's synced lyrics as shown on screen; empty until they load. */
+data class ShownLyrics(
+    val videoId: String,
+    val entries: List<LyricsEntry>,
+    val syncOffsetMs: Long,
+)
 
 @Singleton
 class LyricsHelper
@@ -38,6 +48,15 @@ class LyricsHelper
             // After a line-synced hit, the providers after it get this long in total to find word sync.
             private const val WORD_SYNC_GRACE_MS = 4_000L
             private const val MEMORY_CACHE_SIZE = 32
+        }
+
+        private val shownLyrics = MutableStateFlow<ShownLyrics?>(null)
+
+        /** The synced lyrics the player screen shows now, with the offset chosen there. */
+        val shown: StateFlow<ShownLyrics?> = shownLyrics.asStateFlow()
+
+        fun publishShown(value: ShownLyrics?) {
+            shownLyrics.value = value
         }
 
         // Bounded per call too: a provider's blocking request would otherwise outlive its timeout.
@@ -79,7 +98,12 @@ class LyricsHelper
             duration: Int,
             album: String? = null,
             ctx: Context? = null,
-        ): Pair<List<LyricsEntry>, String>? = inFlight.join(videoId) { fetchLyrics(videoId, title, artist, duration, album, ctx) }
+            onAnswer: (suspend (Pair<List<LyricsEntry>, String>) -> Unit)? = null,
+        ): Pair<List<LyricsEntry>, String>? = inFlight.join(videoId) {
+            val res = fetchLyrics(videoId, title, artist, duration, album, ctx, onAnswer)
+            res?.let { onAnswer?.invoke(it) }
+            res
+        }
 
         private suspend fun fetchLyrics(
             videoId: String,
@@ -88,6 +112,7 @@ class LyricsHelper
             duration: Int,
             album: String?,
             ctx: Context?,
+            onAnswer: (suspend (Pair<List<LyricsEntry>, String>) -> Unit)? = null,
         ): Pair<List<LyricsEntry>, String>? {
             val targetContext = ctx ?: context
 
@@ -301,21 +326,6 @@ class LyricsHelper
                 message.contains("Forbidden", ignoreCase = true)
         }
 
-        fun entriesAreSynced(entries: List<LyricsEntry>): Boolean {
-            if (entries.size < 2) return false
-            val main = entries.filter { !it.isBackground }
-            val list = if (main.size >= 2) main else entries
-            val times = list.map { it.time }.distinct()
-            if (times.size < 2) return false
-            val firstPositive = times.firstOrNull { it > 0L } ?: return false
-            val maxTime = list.maxOf { it.time }
-            if (maxTime - firstPositive < 5_000L) return false
-            val hasWordTimings = entries.any { !it.words.isNullOrEmpty() }
-            if (hasWordTimings) return true
-            val distinctTimedLines = list.count { it.time > 0L }
-            return distinctTimedLines >= (list.size * 0.5).toInt().coerceAtLeast(2)
-        }
-
         private fun stripWordTimings(entries: List<LyricsEntry>): List<LyricsEntry> = entries.map { entry -> entry.copy(words = null) }
 
         private fun normalizeEntries(entries: List<LyricsEntry>): List<LyricsEntry> =
@@ -328,6 +338,18 @@ class LyricsHelper
                         },
                 )
             }
+
+        fun entriesAreSynced(entries: List<LyricsEntry>): Boolean = LyricsChecks.entriesAreSynced(entries)
+
+        /** The offset the user chose for this song, or null if they never nudged it. */
+        suspend fun syncOffset(videoId: String): Long? = LyricsCacheManager.syncOffset(context, videoId)
+
+        suspend fun saveSyncOffset(
+            videoId: String,
+            offsetMs: Long,
+        ) = LyricsCacheManager.saveSyncOffset(context, videoId, offsetMs)
+
+        suspend fun clearSyncOffset(videoId: String) = LyricsCacheManager.clearSyncOffset(context, videoId)
 
         fun clearCache(videoId: String? = null) {
             if (videoId != null) cache.remove(videoId) else cache.clear()

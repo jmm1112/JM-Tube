@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.identity
+﻿package com.jmtube.app.sync.identity
 
 /**
  * Hybrid Logical Clock (Kulkarni et al.) — the timestamp used for every last-write-wins

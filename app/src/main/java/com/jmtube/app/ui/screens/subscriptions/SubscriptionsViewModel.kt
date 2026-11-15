@@ -187,6 +187,12 @@ class SubscriptionsViewModel
             }
 
             viewModelScope.launch(PerformanceDispatcher.diskIO) {
+                playerPreferences.subscriptionPinnedChannels.collect { stored ->
+                    _uiState.update { it.copy(pinnedChannelIds = parsePinnedChannels(stored)) }
+                }
+            }
+
+            viewModelScope.launch(PerformanceDispatcher.diskIO) {
                 combine(
                     playerPreferences.subscriptionLastRefreshTime,
                     playerPreferences.subscriptionLastRefreshedCount,
@@ -496,6 +502,16 @@ class SubscriptionsViewModel
         /** Saves [names] as the group order; each save is a whole order, so saves are kept in sequence. */
         fun setGroupOrder(names: List<String>) {
             viewModelScope.launch(PerformanceDispatcher.diskIO) { groupOrderLock.withLock { subscriptionGroupDao.setOrder(names) } }
+        }
+
+        fun togglePin(channelId: String) = savePins(togglePinned(_uiState.value.pinnedChannelIds, channelId))
+
+        /** Saves the order of the pins one list shows, leaving pins it doesn't show where they were. */
+        fun setPinnedOrder(shown: List<String>) = savePins(reorderPinnedSubset(_uiState.value.pinnedChannelIds, shown))
+
+        private fun savePins(pins: List<String>) {
+            _uiState.update { it.copy(pinnedChannelIds = pins) }
+            viewModelScope.launch(PerformanceDispatcher.diskIO) { playerPreferences.setSubscriptionPinnedChannels(pins.toPinnedStorage()) }
         }
 
         private val _importMessages = EventChannel<String>(EventChannel.BUFFERED)

@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.live
+﻿package com.jmtube.app.sync2.live
 
 import com.jmtube.app.data.music.model.MusicTrack
 import com.jmtube.app.di.ApplicationScope

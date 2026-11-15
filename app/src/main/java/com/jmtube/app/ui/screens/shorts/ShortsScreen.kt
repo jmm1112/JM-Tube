@@ -48,6 +48,7 @@ import com.jmtube.app.ui.components.shared.MediaSheetSlot
 import com.jmtube.app.ui.components.shared.applyVideoCommentFilters
 import com.jmtube.app.ui.components.shared.defaultSheetExpandedHeight
 import com.jmtube.app.ui.components.shared.rememberVideoShareAction
+import com.jmtube.app.ui.components.shared.timedCommentOrders
 import com.jmtube.app.ui.components.shared.videoCommentSortFor
 import com.jmtube.app.ui.components.shorts.SHORTS_SHEET_HEIGHT_FRACTION
 import com.jmtube.app.ui.components.shorts.ShortsDownloadSheet
@@ -109,14 +110,16 @@ fun ShortsScreen(
     var showDescriptionSheet by remember { mutableStateOf(false) }
     val settingsSheet = remember { ShortsSettingsSheetState() }
     var commentSortFilter by remember { mutableStateOf(CommentSortFilter.TOP) }
-    var commentsTimedOnly by remember { mutableStateOf(false) }
     val comments by viewModel.commentsState.collectAsState()
     val isLoadingComments by viewModel.isLoadingComments.collectAsState()
+    val isLoadingMoreComments by viewModel.isLoadingMoreComments.collectAsState()
+    val hasMoreComments by viewModel.hasMoreComments.collectAsState()
     val commentSortOptions by viewModel.commentSortOptions.collectAsState()
     val commentTotalText by viewModel.commentTotalText.collectAsState()
+    val commentsDisabled by viewModel.commentsDisabled.collectAsState()
     val visibleComments =
-        remember(comments, commentSortFilter, commentsTimedOnly) {
-            applyVideoCommentFilters(comments, commentSortFilter, commentsTimedOnly)
+        remember(comments, commentSortFilter) {
+            applyVideoCommentFilters(comments, commentSortFilter)
         }
 
     LaunchedEffect(source) { viewModel.load(source) }
@@ -248,16 +251,24 @@ fun ShortsScreen(
                 isLoading = isLoadingComments,
                 selectedFilter = commentSortFilter,
                 totalText = commentTotalText,
-                timedOnly = commentsTimedOnly,
-                onTimedChange = { commentsTimedOnly = it },
+                showTimed = true,
                 onFilterChanged = { filter ->
                     commentSortFilter = filter
-                    videoCommentSortFor(commentSortOptions, filter)?.let { sort ->
-                        uiState.shorts
-                            .getOrNull(uiState.currentIndex)
-                            ?.id
-                            ?.let { videoId -> viewModel.selectCommentSort(videoId, sort) }
+                    uiState.shorts.getOrNull(uiState.currentIndex)?.id?.let { videoId ->
+                        if (filter == CommentSortFilter.TIMED) {
+                            viewModel.selectTimedComments(videoId, timedCommentOrders(commentSortOptions))
+                        } else {
+                            videoCommentSortFor(commentSortOptions, filter)?.let { sort -> viewModel.selectCommentSort(videoId, sort) }
+                        }
                     }
+                },
+                isLoadingMore = isLoadingMoreComments,
+                hasMore = commentSortFilter == CommentSortFilter.TIMED && hasMoreComments,
+                onLoadMore = {
+                    uiState.shorts
+                        .getOrNull(uiState.currentIndex)
+                        ?.id
+                        ?.let(viewModel::loadMoreComments)
                 },
                 onLoadReplies = { viewModel.loadCommentReplies(it) },
                 onAuthorClick = { authorChannelRef ->
@@ -268,6 +279,7 @@ fun ShortsScreen(
                 onSheetProgressChange = { progress -> sheetInsets.follow(sheetExpandedHeightPx * progress) },
                 dismissOnOutsideTap = true,
                 onDismiss = { showCommentsSheet = false },
+                isDisabled = commentsDisabled,
             )
         }
 

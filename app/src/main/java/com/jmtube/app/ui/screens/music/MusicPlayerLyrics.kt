@@ -12,6 +12,7 @@ import com.jmtube.app.data.lyrics.LyricsCandidate
 import com.jmtube.app.data.lyrics.LyricsEntry
 import com.jmtube.app.data.lyrics.LyricsHelper
 import com.jmtube.app.data.lyrics.LyricsUtils
+import com.jmtube.app.data.lyrics.MusicVideoLyricsTiming
 import com.jmtube.app.data.music.model.MusicTrack
 import com.jmtube.app.player.EnhancedMusicPlayerManager
 import com.jmtube.app.utils.NetworkState
@@ -19,6 +20,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -36,8 +40,10 @@ internal class MusicPlayerLyrics(
     private val playerPreferences: PlayerPreferences,
     private val localLyrics: LocalLyricsReader,
     private val downloadedTrackPath: suspend (videoId: String) -> String?,
+    private val videoTiming: MusicVideoLyricsTiming,
 ) {
     private var lyricsJob: kotlinx.coroutines.Job? = null
+    private var videoTimingJob: Job? = null
 
     init {
         scope.launch {
@@ -57,6 +63,16 @@ internal class MusicPlayerLyrics(
     fun setShowTranslation(show: Boolean) {
         scope.launch { playerPreferences.setLyricsShowTranslation(show) }
     }
+
+    fun publishShownLyrics(): Job =
+        scope.launch {
+            uiState
+                .map { state ->
+                    val videoId = state.currentTrack?.videoId ?: return@map null
+                    val entries = state.syncedLyrics.takeIf { it.isNotEmpty() } ?: return@map null
+                    com.jmtube.app.data.lyrics.ShownLyrics(videoId, entries, state.lyricsSyncOffsetMs)
+                }.collect(lyricsHelper::publishShown)
+        }
 
     fun setShowRomanization(show: Boolean) {
         scope.launch { playerPreferences.setLyricsShowRomanization(show) }
@@ -126,13 +142,20 @@ internal class MusicPlayerLyrics(
                                 lyricsProviderName = providerName,
                             )
                         }
+                        if (isSynced) {
+                            followVideoTiming(videoId, entries, targetDuration)
+                        } else {
+                            videoTimingJob?.cancel()
+                        }
                     } else {
+                        videoTimingJob?.cancel()
                         uiState.update { it.copy(isLyricsLoading = false) }
                     }
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
                 } catch (e: Exception) {
                     android.util.Log.e("MusicPlayerViewModel", "Lyrics fetch failed", e)
+                    videoTimingJob?.cancel()
                     uiState.update { it.copy(isLyricsLoading = false) }
                 }
             }
@@ -300,6 +323,7 @@ internal class MusicPlayerLyrics(
     fun applyCandidate(candidate: LyricsCandidate) {
         val track = uiState.value.currentTrack ?: return
         scope.launch {
+            videoTimingJob?.cancel()
             lyricsHelper.applyManualLyrics(track.videoId, candidate.entries)
             val plainText = candidate.entries.joinToString("\n") { it.text }
             uiState.update {
@@ -309,6 +333,9 @@ internal class MusicPlayerLyrics(
                     lyricsProviderName = candidate.providerName,
                     lyricsSyncOffsetMs = 0L,
                 )
+            }
+            if (candidate.synced) {
+                followVideoTiming(track.videoId, candidate.entries, (uiState.value.duration / 1000).toInt())
             }
         }
     }
@@ -330,6 +357,7 @@ internal class MusicPlayerLyrics(
                         .map { line -> LyricsEntry(0L, line) }
                 }
             if (entries.isEmpty()) return@launch
+            videoTimingJob?.cancel()
             val synced = lyricsHelper.entriesAreSynced(entries)
             lyricsHelper.applyManualLyrics(track.videoId, entries)
             val plainText = entries.joinToString("\n") { it.text }
@@ -340,7 +368,32 @@ internal class MusicPlayerLyrics(
                     lyricsProviderName = context.getString(com.jmtube.app.R.string.lyrics_source_edited),
                 )
             }
+            if (synced) {
+                followVideoTiming(track.videoId, entries, (uiState.value.duration / 1000).toInt())
+            }
         }
+    }
+
+    /**
+     * Lyrics show straight away, then move once the lookup answers. Follows the setting so switching
+     * it applies to the song playing, and the next song's lyrics end this.
+     */
+    private fun followVideoTiming(
+        videoId: String,
+        entries: List<LyricsEntry>,
+        durationSeconds: Int,
+    ) {
+        videoTimingJob?.cancel()
+        videoTimingJob =
+            scope.launch {
+                videoTiming.enabled.distinctUntilChanged().collectLatest { enabled ->
+                    val fitted = if (enabled) videoTiming.lookUpAndFit(videoId, entries, durationSeconds) else entries
+                    uiState.update { state ->
+                        val current = state.currentTrack?.videoId
+                        if (current == null || current == videoId) state.copy(syncedLyrics = fitted) else state
+                    }
+                }
+            }
     }
 
     fun adjustSyncOffset(deltaMs: Long) {

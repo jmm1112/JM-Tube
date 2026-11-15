@@ -1,4 +1,4 @@
-package com.jmtube.app.ui.screens.sync
+﻿package com.jmtube.app.ui.screens.sync
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

@@ -81,6 +81,9 @@ internal fun SubscriptionsFeedContent(
     maxAutoColumns: Int = FEED_MAX_AUTO_COLUMNS,
     minCellWidth: Dp = FeedCardMinWidth,
     showShorts: Boolean = true,
+    onPostsClick: (() -> Unit)? = null,
+    pinnedCount: Int = 0,
+    onTogglePin: ((Channel) -> Unit)? = null,
 ) {
     val pullRefreshState = rememberPullToRefreshState()
 
@@ -118,56 +121,18 @@ internal fun SubscriptionsFeedContent(
             ) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     Column {
-                        SubscriptionsQuickAccessRow(
-                            channels = topChannels,
+                        SubscriptionsFeedHeader(
+                            state = state,
+                            topChannels = topChannels,
                             onChannelClick = onChannelClick,
                             onViewAllClick = onViewAllClick,
-                            onMusicClick = onMusicSubscriptionsClick,
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = HeaderTopPadding, bottom = HeaderBottomPadding),
+                            onMusicSubscriptionsClick = onMusicSubscriptionsClick,
+                            onGroupSelected = onGroupSelected,
+                            onManageGroups = onManageGroups,
+                            onPostsClick = onPostsClick,
+                            pinnedCount = pinnedCount,
+                            onTogglePin = onTogglePin,
                         )
-
-                        HorizontalDivider()
-
-                        Row(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .horizontalScroll(rememberScrollState())
-                                    .padding(
-                                        horizontal = GroupRowHorizontalPadding,
-                                        vertical = GroupRowVerticalPadding,
-                                    ),
-                            horizontalArrangement = Arrangement.spacedBy(GroupChipSpacing),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            FlowFilterChip(
-                                label = stringResource(R.string.group_all),
-                                selected = state.selectedGroupName == null,
-                                onClick = { onGroupSelected(null) },
-                            )
-                            val chips = state.groupChips()
-                            chips.forEach { group ->
-                                FlowFilterChip(
-                                    label = if (group.isUngrouped()) stringResource(R.string.group_ungrouped) else group.name,
-                                    selected = state.selectedGroupName == group.name,
-                                    onClick = { onGroupSelected(group.name) },
-                                )
-                            }
-                            IconButton(
-                                onClick = onManageGroups,
-                                modifier = Modifier.size(GroupEditButtonSize),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = stringResource(R.string.manage_groups),
-                                    modifier = Modifier.size(GroupEditGlyphSize),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
 
                         SubscriptionFeedErrorCard(
                             failedChannelNames = state.failedChannelNames,

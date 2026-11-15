@@ -1,4 +1,6 @@
-package com.jmtube.app.sync2.store
+﻿package com.jmtube.app.sync2.store
+
+import com.jmtube.app.sync.crypto.SyncBytes
 
 private fun hex(
     value: Long,
@@ -24,8 +26,9 @@ object StorePaths {
 
     fun key(
         epoch: Int,
+        kc: String,
         name: String,
-    ): String = "keys/${epochName(epoch)}/$name.k"
+    ): String = "keys/${epochName(epoch)}/$kc/$name.k"
 
     fun pair(
         slot: String,
@@ -47,6 +50,9 @@ object StorePaths {
         return (did to seq.toULong(16).toLong()).takeIf { log(it.first, it.second) == path }
     }
 }
+
+/** The `<kc:16>` of a key path: the first 8 bytes of an epoch's commitment. */
+fun kcName(kc: ByteArray): String = SyncBytes.toHex(kc.copyOf(minOf(kc.size, 8)))
 
 /** The name an epoch's wraps and chain box live under. */
 fun epochName(epoch: Int): String = hex(epoch.toLong() and 0xffff_ffffL, 8)

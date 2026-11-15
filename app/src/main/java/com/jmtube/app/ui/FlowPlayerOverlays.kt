@@ -43,7 +43,6 @@ import com.jmtube.app.ui.components.musicplayer.sheet.UnifiedMusicPlayerSheet
 import com.jmtube.app.ui.components.shared.LocalMediaOpenOrigins
 import com.jmtube.app.ui.components.shared.MediaMiniBarBounds
 import com.jmtube.app.ui.components.shared.MediaOpenOrigins
-import com.jmtube.app.ui.components.shared.PlayerHaptics
 import com.jmtube.app.ui.components.shared.quickactions.QuickActionsHost
 import com.jmtube.app.ui.components.shared.quickactions.sharedQuickActionsViewModel
 import com.jmtube.app.ui.components.videoplayer.BackgroundQueueTransport
@@ -318,23 +317,21 @@ internal fun FlowPlayerOverlays(
 
         val track = currentMusicTrack
         if (showMusicSheet && track != null) {
-            PlayerHaptics(enabled = playerHaptics) {
-                UnifiedMusicPlayerSheet(
-                    state = musicPlayerSheetState,
-                    containerWidth = containerWidth,
-                    containerHeight = containerHeight,
-                    miniBounds = miniBarBounds,
-                    restingBottomPx = { bottomInsets.miniPlayerBaselinePx(density) },
-                    track = track,
-                    swipeLeftAction = swipeLeftAction,
-                    swipeRightAction = swipeRightAction,
-                    lyricsInMiniPlayer = lyricsInMiniPlayer,
-                    onDismiss = {
-                        EnhancedMusicPlayerManager.stop()
-                        EnhancedMusicPlayerManager.clearCurrentTrack()
-                    },
-                )
-            }
+            UnifiedMusicPlayerSheet(
+                state = musicPlayerSheetState,
+                containerWidth = containerWidth,
+                containerHeight = containerHeight,
+                miniBounds = miniBarBounds,
+                restingBottomPx = { bottomInsets.miniPlayerBaselinePx(density) },
+                track = track,
+                swipeLeftAction = swipeLeftAction,
+                swipeRightAction = swipeRightAction,
+                lyricsInMiniPlayer = lyricsInMiniPlayer,
+                onDismiss = {
+                    EnhancedMusicPlayerManager.stop()
+                    EnhancedMusicPlayerManager.clearCurrentTrack()
+                },
+            )
         }
 
         MusicMenuSheets(musicMenus)

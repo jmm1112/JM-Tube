@@ -24,7 +24,6 @@ import com.jmtube.app.data.model.Video
 import com.jmtube.app.player.EnhancedPlayerManager
 import com.jmtube.app.player.GlobalPlayerState
 import com.jmtube.app.player.dlna.DlnaCastManager
-import com.jmtube.app.ui.components.shared.PlayerHaptics
 import com.jmtube.app.ui.components.videoplayer.DraggablePlayerLayout
 import com.jmtube.app.ui.components.videoplayer.PlayerDraggableState
 import com.jmtube.app.ui.components.videoplayer.PlayerSheetValue
@@ -435,16 +434,17 @@ fun VideoPlayerHost(
             screenState = screenState,
             playerState = playerState,
             uiState = playerUiState,
+            commentsUiState = commentsUiState,
             viewModel = playerViewModel,
             sheetState = playerSheetState,
             prefs = prefs,
             audioSystemInfo = audioSystemInfo,
             pipPreferences = pipPreferences,
             isFullscreenShown = fullscreenShown,
+            ambient = rememberPlayerAmbient(prefs, fullscreenShown, expandedSurfacesMounted, localIsInPipMode, playerLayoutMode),
         )
 
-    PlayerHaptics(enabled = prefs.hapticsEnabled) {
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val mediaSheetHeights =
                 rememberMediaSheetHeights(
                     geometry = mediaSheetGeometry,
@@ -594,5 +594,4 @@ fun VideoPlayerHost(
                 onClose = onClose,
             )
         }
-    }
 }

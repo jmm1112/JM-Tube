@@ -29,6 +29,8 @@ internal enum class PlaybackDialog {
     SUBTITLE_LANGUAGE,
     SHORTS_MODE,
     LYRICS,
+    CROSSFADE_DURATION,
+    CROSSFADE_CURVE,
 }
 
 /**
@@ -50,6 +52,9 @@ internal fun PlaybackSettingsScreen(
     val comments by viewModel.comments.collectAsStateWithLifecycle()
     val shortsContent by viewModel.shortsContent.collectAsStateWithLifecycle()
     val disableShortsPlayer by viewModel.disableShortsPlayer.collectAsStateWithLifecycle()
+    val crossfadeEnabled by viewModel.crossfadeEnabled.collectAsStateWithLifecycle()
+    val lyricsOnLockScreen by viewModel.lyricsOnLockScreen.collectAsStateWithLifecycle()
+    val lyricsOnLockScreenDelayMs by viewModel.lyricsOnLockScreenDelayMs.collectAsStateWithLifecycle()
     var dialog by rememberSaveable { mutableStateOf<PlaybackDialog?>(null) }
     val context = LocalContext.current
     var backgroundAllowed by remember { mutableStateOf(BackgroundWorkPolicy.isBackgroundWorkUnrestricted(context)) }
@@ -76,6 +81,9 @@ internal fun PlaybackSettingsScreen(
                     shortsContent,
                     disableShortsPlayer,
                     backgroundRestricted = !backgroundAllowed,
+                    crossfadeEnabled = crossfadeEnabled,
+                    lyricsOnLockScreen = lyricsOnLockScreen,
+                    lyricsOnLockScreenDelayMs = lyricsOnLockScreenDelayMs,
                 ),
             openDialog = { dialog = it },
             onNavigate = onNavigate,
@@ -99,4 +107,7 @@ internal data class PlaybackStructure(
     val shortsContent: Boolean,
     val disableShortsPlayer: Boolean,
     val backgroundRestricted: Boolean,
+    val crossfadeEnabled: Boolean,
+    val lyricsOnLockScreen: Boolean,
+    val lyricsOnLockScreenDelayMs: Int,
 )

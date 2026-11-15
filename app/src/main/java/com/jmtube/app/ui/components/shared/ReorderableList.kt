@@ -39,34 +39,6 @@ import androidx.compose.ui.zIndex
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
-@Composable
-fun ReorderHandle(
-    modifier: Modifier = Modifier,
-    tint: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-) {
-    Column(
-        modifier = modifier.size(width = 20.dp, height = 28.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically),
-    ) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(3.dp)
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .background(tint),
-        )
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(3.dp)
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .background(tint),
-        )
-    }
-}
-
 @Stable
 class ReorderableLazyListState internal constructor(
     internal val listState: LazyListState,

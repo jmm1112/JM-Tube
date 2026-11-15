@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.roster
+﻿package com.jmtube.app.sync2.roster
 
 import com.jmtube.app.sync2.crypto.Purpose
 import com.jmtube.app.sync2.crypto.decodePayload

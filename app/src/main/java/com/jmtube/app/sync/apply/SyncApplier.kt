@@ -1,4 +1,4 @@
-package com.jmtube.app.sync.apply
+﻿package com.jmtube.app.sync.apply
 
 import android.content.Context
 import android.net.Uri

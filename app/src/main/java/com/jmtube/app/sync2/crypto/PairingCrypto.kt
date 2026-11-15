@@ -1,4 +1,4 @@
-package com.jmtube.app.sync2.crypto
+﻿package com.jmtube.app.sync2.crypto
 
 import java.nio.ByteBuffer
 
@@ -9,6 +9,15 @@ class PairingKeys(
     val scannerKey: ByteArray,
     val sas: String,
 )
+
+/** What a code carries instead of the shower's key, so that key is fixed before the scanner's is seen. */
+fun pairingCommit(showerPublic: ByteArray): ByteArray = labeledHash("pair commit", showerPublic)
+
+/** Shows the shower that the scanner read the code, before the shower reveals its key. */
+fun pairingProof(
+    token: ByteArray,
+    scannerPublic: ByteArray,
+): ByteArray = derive(token, ByteArray(0), "pair proof", scannerPublic, 16)
 
 fun pairingKeys(
     ownSecret: ByteArray,

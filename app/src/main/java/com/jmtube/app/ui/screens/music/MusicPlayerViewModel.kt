@@ -58,6 +58,7 @@ class MusicPlayerViewModel
         private val lyricsHelper: LyricsHelper,
         private val artistLookup: MusicArtistLookup,
         localLyrics: LocalLyricsReader,
+        videoLyricsTiming: com.jmtube.app.data.lyrics.MusicVideoLyricsTiming,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(MusicPlayerUiState())
         val uiState: StateFlow<MusicPlayerUiState> = _uiState.asStateFlow()
@@ -80,7 +81,7 @@ class MusicPlayerViewModel
         private var loadTrackJob: kotlinx.coroutines.Job? = null
         private val seekGuard = MusicSeekGuard()
         private val radioSwitch = MusicRadioSwitch(viewModelScope, _uiState, playerPreferences)
-        private val playStart = MusicPlayStart(downloadManager, viewHistory, playerPreferences)
+        private val playStart = MusicPlayStart(downloadManager, viewHistory, playerPreferences, playlistRepository)
         private val lyrics =
             MusicPlayerLyrics(
                 context,
@@ -90,6 +91,7 @@ class MusicPlayerViewModel
                 playerPreferences,
                 localLyrics,
                 downloadManager::getDownloadedTrackPath,
+                videoLyricsTiming,
             )
         private val trackActions =
             MusicPlayerTrackActions(
@@ -106,7 +108,9 @@ class MusicPlayerViewModel
 
         init {
             EnhancedMusicPlayerManager.initialize(context, downloadManager::isDownloaded)
+            EnhancedMusicPlayerManager.setSkipStoredReader(playStart::skipStored)
             initializeObservers()
+            lyrics.publishShownLyrics()
             viewModelScope.launch {
                 playerPreferences.lyricsTextAlign.collect { align ->
                     _uiState.update { it.copy(lyricsTextAlign = align) }
@@ -128,6 +132,12 @@ class MusicPlayerViewModel
 
                         is EnhancedMusicPlayerManager.PlayerEvent.RequestToggleLike -> {
                             toggleLike()
+                        }
+
+                        is EnhancedMusicPlayerManager.PlayerEvent.SkippedOnPlayer -> {
+                            loadTrackJob?.cancel()
+                            _uiState.update { it.copy(isLoading = false, error = null) }
+                            viewModelScope.launch(PerformanceDispatcher.diskIO) { playStart.recordSkip(event.track) }
                         }
                     }
                 }

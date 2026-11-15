@@ -35,6 +35,23 @@ import com.jmtube.app.ui.components.musicplayer.common.readableAccentOn
 private val SegmentFullRadius = 21.dp
 private val SegmentEdgeRadius = 8.dp
 
+/** The first, inner and last segments of a player button group: round at the group's ends only. */
+internal val PlayerSegmentLeadingShape =
+    RoundedCornerShape(
+        topStart = SegmentFullRadius,
+        bottomStart = SegmentFullRadius,
+        topEnd = SegmentEdgeRadius,
+        bottomEnd = SegmentEdgeRadius,
+    )
+internal val PlayerSegmentInnerShape = RoundedCornerShape(SegmentEdgeRadius)
+internal val PlayerSegmentTrailingShape =
+    RoundedCornerShape(
+        topStart = SegmentEdgeRadius,
+        bottomStart = SegmentEdgeRadius,
+        topEnd = SegmentFullRadius,
+        bottomEnd = SegmentFullRadius,
+    )
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PlayerSecondaryActions(
@@ -127,7 +144,7 @@ fun PlayerSecondaryActions(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun RowScope.PlayerToggleButton(
+internal fun RowScope.PlayerToggleButton(
     checked: Boolean,
     checkedContainerColor: Color,
     checkedContentColor: Color,

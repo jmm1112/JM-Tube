@@ -224,12 +224,14 @@ private fun String.isSubscriberLabel(): Boolean = !startsWith("@") && !isVideoCo
 
 private fun String.isVideoCountLabel(): Boolean = contains("video", ignoreCase = true)
 
-private fun JsonObject.canonicalBaseUrl(): String? =
+internal fun JsonObject.canonicalBaseUrl(): String? =
     this["browseEndpoint"]
         .objectOrNull()
         ?.get("canonicalBaseUrl")
         .stringOrNull()
         ?.takeIf(String::isNotBlank)
+
+internal fun JsonObject.browseHandle(): String? = canonicalBaseUrl()?.takeIf { it.startsWith("/@") }
 
 private fun JsonElement?.bylineChannelId(): String? =
     arrayOrNull()

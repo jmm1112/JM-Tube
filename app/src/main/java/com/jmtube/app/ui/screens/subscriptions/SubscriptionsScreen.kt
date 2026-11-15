@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.automirrored.filled.ViewList
@@ -74,15 +75,26 @@ fun SubscriptionsScreen(
 
     var isManagingSubs by remember { mutableStateOf(false) }
     var manageShowsMusic by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(openMusicSubscriptions) {
-        if (!openMusicSubscriptions) return@LaunchedEffect
-        manageShowsMusic = true
-        isManagingSubs = true
-        onMusicSubscriptionsOpened()
-    }
+    var showPosts by rememberSaveable { mutableStateOf(false) }
+    val postsListState = rememberLazyListState()
     var searchQuery by remember { mutableStateOf("") }
     var showSortMenu by remember { mutableStateOf(false) }
     var showGroupsDialog by remember { mutableStateOf(false) }
+
+    val openManage: (Boolean) -> Unit = { music ->
+        manageShowsMusic = music
+        isManagingSubs = true
+        if (music) onMusicSubscriptionsOpened()
+    }
+    val closeManage: () -> Unit = {
+        isManagingSubs = false
+        searchQuery = ""
+    }
+
+    LaunchedEffect(openMusicSubscriptions) {
+        if (!openMusicSubscriptions) return@LaunchedEffect
+        openManage(true)
+    }
 
     val importLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -113,10 +125,7 @@ fun SubscriptionsScreen(
                 FlowSearchTopBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
-                    onClose = {
-                        isManagingSubs = false
-                        searchQuery = ""
-                    },
+                    onClose = closeManage,
                     placeholder = stringResource(R.string.subscriptions_search_placeholder),
                     // Manage mode opens a browsable channel list; popping the keyboard would cover it.
                     autoFocus = false,
@@ -210,6 +219,9 @@ fun SubscriptionsScreen(
                         onShortsExcludeChange = viewModel::setShortsChannelExcluded,
                         showsMusic = manageShowsMusic,
                         onShowsMusicChange = { manageShowsMusic = it },
+                        pinnedIds = uiState.pinnedChannelIds,
+                        onTogglePin = viewModel::togglePin,
+                        onPinnedOrderChanged = viewModel::setPinnedOrder,
                         onUnsubscribe = { channel ->
                             scope.launch {
                                 unsubscribeWithUndo(
@@ -225,6 +237,28 @@ fun SubscriptionsScreen(
                     )
                 } else if (uiState.subscribedChannels.isEmpty()) {
                     SubscriptionsEmptyState(modifier = Modifier.fillMaxSize())
+                } else if (showPosts && uiState.showPostsChip) {
+                    SubscriptionPostsContent(
+                        channelIds = uiState.selectedGroupScope(),
+                        listState = postsListState,
+                        onChannelClick = onChannelClick,
+                        onVideoClick = onVideoClick,
+                        header = {
+                            SubscriptionsFeedHeader(
+                                state = uiState,
+                                topChannels = topChannels,
+                                onChannelClick = onChannelClick,
+                                onViewAllClick = { openManage(false) },
+                                onMusicSubscriptionsClick = { openManage(true) },
+                                onGroupSelected = viewModel::selectGroup,
+                                onManageGroups = { showGroupsDialog = true },
+                                postsSelected = true,
+                                onPostsClick = { showPosts = false },
+                                pinnedCount = channels.pinnedCount,
+                                onTogglePin = { viewModel.togglePin(it.id) },
+                            )
+                        },
+                    )
                 } else {
                     SubscriptionsFeedContent(
                         state = uiState,
@@ -236,18 +270,15 @@ fun SubscriptionsScreen(
                         onVideoClick = onVideoClick,
                         onShortClick = onShortClick,
                         onChannelClick = onChannelClick,
-                        onViewAllClick = {
-                            manageShowsMusic = false
-                            isManagingSubs = true
-                        },
-                        onMusicSubscriptionsClick = {
-                            manageShowsMusic = true
-                            isManagingSubs = true
-                        },
+                        onViewAllClick = { openManage(false) },
+                        onMusicSubscriptionsClick = { openManage(true) },
                         onGroupSelected = viewModel::selectGroup,
                         onManageGroups = { showGroupsDialog = true },
                         onRetryFailedChannels = viewModel::retryFailedChannels,
                         onDismissFailedChannels = viewModel::dismissFailedChannels,
+                        onPostsClick = { showPosts = true }.takeIf { uiState.showPostsChip },
+                        pinnedCount = channels.pinnedCount,
+                        onTogglePin = { viewModel.togglePin(it.id) },
                     )
                 }
             }

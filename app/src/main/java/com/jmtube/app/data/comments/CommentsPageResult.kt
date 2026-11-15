@@ -18,10 +18,12 @@ data class CommentsPageResult(
     val sortOptions: List<VideoCommentSort> = emptyList(),
     val totalText: String? = null,
     val totalCount: Long? = null,
+    val disabled: Boolean = false,
 ) {
     val hasMore: Boolean get() = continuation != null || legacyPage != null
 
     companion object {
         val EMPTY = CommentsPageResult()
+        val DISABLED = CommentsPageResult(disabled = true)
     }
 }
