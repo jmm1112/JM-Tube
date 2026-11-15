@@ -54,6 +54,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jmtube.app.R
+import com.jmtube.app.data.local.LyricsAnimationStyle
+import com.jmtube.app.data.local.LyricsGlow
 import com.jmtube.app.data.lyrics.LyricsEntry
 import kotlin.math.PI
 import kotlin.math.abs
@@ -167,7 +169,11 @@ internal fun LyricsLine(
     displayedCurrentLineIndex: Int,
     showTranslation: Boolean,
     romanization: String?,
+    romanizationOnly: Boolean,
     motionEnabled: Boolean,
+    blurOtherLines: Boolean,
+    animationStyle: LyricsAnimationStyle,
+    glow: LyricsGlow,
     onSizeChanged: (Int) -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -177,7 +183,7 @@ internal fun LyricsLine(
     val lineDistance = abs(index - displayedCurrentLineIndex)
     val dofBlurRadius by animateFloatAsState(
         targetValue =
-            if (!isSynced || isActiveLine || item.isBackground) {
+            if (!blurOtherLines || !isSynced || isActiveLine || item.isBackground) {
                 0f
             } else {
                 with(density) { (lineDistance.coerceAtMost(MAX_BLUR_DISTANCE) * 4.dp.toPx()) }
@@ -246,7 +252,10 @@ internal fun LyricsLine(
                 displayedCurrentLineIndex = displayedCurrentLineIndex,
                 showTranslation = showTranslation,
                 romanization = romanization,
+                romanizationOnly = romanizationOnly,
                 motionEnabled = motionEnabled,
+                animationStyle = animationStyle,
+                glow = glow,
             )
         }
 
@@ -279,7 +288,10 @@ private fun LyricBody(
     displayedCurrentLineIndex: Int,
     showTranslation: Boolean,
     romanization: String?,
+    romanizationOnly: Boolean,
     motionEnabled: Boolean,
+    animationStyle: LyricsAnimationStyle,
+    glow: LyricsGlow,
 ) {
     val lineDistance = abs(index - displayedCurrentLineIndex)
     val alignment =
@@ -320,7 +332,9 @@ private fun LyricBody(
         val accent = look.accent
         val lineAlpha = if (item.isBackground) focusedAlpha else animatedAlpha
         val lineColor = look.ink(lineAlpha)
-        val mainText = if (item.isBackground) item.text.removePrefix("(").removeSuffix(")") else item.text
+        val romanizedMain = romanization?.takeIf { romanizationOnly }
+        val shownText = romanizedMain ?: item.text
+        val mainText = if (item.isBackground) shownText.removePrefix("(").removeSuffix(")") else shownText
         val translation = item.translation?.takeIf { showTranslation && it.isNotBlank() }
         val textSize =
             remember(
@@ -342,7 +356,8 @@ private fun LyricBody(
             )
         val words =
             remember(item, mainText, nextLineTimeMs) {
-                val given = item.words?.takeIf { it.isNotEmpty() }
+                val source = item.words?.takeIf { it.isNotEmpty() }
+                val given = if (romanizedMain != null) source?.let { romanizedWordTimings(mainText, it) } else source
                 if (given != null) {
                     splitTrailingHyphenWord(sanitizeWordTimestamps(given)).first
                 } else {
@@ -363,6 +378,8 @@ private fun LyricBody(
                 syncOffsetMs = syncOffsetMs,
                 positionProvider = positionProvider,
                 motionEnabled = motionEnabled,
+                animationStyle = animationStyle,
+                glow = glow,
             )
         } else {
             Text(
@@ -380,7 +397,7 @@ private fun LyricBody(
                 fontWeight = FontWeight.SemiBold,
                 fontStyle = FontStyle.Normal,
             )
-        if (romanization != null) {
+        if (romanization != null && romanizedMain == null) {
             Text(
                 text = romanization,
                 color = secondaryColor,

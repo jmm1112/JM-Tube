@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">JM Tube</string>
     <string name="app_launcher_name" translatable="false">JM Tube</string>
     <string name="subscriptions_search_placeholder">Search subscriptions ...</string>
     <string name="subscriptions_sort_label">Sort channels</string>
     <string name="subscriptions_sort_default">Default</string>
-    <string name="subscriptions_sort_name">Name (A–Z)</string>
+    <string name="subscriptions_sort_name">Name (Aâ€“Z)</string>
     <string name="subscriptions_sort_recent">Recently updated</string>
     <string name="top_bar_subscriptions_title">Subscriptions</string>
     <string name="top_bar_close_search">Close search</string>
@@ -73,7 +73,7 @@
     <string name="library_local_media_subtitle">Play videos and music on this device</string>
     <string name="local_media_title">Local media</string>
     <string name="local_media_rescan">Rescan</string>
-    <string name="local_media_scanning">Scanning your device…</string>
+    <string name="local_media_scanning">Scanning your deviceâ€¦</string>
     <string name="local_media_empty_title">No %1$s found</string>
     <string name="local_media_empty_body">Videos and music stored on this device will appear here.</string>
     <string name="local_media_permission_title">Permission needed</string>
@@ -191,7 +191,7 @@
     <string name="lyrics_adjust_sync">Adjust sync offset</string>
     <string name="lyrics_sync_offset_value">%1$ss</string>
     <string name="lyrics_sync_reset">Reset lyrics timing</string>
-    <string name="lyrics_searching_sources">Searching sources…</string>
+    <string name="lyrics_searching_sources">Searching sourcesâ€¦</string>
     <string name="lyrics_no_sources_found">No lyrics found from any source</string>
     <string name="lyrics_source_edited">Edited</string>
     <string name="lyrics_source_local_file">Lyrics file</string>
@@ -231,7 +231,7 @@
     <string name="check_out_short_template">Check out this short: %1$s\nhttps://youtube.com/shorts/%2$s</string>
     <string name="link_not_supported">Flow can\'t open this kind of link</string>
     <string name="content_settings_share_without_text_title">Share links without text</string>
-    <string name="content_settings_share_without_text_subtitle">Share just the video link, without the “Check out this video” message</string>
+    <string name="content_settings_share_without_text_subtitle">Share just the video link, without the â€œCheck out this videoâ€ message</string>
     <string name="related_videos">Related Videos</string>
     <string name="quality_auto">Auto</string>
     <string name="quality_auto_template">Auto (%1$dp)</string>
@@ -297,8 +297,8 @@
     <!-- Video Status & Metadata -->
     <string name="status_upcoming">UPCOMING</string>
     <string name="status_live">LIVE</string>
-    <string name="video_metadata_template">%1$s • %2$s • %3$s</string>
-    <string name="video_metadata_short_template">%1$s • %2$s</string>
+    <string name="video_metadata_template">%1$s â€¢ %2$s â€¢ %3$s</string>
+    <string name="video_metadata_short_template">%1$s â€¢ %2$s</string>
     <string name="playlist_video_added_template">Added %1$s</string>
     <string name="premiere_soon">Premieres soon</string>
     <string name="premiere_date_prefix">Premieres %1$s</string>
@@ -326,8 +326,8 @@
     <string name="no_subscriptions_found">No subscriptions found</string>
     <!-- Live chat -->
     <string name="live_chat">Live chat</string>
-    <string name="live_chat_connecting">Connecting to live chat…</string>
-    <string name="live_chat_empty">Waiting for messages…</string>
+    <string name="live_chat_connecting">Connecting to live chatâ€¦</string>
+    <string name="live_chat_empty">Waiting for messagesâ€¦</string>
     <string name="live_chat_show">Show chat</string>
     <string name="live_chat_hide">Hide chat</string>
     <string name="live_chat_jump_to_latest">Jump to latest chat message</string>
@@ -340,7 +340,7 @@
     <string name="no_timed_comments">No comments with a timestamp yet</string>
     <string name="comment_hearted_by_creator">Hearted by the creator</string>
     <string name="verified">Verified</string>
-    <string name="comments_with_count_template">Comments · %1$s</string>
+    <string name="comments_with_count_template">Comments Â· %1$s</string>
     <string name="no_comments_yet">No comments yet</string>
     <string name="add_comment_placeholder">Add a comment...</string>
     <string name="comment_edited">edited</string>
@@ -401,11 +401,11 @@
     <string name="add_to_queue_desc">Add to end of queue</string>
     <string name="similar_content">Similar Content</string>
     <string name="no_similar_content_found">No similar content found</string>
-    <string name="radio_source_template">Radio • %1$s</string>
+    <string name="radio_source_template">Radio â€¢ %1$s</string>
     <string name="unknown_source">Unknown source</string>
     <string name="added_to_playlist_toast">Added to playlist</string>
     <string name="already_downloaded_toast">Already downloaded</string>
-    <string name="download_started_toast">Download started…</string>
+    <string name="download_started_toast">Download startedâ€¦</string>
     <string name="download_error_toast">Download error: %1$s</string>
     <string name="audio_effects">Audio Effects</string>
     <string name="more_header">More</string>
@@ -444,14 +444,14 @@
     <string name="delete_group">Delete Group</string>
     <string name="group_name_label">Group name</string>
     <string name="no_groups_yet">No groups yet. Create one to filter your feed.</string>
-    <string name="search_channels_hint">Search channels…</string>
+    <string name="search_channels_hint">Search channelsâ€¦</string>
     <string name="toggle_view_mode">Toggle View Mode</string>
     <string name="unsubscribed_from_template">Unsubscribed from %1$s</string>
     <string name="hide_channel_shorts">Hide Shorts from this channel</string>
     <string name="show_channel_shorts">Show Shorts from this channel</string>
     <plurals name="course_lessons_count">
-        <item quantity="one">Course · %d lesson</item>
-        <item quantity="other">Course · %d lessons</item>
+        <item quantity="one">Course Â· %d lesson</item>
+        <item quantity="other">Course Â· %d lessons</item>
     </plurals>
     <plurals name="videos_count_template">
         <item quantity="one">%1$d video</item>
@@ -474,9 +474,9 @@
         <item quantity="one">%1$d item</item>
         <item quantity="other">%1$d items</item>
     </plurals>
-    <string name="metadata_separator">·</string>
-    <!-- Separator between the parts of a one-line detail list, e.g. "OPUS · 160kbps · English" -->
-    <string name="list_separator_dot">" · "</string>
+    <string name="metadata_separator">Â·</string>
+    <!-- Separator between the parts of a one-line detail list, e.g. "OPUS Â· 160kbps Â· English" -->
+    <string name="list_separator_dot">" Â· "</string>
     <string name="player_time_separator"> / </string>
     <string name="you">You</string>
     <string name="empty_downloads">No downloads yet</string>
@@ -490,7 +490,7 @@
     </plurals>
     <string name="downloads_recovered_none">No downloads from an earlier install were found</string>
     <string name="downloads_find_earlier_title">Find earlier downloads</string>
-    <string name="downloads_find_earlier_running">Searching…</string>
+    <string name="downloads_find_earlier_running">Searchingâ€¦</string>
     <string name="play_all">Play all</string>
     <string name="remove_from_watch_later">Remove from Watch Later</string>
     <string name="explicit">E</string>
@@ -499,9 +499,9 @@
     <!-- Search Screen -->
     <string name="search_hint">Search</string>
     <string name="search_videos_channels_placeholder">Search videos, channels...</string>
-    <string name="search_voice_prompt">Speak to search…</string>
+    <string name="search_voice_prompt">Speak to searchâ€¦</string>
     <string name="search_failed">Search failed</string>
-    <string name="loading_more">Loading more…</string>
+    <string name="loading_more">Loading moreâ€¦</string>
     <string name="load_failed">Load failed</string>
     <string name="recent_searches">Recent Searches</string>
     <string name="search_empty_prompt">Search for videos, music and more</string>
@@ -535,7 +535,7 @@
     <string name="search_feature_hdr">HDR</string>
     <string name="search_feature_subtitles">Subtitles/CC</string>
     <string name="search_feature_creative_commons">Creative Commons</string>
-    <string name="search_feature_360">360°</string>
+    <string name="search_feature_360">360Â°</string>
     <string name="search_feature_vr180">VR180</string>
     <string name="search_feature_3d">3D</string>
     <string name="search_feature_location">Location</string>
@@ -582,7 +582,7 @@
     <string name="sync_collection_notes">Notes</string>
     <string name="note_edit">Edit note</string>
     <string name="note_add">Add note</string>
-    <string name="note_placeholder">Write a note for yourself…</string>
+    <string name="note_placeholder">Write a note for yourselfâ€¦</string>
     <string name="note_insert_time">Insert %1$s</string>
     <string name="note_at_time">Note at %1$s</string>
     <string name="notes_title">Notes</string>
@@ -666,7 +666,7 @@
     <string name="time_earlier">Earlier</string>
     <string name="notifications_group_new">New</string>
     <string name="notifications_group_last_week">Last 7 days</string>
-    <string name="notifications_meta">%1$s · %2$s</string>
+    <string name="notifications_meta">%1$s Â· %2$s</string>
     <string name="notifications_removed">Notification removed</string>
     <string name="notifications_already_in_watch_later">Already in Watch Later</string>
     <string name="notifications_save_to_watch_later">Save to Watch Later</string>
@@ -688,7 +688,7 @@
     <string name="settings_flow_engine_header">JM Tube Engine</string>
     <string name="settings_active_learning">ACTIVE LEARNING</string>
     <string name="settings_reset_brain_title">Reset JM Tube Personality?</string>
-    <string name="settings_reset_brain_body">This erases your JM Tube Brain profile.\n\n• Learned topics are forgotten.\n• Personality traits reset.\n• Recommendations go back to default.\n\nThis cannot be undone.</string>
+    <string name="settings_reset_brain_body">This erases your JM Tube Brain profile.\n\nâ€¢ Learned topics are forgotten.\nâ€¢ Personality traits reset.\nâ€¢ Recommendations go back to default.\n\nThis cannot be undone.</string>
     <string name="settings_reset_everything">Reset Everything</string>
     <string name="settings_analyzing_interactions">Analyzing your interactions...</string>
     <string name="settings_view_analytics">View Analytics</string>
@@ -1005,16 +1005,16 @@
     <string name="lyrics_provider_unison">Unison</string>
     <string name="lyrics_provider_youtube_captions">YouTube captions</string>
     <string name="lyrics_provider_youtube_music">YouTube Music</string>
-    <string name="lyrics_provider_better_lyrics_desc">Word sync · Apple Music lyrics</string>
-    <string name="lyrics_provider_lrc_red_desc">Word sync · matched by recording</string>
+    <string name="lyrics_provider_better_lyrics_desc">Word sync Â· Apple Music lyrics</string>
+    <string name="lyrics_provider_lrc_red_desc">Word sync Â· matched by recording</string>
     <string name="lyrics_provider_lyrics_plus_desc">Word sync</string>
-    <string name="lyrics_provider_simpmusic_desc">Word sync · matched by video</string>
-    <string name="lyrics_provider_kugou_desc">Line sync · strong for Chinese songs</string>
+    <string name="lyrics_provider_simpmusic_desc">Word sync Â· matched by video</string>
+    <string name="lyrics_provider_kugou_desc">Line sync Â· strong for Chinese songs</string>
     <string name="lyrics_provider_paxsenix_desc">Word sync</string>
-    <string name="lyrics_provider_lrclib_desc">Line sync · open database</string>
-    <string name="lyrics_provider_unison_desc">Community lyrics · small catalogue</string>
-    <string name="lyrics_provider_youtube_captions_desc">Line sync · the video\'s captions</string>
-    <string name="lyrics_provider_youtube_music_desc">Plain text · the Lyrics tab</string>
+    <string name="lyrics_provider_lrclib_desc">Line sync Â· open database</string>
+    <string name="lyrics_provider_unison_desc">Community lyrics Â· small catalogue</string>
+    <string name="lyrics_provider_youtube_captions_desc">Line sync Â· the video\'s captions</string>
+    <string name="lyrics_provider_youtube_music_desc">Plain text Â· the Lyrics tab</string>
     <!-- Theme Names & Descriptions -->
     <string name="theme_name_system_default">System Default</string>
     <string name="theme_desc_system_default">Follows your device between light and dark.</string>
@@ -1076,7 +1076,7 @@
     <string name="theme_name_tako" translatable="false">Tako</string>
     <string name="theme_name_kanagawa" translatable="false">Kanagawa</string>
     <string name="theme_name_tokyo_night" translatable="false">Tokyo Night</string>
-    <string name="theme_name_rose_pine" translatable="false">Rosé Pine</string>
+    <string name="theme_name_rose_pine" translatable="false">RosÃ© Pine</string>
     <string name="theme_name_everforest" translatable="false">Everforest</string>
     <string name="theme_name_gruvbox" translatable="false">Gruvbox</string>
     <string name="theme_name_dracula" translatable="false">Dracula</string>
@@ -1408,10 +1408,10 @@
     <string name="player_settings_speed_slider_subtitle">Use a continuous slider to set any playback speed</string>
     <string name="speed_slider_decrease">Decrease speed</string>
     <string name="speed_slider_increase">Increase speed</string>
-    <string name="speed_slider_reset">Reset to 1×</string>
+    <string name="speed_slider_reset">Reset to 1Ã—</string>
     <string name="speed_slider_apply">Apply</string>
-    <string name="playback_speed_multiplier">%1$s×</string>
-    <string name="playback_speed_multiplier_precise">%1$.2f×</string>
+    <string name="playback_speed_multiplier">%1$sÃ—</string>
+    <string name="playback_speed_multiplier_precise">%1$.2fÃ—</string>
     <string name="player_settings_normalize_volume">Normalize volume</string>
     <string name="player_settings_normalize_volume_summary">Turn loud videos down to YouTube\'s level</string>
     <string name="player_settings_display">Display</string>
@@ -1465,17 +1465,17 @@
     <string name="sb_submit_category">Category</string>
     <string name="sb_submit_swap">Swap timestamps</string>
     <string name="sb_submit_create">Create Segment</string>
-    <string name="sb_submit_success">✓ Segment submitted successfully</string>
+    <string name="sb_submit_success">âœ“ Segment submitted successfully</string>
     <string name="sb_submit_error">Failed to submit segment. Please try again.</string>
     <!-- Bottom sheet section labels -->
     <string name="section_channel">Channel</string>
     <string name="section_algorithm">Your feed</string>
     <string name="section_options">Options</string>
     <!-- Channel blocking -->
-    <string name="dont_show_channel">Don’t show this channel</string>
+    <string name="dont_show_channel">Donâ€™t show this channel</string>
     <string name="dont_show_channel_desc">Remove from your recommendations</string>
     <string name="channel_metadata_unavailable">Channel information is unavailable</string>
-    <string name="channel_blocked_toast">%1$s won’t appear in your feed</string>
+    <string name="channel_blocked_toast">%1$s wonâ€™t appear in your feed</string>
     <!-- Misc -->
     <string name="btn_save">Save</string>
     <string name="btn_cancel">Cancel</string>
@@ -1531,7 +1531,7 @@
     <string name="player_settings_speed_swipe_step_dialog_body">How much each step of a speed swipe changes the speed.</string>
     <string name="player_settings_speed_swipe_step_value">%1$s per step</string>
     <string name="player_settings_seek_zone_edge_to_edge_desc">Thirds that reach the screen edges, so taps there count too.</string>
-    <string name="player_settings_seek_zone_back">−%1$d s</string>
+    <string name="player_settings_seek_zone_back">âˆ’%1$d s</string>
     <string name="player_settings_seek_zone_forward">+%1$d s</string>
     <string name="player_settings_seek_zone_play_pause">Play / pause</string>
     <!-- Video and Music Quality Settings -->
@@ -1594,7 +1594,7 @@
     <string name="cache_used_no_limit">%1$s, no limit</string>
     <string name="cache_used_automatic">%1$s, sized automatically</string>
     <string name="cache_other_summary">Lyrics and network, %1$s</string>
-    <string name="cache_measuring">Measuring…</string>
+    <string name="cache_measuring">Measuringâ€¦</string>
     <string name="cache_videos_size_title">Video cache size</string>
     <string name="cache_songs_size_title">Song cache size</string>
     <string name="cache_artwork_size_title">Artwork cache size</string>
@@ -1603,7 +1603,7 @@
     <string name="back">Back</string>
     <string name="btn_close">Close</string>
     <!-- Shorts Screen -->
-    <string name="loading_shorts">Loading shorts…</string>
+    <string name="loading_shorts">Loading shortsâ€¦</string>
     <string name="error_short_load">An error occurred</string>
     <string name="speed_2x">2x Speed</string>
     <string name="cd_liked">Liked</string>
@@ -1850,8 +1850,8 @@
     <string name="import_yt_music_playlist_desc">Import a music playlist from YouTube Music Takeout CSV. Appears under Music Playlists.</string>
     <string name="import_yt_history_failed_template">Failed to import watch history: %1$s</string>
     <plurals name="import_yt_playlist_success_template">
-        <item quantity="one">Imported playlist “%1$s” with %2$d video</item>
-        <item quantity="other">Imported playlist “%1$s” with %2$d videos</item>
+        <item quantity="one">Imported playlist â€œ%1$sâ€ with %2$d video</item>
+        <item quantity="other">Imported playlist â€œ%1$sâ€ with %2$d videos</item>
     </plurals>
     <string name="import_yt_playlist_failed_template">Failed to import playlist: %1$s</string>
     <string name="import_yt_history_empty_error">No watch history entries found in this file. Make sure it is a YouTube Takeout watch-history.html file.</string>
@@ -1900,13 +1900,13 @@
     <string name="location_movies_label">Movies / Flow</string>
     <string name="location_internal_app_label">Internal App Storage</string>
     <string name="location_internal_app_desc">Private to Flow. Removed if you uninstall.</string>
-    <string name="location_custom_saf_label">Browse…</string>
+    <string name="location_custom_saf_label">Browseâ€¦</string>
     <string name="location_custom_saf_desc">Pick any folder using the system file picker</string>
     <string name="download_location_not_writable">Can\'t save there. Using %1$s</string>
     <string name="location_custom_manual_label">Enter path manually</string>
     <string name="location_custom_manual_desc">Type an absolute path, e.g. /storage/emulated/0/MyFolder</string>
     <string name="location_manual_dialog_title">Custom Download Path</string>
-    <string name="location_manual_hint">/storage/emulated/0/…</string>
+    <string name="location_manual_hint">/storage/emulated/0/â€¦</string>
     <string name="location_manual_confirm">Save</string>
     <string name="location_badge_recommended">Recommended</string>
     <string name="location_badge_active">Active</string>
@@ -1921,7 +1921,7 @@
     <string name="support_flow_dev_desc">If JM Tube is useful to you, you can support its development below. Thank you!</string>
     <string name="support_flow_open_collective">Support JM Tube on Open Collective</string>
     <string name="support_flow_patreon">Support JM Tube on Patreon</string>
-    <string name="thank_you_support_message">Thank you for your support! ❤️</string>
+    <string name="thank_you_support_message">Thank you for your support! â¤ï¸</string>
     <string name="address_copied_toast">Address copied to clipboard</string>
     <string name="donation_address_clip_label">Donation Address</string>
     <!-- One-time support prompt -->
@@ -1929,7 +1929,7 @@
     <string name="donation_prompt_message">JM Tube is free, open source and ad-free. If it earned a spot on your phone, a little support keeps it going.</string>
     <string name="donation_method_open_collective" translatable="false">Open Collective</string>
     <string name="donation_method_patreon" translatable="false">Patreon</string>
-    <string name="donation_prompt_methods">Open Collective · Patreon · Bitcoin · Ethereum · Solana · USDT · Monero</string>
+    <string name="donation_prompt_methods">Open Collective Â· Patreon Â· Bitcoin Â· Ethereum Â· Solana Â· USDT Â· Monero</string>
     <string name="donation_prompt_support">Support development</string>
     <string name="donation_prompt_later">Maybe later</string>
     <string name="donation_prompt_never">Don\'t show again</string>
@@ -2013,7 +2013,7 @@
     <string name="onboarding_interests_ready">Great selection. You can always update this later in settings.</string>
     <string name="onboarding_channels_title">Find channels</string>
     <string name="onboarding_channels_subtitle">Search for channels you already follow and subscribe in one tap.</string>
-    <string name="onboarding_channels_search_placeholder">Search channels…</string>
+    <string name="onboarding_channels_search_placeholder">Search channelsâ€¦</string>
     <string name="onboarding_channels_empty_prompt">Type a channel name to search</string>
     <string name="onboarding_channels_no_results">No channels found for \"%1$s\"</string>
     <plurals name="onboarding_channels_added_count">
@@ -2146,7 +2146,7 @@
     <string name="filters_title">Filters</string>
     <string name="blocked_topics_channels_subtitle">Blocked topics and channels</string>
     <string name="reset_neural_profile_title">Reset Neural Profile?</string>
-    <string name="reset_neural_profile_body">This will permanently erase:\n\n• All learned preferences\n• Long-term personality vector\n• Time-context patterns\n• Channel affinity scores\n\nYour feed will return to a cold-start state.</string>
+    <string name="reset_neural_profile_body">This will permanently erase:\n\nâ€¢ All learned preferences\nâ€¢ Long-term personality vector\nâ€¢ Time-context patterns\nâ€¢ Channel affinity scores\n\nYour feed will return to a cold-start state.</string>
     <string name="erase_everything">Erase Everything</string>
     <string name="stats_interactions">Interactions</string>
     <string name="stats_topics">Topics</string>
@@ -2169,7 +2169,7 @@
     <string name="section_singles">Singles</string>
     <string name="section_featured_on">Featured on</string>
     <string name="section_fans_also_like">Fans also like</string>
-    <string name="artist_views_template">%1$s • %2$s views</string>
+    <string name="artist_views_template">%1$s â€¢ %2$s views</string>
     <string name="action_view_all">View all</string>
     <string name="search_content_description">Search</string>
     <string name="unknown_error">Unknown error</string>
@@ -2178,10 +2178,10 @@
     <string name="title_browse">Browse</string>
     <string name="empty_browse_content">No content available</string>
     <string name="label_featured">FEATURED</string>
-    <string name="year_artist_template">%1$s • %2$s</string>
+    <string name="year_artist_template">%1$s â€¢ %2$s</string>
     <string name="status_playing">Playing</string>
     <string name="label_explicit">Explicit</string>
-    <string name="duration_with_dot_template"> • %1$s</string>
+    <string name="duration_with_dot_template"> â€¢ %1$s</string>
     <string name="queue_position_template">%1$d / %2$d</string>
     <string name="chart_position_template">#%1$d</string>
     <string name="next_up_template">%1$s: %2$s</string>
@@ -2327,7 +2327,7 @@
     <string name="section_music_videos_for_you">Music videos for you</string>
     <string name="section_live_performances">Live performances</string>
     <string name="section_new_releases">New releases</string>
-    <string name="subtitle_single_template">Single · %1$s</string>
+    <string name="subtitle_single_template">Single Â· %1$s</string>
     <string name="section_popular_artists">Popular artists</string>
     <string name="section_mixed_for_you">Mixed for you</string>
     <string name="section_moods_and_genres">Moods &amp; Genres</string>
@@ -2403,7 +2403,7 @@
     <string name="eq_band_count">%1$d of %2$d</string>
     <string name="eq_add_band">Add band</string>
     <string name="eq_band_title">Band %1$d</string>
-    <string name="eq_band_line">%1$s · %2$s</string>
+    <string name="eq_band_line">%1$s Â· %2$s</string>
     <string name="eq_band_q">Q %1$s</string>
     <string name="eq_type_peak">Peak</string>
     <string name="eq_type_low_shelf">Low shelf</string>
@@ -2414,7 +2414,7 @@
     <string name="eq_gain">Gain</string>
     <string name="eq_q">Q</string>
     <string name="eq_frequency_range">20 to 20,000 Hz</string>
-    <string name="eq_gain_range">−24 to +24 dB</string>
+    <string name="eq_gain_range">âˆ’24 to +24 dB</string>
     <string name="eq_q_range">0.1 to 20</string>
     <string name="eq_decrease">Decrease %1$s</string>
     <string name="eq_increase">Increase %1$s</string>
@@ -2473,13 +2473,13 @@
     <string name="music_search_section_artists">Artists</string>
     <string name="music_search_section_playlists">Playlists</string>
     <string name="music_search_section_episodes">Episodes</string>
-    <string name="subtitle_song_prefix">Song • %1$s</string>
+    <string name="subtitle_song_prefix">Song â€¢ %1$s</string>
     <string name="subtitle_artist">Artist</string>
     <string name="subtitle_profile">Profile</string>
-    <string name="subtitle_album_template">Album • %1$s</string>
-    <string name="subtitle_playlist_template">Playlist • %1$s</string>
-    <string name="plays_count_template">• %1$s plays</string>
-    <string name="album_year_template">Album • %1$s • %2$s</string>
+    <string name="subtitle_album_template">Album â€¢ %1$s</string>
+    <string name="subtitle_playlist_template">Playlist â€¢ %1$s</string>
+    <string name="plays_count_template">â€¢ %1$s plays</string>
+    <string name="album_year_template">Album â€¢ %1$s â€¢ %2$s</string>
     <string name="search_source_template">Search: %1$s</string>
     <string name="artist_source_template">Artist: %1$s</string>
     <string name="top_picks_for_you">Top Picks for You</string>
@@ -2548,7 +2548,7 @@
     <string name="download_threads_label">Connections</string>
     <string name="download_threads_decrease">Fewer connections per file</string>
     <string name="download_threads_increase">More connections per file</string>
-    <string name="download_no_compatible_audio">No compatible audio stream — download cannot proceed</string>
+    <string name="download_no_compatible_audio">No compatible audio stream â€” download cannot proceed</string>
     <!-- Quality shown in the downloads list for a SABR download, whose resolution is not known up front -->
     <string name="download_quality_best">Best</string>
     <string name="audio_format_unknown">Audio</string>
@@ -2570,7 +2570,7 @@
     <string name="downloads_confirm_delete_title">Ask before deleting</string>
     <string name="downloads_confirm_delete_summary">Swipe to delete skips this and can be undone</string>
     <string name="download_sheet_button">Download %1$s</string>
-    <string name="download_sheet_save_folder">%1$s · %2$s free</string>
+    <string name="download_sheet_save_folder">%1$s Â· %2$s free</string>
     <string name="download_sheet_change_folder">Change</string>
     <string name="download_sheet_all_languages">All languages</string>
     <string name="downloading_template">Downloading %1$s...</string>
@@ -2584,7 +2584,7 @@
     <string name="download_status_failed">Failed</string>
     <string name="download_status_cancelled">Cancelled</string>
     <string name="download_progress_percent">%1$d%%</string>
-    <string name="download_status_paused_template">%1$d%% • %2$s</string>
+    <string name="download_status_paused_template">%1$d%% â€¢ %2$s</string>
     <string name="file_size_kb">%1$s KB</string>
     <string name="file_size_mb">%1$s MB</string>
     <string name="file_size_gb">%1$s GB</string>
@@ -2621,7 +2621,7 @@
     <string name="subtitle_timing_step_template">%1$s s</string>
     <string name="download_subtitle_file">Subtitle file</string>
     <string name="download_subtitle_file_subtitle">Save captions in your subtitle language beside videos downloaded without the menu</string>
-    <string name="subtitle_add_file_failed">Flow can’t read that file as subtitles</string>
+    <string name="subtitle_add_file_failed">Flow canâ€™t read that file as subtitles</string>
     <string name="off">Off</string>
     <string name="on">On</string>
     <string name="player_settings">Player Settings</string>
@@ -2634,7 +2634,7 @@
     <string name="next_up">Next</string>
     <!-- Cast / Chromecast -->
     <string name="cast_to_tv">Cast to TV</string>
-    <string name="cast_connecting">Connecting to cast device…</string>
+    <string name="cast_connecting">Connecting to cast deviceâ€¦</string>
     <string name="cast_connected">Casting</string>
     <string name="cast_disconnected">Cast disconnected</string>
     <string name="dlna_cast_to_device">Cast to Device</string>
@@ -2668,7 +2668,7 @@
     <!-- Check for Updates -->
     <string name="check_for_updates">Check for Updates</string>
     <string name="check_for_updates_subtitle">Tap to check for the latest version</string>
-    <string name="checking_for_updates">Checking for updates…</string>
+    <string name="checking_for_updates">Checking for updatesâ€¦</string>
     <string name="flow_is_up_to_date">JM Tube is up to date!</string>
     <string name="update_check_failed">Couldn\'t check for updates. Check your connection.</string>
     <!-- Export / Import Flow Engine data (Settings + ImportDataScreen) -->
@@ -2700,8 +2700,8 @@
     <string name="play_on_this_phone">This phone</string>
     <string name="play_on_this_tablet">This tablet</string>
     <string name="play_on_this_tv">This TV</string>
-    <string name="play_on_status_playing">Playing · %1$s</string>
-    <string name="play_on_status_paused">Paused · %1$s</string>
+    <string name="play_on_status_playing">Playing Â· %1$s</string>
+    <string name="play_on_status_paused">Paused Â· %1$s</string>
     <string name="play_on_status_ready">Ready</string>
     <string name="play_on_last_seen">Last seen %1$s</string>
     <string name="play_on_never_seen">Not seen yet</string>
@@ -2713,8 +2713,8 @@
     <string name="play_on_consent_once">Allow once</string>
     <string name="play_on_consent_decline">Decline</string>
     <string name="play_on_nothing_hint">Start a song or video, then pick where it plays.</string>
-    <string name="play_on_status_nearby">%1$s · same Wi-Fi</string>
-    <string name="play_on_moving">Moving playback…</string>
+    <string name="play_on_status_nearby">%1$s Â· same Wi-Fi</string>
+    <string name="play_on_moving">Moving playbackâ€¦</string>
     <string name="play_on_move_failed">Couldn\'t move playback</string>
     <string name="play_on_not_available">Not available</string>
     <string name="play_on_manage">Manage linked devices</string>
@@ -2757,7 +2757,7 @@
     <string name="linked_join_admin_title">Join with the server address</string>
     <string name="linked_join_admin_body">No camera? Type the server address and admin token, then accept on a linked device</string>
     <string name="linked_join_admin_ask">Ask to join</string>
-    <string name="linked_asked">Waiting for a linked device to accept…</string>
+    <string name="linked_asked">Waiting for a linked device to acceptâ€¦</string>
     <string name="linked_join_request">A device calling itself %1$s wants to join</string>
     <string name="linked_accept">Accept</string>
     <string name="linked_decline">Decline</string>
@@ -2783,8 +2783,8 @@
     <string name="linked_last_sync">This device: synced %1$s</string>
     <string name="linked_last_sync_never">This device hasn\'t synced yet</string>
     <string name="linked_sync_now">Sync now</string>
-    <string name="linked_syncing">Syncing…</string>
-    <string name="linked_syncing_notification">Syncing with your linked devices…</string>
+    <string name="linked_syncing">Syncingâ€¦</string>
+    <string name="linked_syncing_notification">Syncing with your linked devicesâ€¦</string>
     <plurals name="linked_received">
         <item quantity="one">Received %1$d change from %2$s</item>
         <item quantity="other">Received %1$d changes from %2$s</item>
@@ -2817,8 +2817,8 @@
     <string name="linked_show_code_title">Show a code</string>
     <string name="linked_show_code_body">For a device without a camera, like a TV: a linked device on the same network scans it</string>
     <string name="linked_scan_new_device">Scan a new device\'s code</string>
-    <string name="linked_waiting">Waiting for the other device…</string>
-    <string name="linked_linking">Linking…</string>
+    <string name="linked_waiting">Waiting for the other deviceâ€¦</string>
+    <string name="linked_linking">Linkingâ€¦</string>
     <string name="linked_done_title">Linked</string>
     <string name="linked_done_body">The devices are linked and will keep each other up to date.</string>
     <string name="linked_done">Done</string>
@@ -2911,7 +2911,7 @@
     <string name="sync_default_only_title">Switch to %1$s to sync</string>
     <string name="sync_devices_summary">Keep library, history &amp; profile in sync across your devices, end-to-end encrypted</string>
     <string name="sync_notification_title">Syncing devices</string>
-    <string name="sync_notification_text">Transferring your library over local Wi-Fi…</string>
+    <string name="sync_notification_text">Transferring your library over local Wi-Fiâ€¦</string>
     <string name="sync_notification_channel">Device sync</string>
     <string name="sync_collection_playlists">Playlists</string>
     <string name="sync_collection_watch_history">Watch history</string>
@@ -2922,8 +2922,8 @@
     <string name="sync_collection_settings">Settings</string>
     <string name="sync_collection_recommendation_profile">Recommendation profile</string>
     <string name="sync_collection_music_profile">Music taste profile</string>
-    <string name="sync_preparing">Preparing…</string>
-    <string name="sync_connecting">Connecting…</string>
+    <string name="sync_preparing">Preparingâ€¦</string>
+    <string name="sync_connecting">Connectingâ€¦</string>
     <string name="sync_one_time_title">One-time transfer</string>
     <string name="sync_one_time_body">Copy your library, history, likes and settings to another device once, over Wi-Fi. Nothing leaves your network.</string>
     <string name="sync_intro">Sync your library, history, likes and settings with another device over Wi-Fi. Nothing leaves your network.</string>
@@ -2962,12 +2962,12 @@
     <string name="sync_sas_match">They match</string>
     <string name="sync_consent_title">Merge incoming data?</string>
     <string name="sync_consent_note">A backup is made first. Merging never overwrites or duplicates anything.</string>
-    <string name="sync_bullet_item">• %1$s</string>
+    <string name="sync_bullet_item">â€¢ %1$s</string>
     <string name="sync_decline">Decline</string>
     <string name="sync_merge">Merge</string>
-    <string name="sync_transferring">Syncing %1$s…</string>
+    <string name="sync_transferring">Syncing %1$sâ€¦</string>
     <string name="sync_progress_fraction">%1$d / %2$d</string>
-    <string name="sync_complete">Sync complete 🎉</string>
+    <string name="sync_complete">Sync complete ðŸŽ‰</string>
     <string name="sync_synced_with">Synced with %1$s</string>
     <string name="sync_done_collection_stats">%1$s: +%2$d added, %3$d updated, %4$d skipped</string>
     <string name="sync_done_button">Done</string>
@@ -3018,11 +3018,11 @@
     <string name="sync_collection_settings_body">Playback, appearance and download preferences.</string>
     <string name="sync_collection_recommendation_profile_body">What Flow has learned about what you watch.</string>
     <string name="sync_collection_music_profile_body">What Flow has learned about what you listen to.</string>
-    <string name="sync_waiting_for_peer">Waiting for the other device to connect…</string>
+    <string name="sync_waiting_for_peer">Waiting for the other device to connectâ€¦</string>
     <string name="sync_cancel_session">Cancel sync</string>
     <string name="sync_expires_label">QR code expires</string>
     <string name="sync_expires_seconds">%1$ds</string>
-    <string name="sync_done_stats_summary">%1$d added · %2$d updated · %3$d skipped</string>
+    <string name="sync_done_stats_summary">%1$d added Â· %2$d updated Â· %3$d skipped</string>
     <string name="sync_scanning_hint">Hold the other device\'s QR code inside the frame.</string>
     <!-- Automated Backups -->
     <string name="auto_backup_title">Automated Backups</string>
@@ -3101,7 +3101,7 @@
     <string name="error_network">Network error</string>
     <string name="error_network_hint">A network issue prevented the video from loading. Check your connection and try again.</string>
     <string name="error_http_forbidden">Access denied (403)</string>
-    <string name="error_http_forbidden_hint">YouTube refused to serve this stream. The video link may have expired — try reloading.</string>
+    <string name="error_http_forbidden_hint">YouTube refused to serve this stream. The video link may have expired â€” try reloading.</string>
     <string name="error_http_general">HTTP error %1$s</string>
     <string name="error_http_general_hint">YouTube returned an unexpected response (%1$s). Try again in a moment.</string>
     <string name="error_stream_failed">Media stream failed</string>
@@ -3111,7 +3111,7 @@
     <string name="error_playback_failed">Playback failed</string>
     <string name="error_playback_failed_hint">An unexpected player error occurred. Please try again.</string>
     <string name="error_extraction_failed">Failed to parse video data</string>
-    <string name="error_extraction_failed_hint">YouTube may have updated its format. Flow will be updated soon — please try again later.</string>
+    <string name="error_extraction_failed_hint">YouTube may have updated its format. Flow will be updated soon â€” please try again later.</string>
     <string name="error_generic">Failed to load video</string>
     <string name="error_generic_hint">An unknown error occurred. Please try again.</string>
     <string name="music_playback_warning_forbidden">Music stream access was denied. YouTube may be limiting this IP; try reloading or switching network/VPN.</string>
@@ -3257,32 +3257,32 @@
     <string name="profiles_switch_refused_sync">Wait for sync to finish to switch profiles</string>
     <string name="profiles_switch_refused_backup">Wait for the backup to finish to switch profiles</string>
     <string-array name="profiles_emoji" translatable="false">
-        <item>🎧</item>
-        <item>📚</item>
-        <item>🎮</item>
-        <item>🍳</item>
-        <item>⚽</item>
-        <item>🌙</item>
-        <item>🎬</item>
-        <item>🎨</item>
-        <item>🐶</item>
-        <item>🌱</item>
+        <item>ðŸŽ§</item>
+        <item>ðŸ“š</item>
+        <item>ðŸŽ®</item>
+        <item>ðŸ³</item>
+        <item>âš½</item>
+        <item>ðŸŒ™</item>
+        <item>ðŸŽ¬</item>
+        <item>ðŸŽ¨</item>
+        <item>ðŸ¶</item>
+        <item>ðŸŒ±</item>
     </string-array>
-    <string name="reminder_bedtime_title">It\'s bedtime! 😴</string>
+    <string name="reminder_bedtime_title">It\'s bedtime! ðŸ˜´</string>
     <string name="reminder_bedtime_body">Time to wind down based on your schedule.</string>
-    <string name="reminder_break_title">Take a break! ☕</string>
+    <string name="reminder_break_title">Take a break! â˜•</string>
     <string name="reminder_break_body">You\'ve been watching for a while.</string>
     <string name="reset">Reset</string>
     <string name="diagnostics_no_crashes">No crash reports</string>
     <string name="diagnostics_no_session_logs">No warnings or errors in this session.</string>
-    <string name="diagnostics_loading">Reading logs…</string>
+    <string name="diagnostics_loading">Reading logsâ€¦</string>
     <string name="diagnostics_copied">Report copied to clipboard</string>
     <!-- Merge/Add entire playlist into another playlist (#263) -->
     <string name="add_all_to_playlist">Add to my playlist</string>
-    <string name="merge_playlist_dialog_title">Add all songs to…</string>
+    <string name="merge_playlist_dialog_title">Add all songs toâ€¦</string>
     <plurals name="merge_playlist_success">
-        <item quantity="one">Added %1$d song to “%2$s”</item>
-        <item quantity="other">Added %1$d songs to “%2$s”</item>
+        <item quantity="one">Added %1$d song to â€œ%2$sâ€</item>
+        <item quantity="other">Added %1$d songs to â€œ%2$sâ€</item>
     </plurals>
     <string name="merge_playlist_no_playlists">No playlists yet. Create one first!</string>
     <!-- Profile Export/Import Toasts -->
@@ -3436,8 +3436,8 @@
     <string name="recognize_music">Recognize music</string>
     <string name="recognition_history">Recognition history</string>
     <string name="tap_to_recognize">Tap to recognize</string>
-    <string name="listening">Listening…</string>
-    <string name="processing">Processing…</string>
+    <string name="listening">Listeningâ€¦</string>
+    <string name="processing">Processingâ€¦</string>
     <string name="no_match_found">No match found</string>
     <string name="recognition_error">Recognition failed</string>
     <string name="try_again">Try again</string>
@@ -3454,14 +3454,14 @@
     <string name="discord_presence_off">Off</string>
     <string name="discord_presence_not_connected">Not connected</string>
     <string name="discord_presence_ready">Linked and ready</string>
-    <string name="discord_presence_ready_as">Linked as %1$s · connects during playback</string>
+    <string name="discord_presence_ready_as">Linked as %1$s Â· connects during playback</string>
     <string name="discord_presence_connected">Connected</string>
     <string name="discord_presence_connected_as">Connected as %1$s</string>
     <string name="discord_presence_connected_account">Discord account: %1$s</string>
     <string name="discord_presence_unavailable">Unavailable in this build</string>
     <string name="discord_presence_connection_error">Connection error</string>
-    <string name="discord_presence_linking">Waiting for Discord sign-in…</string>
-    <string name="discord_presence_connecting">Connecting to Discord…</string>
+    <string name="discord_presence_linking">Waiting for Discord sign-inâ€¦</string>
+    <string name="discord_presence_connecting">Connecting to Discordâ€¦</string>
     <string name="discord_presence_connect">Connect Discord account</string>
     <string name="discord_presence_connect_action">Connect</string>
     <string name="discord_presence_disconnect">Disconnect and unlink</string>
@@ -3512,7 +3512,7 @@
     <string name="tv_guide_navigation_title">Navigation</string>
     <string name="tv_guide_search_title">Search &amp; browse</string>
     <string name="tv_guide_playback_title">Playback</string>
-    <string name="tv_guide_key_dpad">D‑pad</string>
+    <string name="tv_guide_key_dpad">Dâ€‘pad</string>
     <string name="tv_guide_key_ok">OK</string>
     <string name="tv_guide_key_back">Back</string>
     <string name="tv_guide_key_left_edge">Left edge</string>
@@ -3636,7 +3636,7 @@
     <string name="ui_sync_lyrics">Sync lyrics</string>
     <string name="ui_downloading_playlist">Downloading playlist</string>
     <string name="ui_no_songs_found">No songs found</string>
-    <string name="ui_search_songs_to_add">Search songs to add…</string>
+    <string name="ui_search_songs_to_add">Search songs to addâ€¦</string>
     <string name="ui_add_songs_to_playlist">Add songs to playlist</string>
     <string name="ui_show_less">Show less</string>
     <string name="ui_show_more">Show more</string>
@@ -3660,7 +3660,7 @@
     <string name="crash_report_copied">Full report copied. Paste it into the Logs field.</string>
     <string name="ui_crashed_last_session">Flow crashed last session</string>
     <string name="ui_copy_log_description">Copy the log below and paste it into a GitHub issue so it can be fixed.</string>
-    <string name="ui_search_settings">Search settings…</string>
+    <string name="ui_search_settings">Search settingsâ€¦</string>
     <string name="ui_custom_interest_title">Add Custom Interest</string>
     <string name="ui_custom_interest_subtitle">Type any topic you want to follow</string>
     <string name="ui_custom_interest_hint">Custom interest (e.g. Jazz, Astrophysics)</string>
@@ -3670,16 +3670,16 @@
     <string name="ui_instrumental">I N S T R U M E N T A L</string>
     <string name="ui_playlist_empty">Playlist is empty</string>
     <plurals name="ui_downloading_videos">
-        <item quantity="one">Downloading %1$d video…</item>
-        <item quantity="other">Downloading %1$d videos…</item>
+        <item quantity="one">Downloading %1$d videoâ€¦</item>
+        <item quantity="other">Downloading %1$d videosâ€¦</item>
     </plurals>
     <string name="ui_playlist_saved_to_library">Playlist saved to library</string>
     <string name="ui_playlist_removed_from_library">Playlist removed from library</string>
     <string name="ui_download_audio">Downloading audio: %1$skbps %2$s</string>
     <string name="audio_track_original">Original</string>
     <string name="audio_track_dubbed">Dubbed</string>
-    <string name="subtitle_load_failed">Couldn’t load %1$s subtitles — try again</string>
-    <string name="subtitle_translation_unavailable">Translation unavailable — showing %1$s</string>
+    <string name="subtitle_load_failed">Couldnâ€™t load %1$s subtitles â€” try again</string>
+    <string name="subtitle_translation_unavailable">Translation unavailable â€” showing %1$s</string>
     <string name="ui_skipped_segment">Skipped %1$s</string>
     <string name="sb_segment_notice">%1$s segment</string>
     <string name="sb_off_for_video">SponsorBlock off for this video</string>
@@ -3695,9 +3695,9 @@
     <string name="toast_subscribed_to">Subscribed to %1$s</string>
     <string name="toast_removed_from_watch_later">Removed from Watch Later</string>
     <string name="toast_added_to_watch_later">Added to Watch Later</string>
-    <string name="toast_fetching_download_links">Fetching download links…</string>
+    <string name="toast_fetching_download_links">Fetching download linksâ€¦</string>
     <string name="toast_download_started">Download started: %1$s</string>
-    <string name="toast_trying_sabr_download">Trying SABR download…</string>
+    <string name="toast_trying_sabr_download">Trying SABR downloadâ€¦</string>
     <string name="toast_sabr_download_started">SABR download started</string>
     <string name="toast_sabr_download_started_for_video">SABR download started: %1$s</string>
     <string name="toast_no_download_source">No download source available</string>
@@ -3705,7 +3705,7 @@
     <string name="toast_copied_to_clipboard">Copied to clipboard</string>
     <string name="toast_playlist_deleted">Playlist deleted</string>
     <string name="toast_playlist_renamed">Playlist renamed</string>
-    <string name="toast_starting_playlist_download">Starting download for %1$s…</string>
+    <string name="toast_starting_playlist_download">Starting download for %1$sâ€¦</string>
     <plurals name="toast_downloaded_tracks_from_playlist">
         <item quantity="one">Downloaded %1$d track from %2$s</item>
         <item quantity="other">Downloaded %1$d tracks from %2$s</item>
@@ -3737,10 +3737,10 @@
     <string name="notification_download_failed">Download failed</string>
     <string name="notification_channel_downloads_name">JM Tube Downloads</string>
     <!-- Download notification subtitle while paused; %1$s is the reason or a hint -->
-    <string name="notification_download_paused">Paused — %1$s</string>
+    <string name="notification_download_paused">Paused â€” %1$s</string>
     <string name="notification_download_paused_hint">tap to resume</string>
     <!-- Download notification subtitle: percent, bytes so far, total bytes -->
-    <string name="notification_download_progress">%1$d%% • %2$s / %3$s</string>
+    <string name="notification_download_progress">%1$d%% â€¢ %2$s / %3$s</string>
     <plurals name="notification_downloads_active">
         <item quantity="one">Downloading %1$d item</item>
         <item quantity="other">Downloading %1$d items</item>
@@ -3761,7 +3761,7 @@
     <string name="update_ready_notification">Flow %1$s is ready</string>
     <string name="update_ready_notification_text">Verified. Tap to install.</string>
     <string name="update_title">Flow %1$s is here</string>
-    <string name="update_version_change">%1$s → %2$s</string>
+    <string name="update_version_change">%1$s â†’ %2$s</string>
     <string name="update_not_now">Not now</string>
     <string name="update_skip_version">Skip this version</string>
     <string name="update_open_github">Open on GitHub</string>
@@ -3883,7 +3883,7 @@
     <string name="local_detail_frame_rate">Frame rate</string>
     <string name="local_detail_added">Added</string>
     <string name="local_detail_fps">%1$s fps</string>
-    <string name="local_detail_resolution_value">%1$d × %2$d</string>
+    <string name="local_detail_resolution_value">%1$d Ã— %2$d</string>
     <string name="settings_local_media_title">Local media</string>
     <string name="settings_local_media_summary">Hidden folders and short audio</string>
     <string name="settings_local_media_keywords">local, device, files, offline, hidden, folders, voice notes, recordings</string>
@@ -3957,9 +3957,9 @@
     <string name="download_collection_remove_body">Its downloads are deleted too, unless another downloaded playlist holds them.</string>
     <string name="download_collection_delete_files">Delete downloads</string>
     <string name="download_collection_keep_files">Keep files</string>
-    <string name="download_merging_audio_video">Merging audio &amp; video…</string>
+    <string name="download_merging_audio_video">Merging audio &amp; videoâ€¦</string>
     <string name="download_muxing_incompatible">Muxing failed - audio format incompatible with video container. Try re-downloading.</string>
-    <string name="download_muxing_failed_retry">Muxing failed — try re-downloading.</string>
+    <string name="download_muxing_failed_retry">Muxing failed â€” try re-downloading.</string>
     <string name="download_url_expired">URL expired (403). Re-fetch needed.</string>
     <string name="download_stream_blocked_403">Stream blocked or expired (HTTP 403). Try another quality or codec, or try again later.</string>
     <string name="download_sabr_failed">SABR download failed</string>
@@ -3974,11 +3974,11 @@
     <string name="import_external_services">External Services</string>
     <string name="import_other_youtube_clients">Import from other YouTube clients</string>
     <string name="imported_successfully">%1$s imported successfully</string>
-    <string name="importing_label">Importing %1$s…</string>
+    <string name="importing_label">Importing %1$sâ€¦</string>
     <string name="imported_from_google_takeout">Imported from Google Takeout</string>
     <string name="imported_playlist_fallback">Imported Playlist</string>
     <!-- Localization follow-up: fallback labels (#738) -->
-    <string name="fallback_playing">Playing…</string>
+    <string name="fallback_playing">Playingâ€¦</string>
     <string name="empty_saved_shorts">No saved shorts yet</string>
     <string name="settings_search_no_results">No settings found for "%1$s"</string>
     <string name="settings_lyrics_provider_order_description">Tried from top to bottom. Drag to reorder.</string>
@@ -3988,7 +3988,7 @@
     <string name="import_no_videos">No videos found in playlist file</string>
     <string name="import_no_likes">No likes found. Export My Activity for YouTube as JSON, with your Google account in English.</string>
     <string name="import_no_content">No importable content found in this backup</string>
-    <string name="import_invalid_format">Unrecognised backup format — make sure you selected the correct file</string>
+    <string name="import_invalid_format">Unrecognised backup format â€” make sure you selected the correct file</string>
     <string name="import_failed_template">Import failed: %1$s</string>
     <string name="duration_hours_minutes">%1$d hr %2$d min</string>
     <plurals name="duration_minutes">
@@ -4064,7 +4064,7 @@
     <string name="font_system_only_note">Widgets and notifications keep the system font.</string>
     <string name="font_preview_glyphs">Aa</string>
     <string name="font_preview_title">Late night lo-fi mix</string>
-    <string name="font_preview_body">2.4M views · 3 weeks ago</string>
+    <string name="font_preview_body">2.4M views Â· 3 weeks ago</string>
     <string name="font_preview_label">Now playing</string>
     <string name="font_imported">Now using %1$s</string>
     <string name="font_import_not_font">Choose a .ttf or .otf file</string>
@@ -4097,7 +4097,7 @@
     <string name="settings_custom_group_surfaces">Background and surfaces</string>
     <string name="settings_custom_group_outline">Outline and scrim</string>
     <string name="settings_color_hex">Hex colour</string>
-    <string name="settings_value_pair">%1$s · %2$s</string>
+    <string name="settings_value_pair">%1$s Â· %2$s</string>
     <string name="settings_shorts_tab_disabled_summary">Shorts are turned off in Feeds &amp; content</string>
     <string name="settings_section_seek_bar">Seek bar</string>
     <string name="settings_section_music_player">Music player</string>
@@ -4197,8 +4197,8 @@
     <string name="settings_keywords_dearrow">clickbait, titles, thumbnails</string>
     <string name="settings_keywords_discord">rich presence, now playing, status</string>
     <string name="settings_segment_colour">Colour for %1$s</string>
-    <string name="settings_truncated">%1$s…</string>
-    <string name="settings_backup_exporting">Exporting…</string>
+    <string name="settings_truncated">%1$sâ€¦</string>
+    <string name="settings_backup_exporting">Exportingâ€¦</string>
     <string name="settings_backup_tab_export">Export</string>
     <string name="settings_backup_tab_import">Import</string>
     <string name="settings_backup_tab_auto">Automatic</string>
@@ -4290,7 +4290,7 @@
     <string name="device_info_build">Build</string>
     <string name="device_info_kernel">Kernel</string>
     <string name="device_info_resolution">Resolution</string>
-    <string name="device_info_resolution_value">%1$d × %2$d</string>
+    <string name="device_info_resolution_value">%1$d Ã— %2$d</string>
     <string name="device_info_density">Density</string>
     <string name="device_info_density_value">%1$d dpi</string>
     <string name="device_info_refresh_rate">Refresh rate</string>
@@ -4346,7 +4346,7 @@
     <string name="settings_theme_role_muted_text">Muted text</string>
     <string name="settings_theme_role_outline">Outline</string>
     <string name="settings_theme_role_error">Error</string>
-    <string name="settings_theme_color_with_opacity">%1$s · %2$d%% opacity</string>
+    <string name="settings_theme_color_with_opacity">%1$s Â· %2$d%% opacity</string>
     <string name="settings_keywords_custom_themes">custom theme, palette, colours, colors, import, export, share, desktop</string>
     <plurals name="settings_custom_theme_imported">
         <item quantity="one">%1$d theme imported</item>
@@ -4465,7 +4465,7 @@
     <string name="recap_format_shorts">Shorts</string>
     <string name="recap_format_live">Live</string>
     <string name="recap_format_music">Music</string>
-    <string name="recap_format_share">%1$s · %2$s</string>
+    <string name="recap_format_share">%1$s Â· %2$s</string>
     <string name="recap_discoveries_title">New to you</string>
     <plurals name="recap_new_channels">
         <item quantity="one">%d new channel</item>
@@ -4557,7 +4557,7 @@
     <string name="recap_summary_top_topic">Top topic</string>
     <!-- Playlist search, file export and import -->
     <string name="search_in_playlist">Search in playlist</string>
-    <string name="playlist_search_no_results">No videos match “%1$s”</string>
+    <string name="playlist_search_no_results">No videos match â€œ%1$sâ€</string>
     <string name="export_playlist_action">Save as file</string>
     <string name="import_playlist_action">Import from file</string>
     <string name="imported_playlist_default_name">Imported playlist</string>
@@ -4614,7 +4614,7 @@
     <string name="music_sort_album">Album</string>
     <string name="music_sort_longest">Longest first</string>
     <string name="music_sort_shortest">Shortest first</string>
-    <string name="music_collection_no_matches">No songs match “%1$s”</string>
+    <string name="music_collection_no_matches">No songs match â€œ%1$sâ€</string>
     <string name="select_songs">Select songs</string>
     <plurals name="music_playlist_imported">
         <item quantity="one">Imported %1$s, %2$d song</item>
@@ -4926,7 +4926,7 @@
     <string name="ai_report_name_hint">Name</string>
     <string name="ai_report_footer">A report sends the channel, the video and your submitter name to AiSList. Their reviewers check it before the channel is added.</string>
     <string name="ai_report_action">Report AI channel</string>
-    <string name="ai_report_looking_up">Looking up the channel…</string>
+    <string name="ai_report_looking_up">Looking up the channelâ€¦</string>
     <string name="ai_report_confirm">Report %1$s to AiSList, with this video as evidence?</string>
     <string name="ai_report_confirm_note">Reviewers check every report before a channel is added.</string>
     <string name="ai_report_send">Report</string>
@@ -5034,7 +5034,7 @@
     <string name="buffer_cache_size_link_summary">How much video and music Flow keeps on disk</string>
     <string name="settings_keywords_cache">cache size, cache limit, media cache, storage, disk space</string>
 
-    <string name="cache_size_custom">Custom…</string>
+    <string name="cache_size_custom">Customâ€¦</string>
     <string name="cache_size_custom_field">Size</string>
     <string name="cache_size_custom_range">From 50 MB to 50 GB</string>
     <string name="cache_size_unit_mb">MB</string>
@@ -5060,4 +5060,220 @@
     <string name="music_chip_empty">Nothing here right now</string>
     <string name="eq_spatial_sound_summary">Widens stereo on any headphones</string>
     <string name="eq_spatial_sound_keywords">spatial audio, surround, 3D audio, stereo</string>
+    <string name="player_settings_immersive_scroll_dim_subtitle">Soften the light while the page moves</string>
+    <string name="mini_background_app_theme">App theme</string>
+    <string name="player_appearance_bar_progress_line">Line</string>
+    <string name="cover_shape_bun">Bun</string>
+    <string name="cover_shape_very_sunny">Very sunny</string>
+    <string name="lyrics_animation_calm">Calm</string>
+    <string name="player_appearance_bar_progress_fill">Fill</string>
+    <string name="cover_shape_semi_circle">Semicircle</string>
+    <string name="cover_shape_ghostish">Ghost</string>
+    <string name="lyrics_glow_off">Off</string>
+    <string name="player_settings_minimize_to_audio_bar_title">Minimize to audio bar</string>
+    <string name="player_settings_immersive_glow_subtitle">Light the whole watch page</string>
+    <string name="player_appearance_bar_progress_none">None</string>
+    <string name="sb_jump">Jump</string>
+    <string name="player_appearance_mini_cover_morphing">Morphing</string>
+    <string name="lyrics_provider_netease_desc">Line sync Â· large catalogue</string>
+    <string name="player_appearance_cover_ring_subtitle">Show progress around the cover too</string>
+    <string name="player_appearance_bar_progress_wavy">Wavy line</string>
+    <string name="settings_classic_loader_keywords">loader, spinner, progress, circle, loading animation</string>
+    <string name="mini_button_forward_10">Forward 10 seconds</string>
+    <string name="cover_shape_clover_4">Clover 4</string>
+    <string name="settings_security_title">Security</string>
+    <string name="player_appearance_cover_paused_subtitle">The shape the cover rests in</string>
+    <string name="close_more_videos">Close more videos</string>
+    <string name="lyrics_animation_summary">How synced lines move as they are sung</string>
+    <string name="dlna_google_cast_unsupported">Chromecast and other Google Cast devices aren\'t supported.</string>
+    <string name="tv_rail_now_playing">Now playing</string>
+    <string name="cover_shape_circle">Circle</string>
+    <string name="cover_shape_heart">Heart</string>
+    <string name="playlist_swipe_subtitle">For videos in your playlists</string>
+    <string name="player_background_style_black">True Black</string>
+    <string name="lyrics_blur_other_lines_summary">Turn off to read every line clearly</string>
+    <string name="player_appearance_mini_cover_motion_still">Still</string>
+    <string name="mini_button_play_pause">Play or pause</string>
+    <string name="player_appearance_mini_cover_subtitle">Shape of the cover in the mini player</string>
+    <string name="settings_section_music_mini_player">Music mini player</string>
+    <string name="mini_button_queue">Open the queue</string>
+    <string name="lyrics_provider_netease_hosts" translatable="false">music.163.com</string>
+    <string name="mini_button_sleep_timer">Sleep timer</string>
+    <string name="player_appearance_mini_cover_tap_title">Tap the cover</string>
+    <string name="player_settings_spherical_view">360Â° view</string>
+    <string name="recent_searches_show_all">Show all</string>
+    <string name="download_replaces_existing">Replaces the copy you already downloaded</string>
+    <string name="cover_shape_diamond">Diamond</string>
+    <string name="player_side_panel_width_title">Side panel width</string>
+    <string name="cover_shape_triangle">Triangle</string>
+    <string name="lyrics_provider_simpmusic_hosts" translatable="false">api-lyrics.simpmusic.org</string>
+    <string name="player_appearance_mini_cover_motion_always">Always</string>
+    <string name="auto_group_music_playlists">Music playlists</string>
+    <string name="player_appearance_mini_cover_title">Mini player cover</string>
+    <string name="cover_shape_cookie_4">Cookie 4</string>
+    <string name="lyrics_romanization_only_summary">Replace the original script with Latin letters</string>
+    <string name="content_settings_comment_gifs_title">GIFs in comments</string>
+    <string name="lyrics_provider_unison_hosts" translatable="false">unison.boidu.dev</string>
+    <string name="lyrics_provider_kugou_hosts" translatable="false">mobileservice.kugou.com, lyrics.kugou.com</string>
+    <string name="player_background_style_shapes">Cover Shapes</string>
+    <string name="notification_channel_new_version">New versions</string>
+    <string name="player_settings_glow_battery_saver_subtitle">Keep the glow when saving battery</string>
+    <string name="player_side_panel_width_narrow">Narrow</string>
+    <string name="player_settings_spherical_motion_summary">Dragging the video always works</string>
+    <string name="player_appearance_bar_progress_subtitle">How the bar shows where the song is</string>
+    <string name="playlist_swipe_right">Playlist swipe right</string>
+    <string name="player_appearance_mini_buttons_none">No buttons</string>
+    <string name="player_side_panel_width_default">Default</string>
+    <string name="player_appearance_cover_shapes_title">Cover shapes</string>
+    <string name="player_appearance_mini_buttons_title">Buttons</string>
+    <string name="lyrics_background">Background</string>
+    <string name="keyboard_shortcut_back_to_player">Back to the player</string>
+    <string name="settings_section_lyrics">Lyrics</string>
+    <string name="cover_shape_sunny">Sunny</string>
+    <string name="mini_button_back_10">Back 10 seconds</string>
+    <string name="player_appearance_cover_ring_title">Ring around the cover</string>
+    <string name="player_settings_immersive_scroll_dim">Dim while scrolling</string>
+    <string name="lyrics_glow_summary">How brightly long notes glow while sung</string>
+    <string name="notification_channel_new_version_description">Tells you when a new version of JM Tube is out</string>
+    <string name="player_fullscreen_zoom_to_fill_title">Zoom to fill in fullscreen</string>
+    <string name="lyrics_background_solid_detail">One color from the cover</string>
+    <string name="player_appearance_more_videos_gesture_title">Swipe up for more videos</string>
+    <string name="lyrics_romanization_only">Romanization only</string>
+    <string name="player_settings_immersive_glow">Immersive glow</string>
+    <string name="player_side_panel_width_wide">Wide</string>
+    <string name="player_appearance_mini_long_press_title">Long press</string>
+    <string name="player_fullscreen_zoom_to_fill_subtitle">Crops the edges so there are no black bars</string>
+    <string name="cover_shape_arch">Arch</string>
+    <string name="player_appearance_mini_buttons_subtitle">Up to three, in the order you set; wide screens add Previous</string>
+    <string name="quality_auto_with_resolution">Auto (%1$s)</string>
+    <string name="mini_background_black">Black</string>
+    <string name="cover_shape_pixel_circle">Pixel circle</string>
+    <string name="lyrics_provider_netease">NetEase</string>
+    <string name="player_side_panel_width_small">Small</string>
+    <string name="cover_shape_pill">Pill</string>
+    <string name="player_appearance_video_artwork_colors_title">Colors from the thumbnail</string>
+    <string name="lyrics_provider_lrclib_hosts" translatable="false">lrclib.net</string>
+    <string name="player_appearance_mini_cover_motion_title">Cover motion</string>
+    <string name="lyrics_provider_paxsenix_hosts" translatable="false">lyrics.paxsenix.org, itunes.apple.com, amp-api.music.apple.com, beta.music.apple.com</string>
+    <string name="cover_shape_soft_burst">Soft burst</string>
+    <string name="player_appearance_bar_progress_edge">Edge</string>
+    <string name="player_settings_glow_battery_saver">Glow in battery saver</string>
+    <string name="cover_shape_square">Square</string>
+    <string name="lyrics_align_short_center">Centre</string>
+    <string name="cover_shape_cookie_9">Cookie 9</string>
+    <string name="player_appearance_split_transport_title">Split buttons</string>
+    <string name="pip_listen_in_background">Listen in background</string>
+    <string name="player_appearance_mini_cover_tap_play">Play or pause</string>
+    <string name="player_settings_spherical_motion">Move phone to look around</string>
+    <string name="player_appearance_mini_long_press_like">Like</string>
+    <string name="cover_shape_puffy">Puffy</string>
+    <string name="cache_size_gb_value">%1$s GB</string>
+    <string name="content_settings_navbar_show_on_search_subtitle">Keep the bar on the Search screen</string>
+    <string name="player_appearance_mini_cover_tap_open">Open player</string>
+    <string name="mini_background_cover_colours">Cover colors</string>
+    <string name="lyrics_animation_calm_detail">Fill only, no movement</string>
+    <string name="queue_row_selected">Selected</string>
+    <string name="lyrics_provider_lyrics_plus_hosts" translatable="false">lyricsplus.binimum.org</string>
+    <string name="player_appearance_cover_paused_keep">Keep the song\'s shape</string>
+    <string name="lyrics_background_colorful_detail">Soft colors from the cover</string>
+    <string name="player_appearance_cover_shapes_subtitle">Each song takes one of these while it plays</string>
+    <string name="eq_spatial_low">Low</string>
+    <string name="cover_shape_flower">JM Tubeer</string>
+    <string name="eq_spatial_medium">Medium</string>
+    <string name="settings_keywords_haptics">haptics, haptic feedback, vibrate, touch</string>
+    <string name="player_appearance_mini_background_subtitle">What the mini player is painted with</string>
+    <string name="content_settings_comment_gifs_wifi_subtitle">Tap to load them on mobile data</string>
+    <string name="player_background_style_moving_colours">Moving Colors</string>
+    <string name="player_appearance_mini_cover_circle">Circle</string>
+    <string name="player_appearance_mini_long_press_nothing">Nothing</string>
+    <string name="lyrics_background_solid">Solid</string>
+    <string name="lyrics_no_translation">These lyrics have no translation</string>
+    <string name="cover_shape_cookie_12">Cookie 12</string>
+    <string name="lyrics_glow_soft">Soft</string>
+    <string name="cover_shape_cookie_6">Cookie 6</string>
+    <string name="cover_shape_pixel_triangle">Pixel triangle</string>
+    <string name="player_settings_minimize_to_audio_bar_subtitle">Collapsed videos keep playing as sound only</string>
+    <string name="mini_background_outlined">Outlined</string>
+    <string name="cover_shape_pentagon">Pentagon</string>
+    <string name="lyrics_provider_amll_hosts" translatable="false">api.amll.dev</string>
+    <string name="settings_marquee_keywords">marquee, scrolling title, artist name, low end, performance</string>
+    <string name="settings_skeleton_gradient_keywords">gradient, loading screen, skeleton, shimmer</string>
+    <string name="icon_name_expressive_scallop">Scallop</string>
+    <string name="lyrics_background_colorful">Colorful</string>
+    <string name="lyrics_animation_classic_detail">Words lift as they fill</string>
+    <string name="auto_group_video_playlists">Video playlists</string>
+    <string name="lyrics_blur_other_lines">Blur other lines</string>
+    <string name="player_appearance_mini_cover_motion_on_play">On play</string>
+    <string name="cover_shape_puffy_diamond">Puffy diamond</string>
+    <string name="mini_button_lyrics">Open the lyrics</string>
+    <string name="lyrics_provider_lrc_red_hosts" translatable="false">lrc.red</string>
+    <string name="player_settings_spherical_view_summary">Drag to look around this video</string>
+    <string name="cover_shape_soft_boom">Soft boom</string>
+    <string name="lyrics_align_short_right">Right</string>
+    <string name="player_scroll_away_subtitle">Scroll up to hide the video</string>
+    <string name="playlist_swipe_left">Playlist swipe left</string>
+    <string name="lyrics_provider_youtube_hosts" translatable="false">music.youtube.com</string>
+    <string name="content_settings_navbar_show_on_search_title">Show navigation bar on Search</string>
+    <string name="mini_background_tinted">Tinted</string>
+    <string name="cover_shape_boom">Boom</string>
+    <string name="lyrics_animation">Lyrics animation</string>
+    <string name="settings_security_summary">App lock</string>
+    <string name="lyrics_align_short_left">Left</string>
+    <string name="mini_button_close">Close the player</string>
+    <string name="lyrics_background_moving_detail">Soft colors that drift while the song plays</string>
+    <string name="player_settings_spherical_drag_speed">Look-around speed</string>
+    <string name="lyrics_provider_amll">AMLL</string>
+    <string name="lyrics_animation_cadence_detail">Letters rise as they are sung</string>
+    <string name="content_settings_comment_gifs_wifi_title">GIFs on Wi-Fi only</string>
+    <string name="cover_shape_burst">Burst</string>
+    <string name="settings_keywords_security">app lock, privacy, password, PIN, pattern, fingerprint, face, biometric, recent apps</string>
+    <string name="cover_shape_gem">Gem</string>
+    <string name="player_side_panel_width_summary">For comments, chat and chapters in fullscreen</string>
+    <string name="sb_jump_to_highlight">Jump to highlight</string>
+    <string name="lyrics_glow_bright">Bright</string>
+    <string name="player_appearance_mini_long_press_queue">Queue</string>
+    <string name="lyrics_provider_better_lyrics_hosts" translatable="false">lyrics-api.boidu.dev</string>
+    <string name="player_appearance_mini_long_press_options">Options</string>
+    <string name="player_appearance_video_artwork_colors_subtitle">Tint description and comments</string>
+    <string name="lyrics_glow_normal">Normal</string>
+    <string name="lyrics_animation_classic">Classic</string>
+    <string name="eq_spatial_high">High</string>
+    <string name="more_videos">More videos</string>
+    <string name="lyrics_provider_amll_desc">Word sync Â· community lyrics</string>
+    <string name="content_settings_comment_gifs_subtitle">Show GIFs people attach to comments</string>
+    <string name="sb_category_highlight">Highlight</string>
+    <string name="keyboard_shortcut_related_videos">Related videos</string>
+    <string name="sb_category_hook">Hook / Greetings</string>
+    <string name="cover_shape_fan">Fan</string>
+    <string name="subscriptions_sort_most_watched">Most watched</string>
+    <string name="player_scroll_away_title">Scroll the player away</string>
+    <string name="notification_download_other_audio_track">Your audio track wasn\'t available. Saved %1$s instead</string>
+    <string name="cover_shape_cookie_7">Cookie 7</string>
+    <string name="cover_shape_clover_8">Clover 8</string>
+    <string name="cover_shape_oval">Oval</string>
+    <string name="cover_shape_slanted">Slanted</string>
+    <string name="player_appearance_cover_paused_title">When paused</string>
+    <string name="cover_shape_arrow">Arrow</string>
+    <string name="player_settings_ambient_glow_subtitle">The video\'s colors glow around the player</string>
+    <string name="player_appearance_mini_background_title">Background</string>
+    <string name="cover_shape_clam_shell">Clam shell</string>
+    <string name="player_appearance_bar_progress_title">Bar progress</string>
+    <string name="mini_background_vivid">Vivid</string>
+    <string name="player_background_style_cover_colours">Cover Colors</string>
+    <string name="cache_size_mb_value">%1$s MB</string>
+    <string name="lyrics_animation_cadence">Cadence</string>
+    <string name="player_appearance_more_videos_gesture_subtitle">Swipe up in fullscreen to see related videos</string>
+    <string name="lyrics_glow">Held-note glow</string>
+    <string name="download_already_running">This video is already downloading</string>
+    <string name="settings_watch_time_average_and_week">Daily average %1$s Â· %2$s this week</string>
+    <string name="tv_rail_now_playing_description">Now playing: %1$s</string>
+    <string name="lyrics_background_moving">Moving</string>
+    <string name="player_background_style_color">Solid Color</string>
+    <string name="player_appearance_split_transport_subtitle">Previous and next sit flat against play/pause</string>
+    <string name="player_settings_ambient_glow">Ambient glow</string>
+    <plurals name="add_songs_to_playlist_title"><item quantity="one">Add %d song to a playlist</item><item quantity="other">Add %d songs to a playlist</item></plurals>
+    <plurals name="player_appearance_cover_shapes_count"><item quantity="one">%d shape</item><item quantity="other">%d shapes</item></plurals>
+    <plurals name="songs_removed_from_queue"><item quantity="one">Removed %d song from the queue</item><item quantity="other">Removed %d songs from the queue</item></plurals>
+    <plurals name="import_takeout_part_ads_removed"><item quantity="one">%d ad removed from history</item><item quantity="other">%d ads removed from history</item></plurals>
+
 </resources>

@@ -1,6 +1,9 @@
 package com.jmtube.app.ui.screens.music
 
 import com.jmtube.app.data.local.LYRICS_ALIGN_CENTER
+import com.jmtube.app.data.local.LyricsAnimationStyle
+import com.jmtube.app.data.local.LyricsBackgroundStyle
+import com.jmtube.app.data.local.LyricsGlow
 import com.jmtube.app.data.lyrics.LyricsCandidate
 import com.jmtube.app.data.lyrics.LyricsEntry
 import com.jmtube.app.data.music.model.MusicTrack
@@ -34,7 +37,12 @@ data class MusicPlayerUiState(
     val lyricsShowTranslation: Boolean = true,
     val lyricsShowRomanization: Boolean = true,
     val lyricsAutoRomanize: Boolean = false,
+    val lyricsRomanizationOnly: Boolean = false,
     val lyricsKeepScreenOn: Boolean = false,
+    val lyricsBlurOtherLines: Boolean = true,
+    val lyricsAnimationStyle: LyricsAnimationStyle = LyricsAnimationStyle.CADENCE,
+    val lyricsGlow: LyricsGlow = LyricsGlow.NORMAL,
+    val lyricsBackground: LyricsBackgroundStyle = LyricsBackgroundStyle.SOLID,
     val lyricsCandidates: List<LyricsCandidate> = emptyList(),
     val isBrowsingLyrics: Boolean = false,
 )

@@ -20,6 +20,15 @@ HIGHLIGHTS
 - AI Channel Filter & Reporting Integration: Built-in AiSList community filtering with options to hide or label suspected AI-generated channels, custom list source support, and one-tap AI channel reporting from video menus
 - SponsorBlock Enhancements: Added Skip button styles, skip notices, highlight jump button, and fine-grained action handling for SponsorBlock categories
 - Paid Promotion Chip UI: Displays translucent overlay chip on videos containing paid promotions or sponsorships
+- Mini Player Geometric Shape Morphing: 35 morphing geometric cover shapes (Circle, Squircle, Pill, Rounded Hexagon, Stars 4-8 pt, Flowers 4-8 pt, Sunny, Cookies 4-12 pt, Clovers 4-8 pt, Heart, Ghost, Arch, Wiggle, Cutout) with configurable resting shape and motion modes (On Play, Always, Static)
+- Mini Player Appearance & Actions: Configurable progress indicators (Ring, Fill, Edge, Line, Wavy Line), background styles (Tinted, Vivid, App Theme, Cover Colours, Black, Outlined), customizable action buttons (up to 3 buttons), and configurable tap & long-press behaviors
+- Lyrics Cadence & Glow Animation: Fluid character-by-character cadence animations with note glow, blur background lines, customizable lyrics text alignment, and solid/gradient background styling
+- Queue Multi-Selection & Batch Actions: Multi-track selection in playback queue with batch remove, play next, enqueue, add to playlist, and batch download
+- Expanded Player Background Styles: Blur Gradient, Dynamic Moving Colours, Cover Colours, Geometric Shapes, and True Black player backgrounds
+- Split Transport Controls: Optional split playback transport controls in the music player
+- Pause Crossfade Quick Action: Temporarily pause audio crossfade until app restart directly from song menu
+- Animated Artwork Battery Optimization: Efficient pause and decoder retention when player sheet is collapsed, behind lyrics, or covered by the queue
+- Continuous Track Title & Artist Marquee: Smooth looping text marquee on music player header with stillness pause when hidden
 - Gesture Chapter Skipping: Two-finger double-tap gesture to seamlessly jump forward or backward between video chapters
 - Mini Player Synced Lyrics: Real-time synced lyric lines directly within the music mini player bar
 - Portrait Idle Progress Strip: Ultra-thin progress indicator displayed at the bottom of the video player when controls are hidden

@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jmtube.app.R
 import com.jmtube.app.data.local.DEFAULT_FULLSCREEN_SEEKBAR_PADDING_DP
 import com.jmtube.app.data.local.DEFAULT_PORTRAIT_SEEKBAR_PADDING_DP
+import com.jmtube.app.data.local.FullscreenSidePanelWidth
 import com.jmtube.app.data.local.GestureOverlayStyle
 import com.jmtube.app.data.local.IdleProgressBar
 import com.jmtube.app.data.local.MAX_FULLSCREEN_SEEKBAR_PADDING_DP
@@ -45,7 +46,15 @@ private const val SEEKBAR_STEP_DP = 4
 private val PortraitSeekbarModes = listOf(SeekbarPaddingMode.SPACED, SeekbarPaddingMode.FULL_WIDTH, SeekbarPaddingMode.CUSTOM)
 private val FullscreenSeekbarModes = listOf(SeekbarPaddingMode.FULL_WIDTH, SeekbarPaddingMode.DEFAULT, SeekbarPaddingMode.CUSTOM)
 
-private enum class PreviewSheet { SLIDER, BACKGROUND, GESTURE, SWIPE_LEFT, SWIPE_RIGHT, QUEUE_SWIPE_LEFT, QUEUE_SWIPE_RIGHT }
+private enum class PreviewSheet {
+    SLIDER,
+    BACKGROUND,
+    GESTURE,
+    SWIPE_LEFT,
+    SWIPE_RIGHT,
+    QUEUE_SWIPE_LEFT,
+    QUEUE_SWIPE_RIGHT,
+}
 
 /**
  * How the players look: seek bar, music background, video player surfaces, Shorts overlay and the
@@ -72,9 +81,14 @@ internal fun PlayerAppearanceScreen(
     val animatedArtwork by viewModel.animatedArtwork.collectAsStateWithLifecycle()
     val plainControlColors by viewModel.plainControlColors.collectAsStateWithLifecycle()
     val sleepTimerButton by viewModel.sleepTimerButton.collectAsStateWithLifecycle()
+    val musicMini = rememberMusicMiniSettings(viewModel)
     val adaptiveSize by viewModel.adaptivePlayerSize.collectAsStateWithLifecycle()
+    val scrollAway by viewModel.playerScrollAway.collectAsStateWithLifecycle()
     val ambientMode by viewModel.ambientMode.collectAsStateWithLifecycle()
-    val paidPromotionLabel by viewModel.paidPromotionLabel.collectAsStateWithLifecycle()
+    val ambientGlow by viewModel.ambientGlow.collectAsStateWithLifecycle()
+    val immersiveGlow by viewModel.immersiveGlow.collectAsStateWithLifecycle()
+    val videoArtworkColors by viewModel.videoArtworkColors.collectAsStateWithLifecycle()
+    val paidPromotion by viewModel.paidPromotionLabel.collectAsStateWithLifecycle()
     val playerSheetArtworkColors by viewModel.playerSheetArtworkColors.collectAsStateWithLifecycle()
     val groupedQuality by viewModel.groupedQualitySelector.collectAsStateWithLifecycle()
     val gestureOverlay by viewModel.gestureOverlay.collectAsStateWithLifecycle()
@@ -125,6 +139,7 @@ internal fun PlayerAppearanceScreen(
             ),
             FlowToggleOption(MusicPlainControlColors.APP_THEME, stringResource(R.string.player_appearance_plain_control_colors_app)),
         )
+    val sidePanelOptions = FullscreenSidePanelWidth.entries.map { FlowToggleOption(it, stringResource(sidePanelWidthLabel(it))) }
     val miniPlayerOptions = MiniPlayerSize.entries.map { FlowToggleOption(it, stringResource(miniPlayerSizeLabel(it))) }
     val portraitSummary = stringResource(R.string.player_fullscreen_seekbar_width_subtitle, portraitPadding)
     val fullscreenSummary = stringResource(R.string.player_fullscreen_seekbar_width_subtitle, fullscreenPadding)
@@ -135,6 +150,7 @@ internal fun PlayerAppearanceScreen(
     val swipeRightLabel = stringResource(miniBarSwipeRight.labelRes)
     val queueSwipeLeftLabel = stringResource(queueSwipeLeft.rowSwipe.labelRes)
     val queueSwipeRightLabel = stringResource(queueSwipeRight.rowSwipe.labelRes)
+    val lyricsOptions = rememberLyricsLookOptions()
 
     SettingsPage(
         title = stringResource(R.string.player_appearance_title),
@@ -202,17 +218,43 @@ internal fun PlayerAppearanceScreen(
                     viewModel::setPlainControlColors,
                 )
             }
+            switch(PlayerAppearanceIndex.splitTransport, viewModel.splitTransport, viewModel::setSplitTransport)
             switch(PlayerAppearanceIndex.sleepTimerButton, sleepTimerButton, viewModel::setSleepTimerButton)
             nav(PlayerAppearanceIndex.queueSwipeLeft, value = queueSwipeLeftLabel, onClick = { sheet = PreviewSheet.QUEUE_SWIPE_LEFT })
             nav(PlayerAppearanceIndex.queueSwipeRight, value = queueSwipeRightLabel, onClick = { sheet = PreviewSheet.QUEUE_SWIPE_RIGHT })
         }
+        musicMiniGroup(musicMini, viewModel)
+        lyricsLookGroup(viewModel, lyricsOptions)
         group(key = "player_appearance.video", header = R.string.settings_section_video_player) {
             switch(PlayerAppearanceIndex.adaptiveSize, adaptiveSize, viewModel::setAdaptivePlayerSize)
+            switch(PlayerAppearanceIndex.fullscreenZoomToFill, viewModel.fullscreenZoomToFill, viewModel::setFullscreenZoomToFill)
+            switch(PlayerAppearanceIndex.scrollAway, scrollAway, viewModel::setPlayerScrollAway)
             switch(PlayerAppearanceIndex.ambientMode, ambientMode, viewModel::setAmbientMode)
-            switch(PlayerAppearanceIndex.paidPromotion, paidPromotionLabel, viewModel::setPaidPromotionLabel)
-            switch(PlayerAppearanceIndex.sheetArtworkColors, playerSheetArtworkColors, viewModel::setPlayerSheetArtworkColors)
+            switch(PlayerAppearanceIndex.ambientGlow, ambientGlow, viewModel::setAmbientGlow)
+            switch(PlayerAppearanceIndex.immersiveGlow, immersiveGlow, viewModel::setImmersiveGlow, enabled = ambientGlow)
+            switch(
+                PlayerAppearanceIndex.immersiveScrollDim,
+                viewModel.immersiveScrollDim,
+                viewModel::setImmersiveScrollDim,
+                enabled = ambientGlow && immersiveGlow,
+            )
+            switch(
+                PlayerAppearanceIndex.glowInBatterySaver,
+                viewModel.glowInBatterySaver,
+                viewModel::setGlowInBatterySaver,
+                enabled = ambientGlow,
+            )
+            switch(PlayerAppearanceIndex.videoArtworkColors, videoArtworkColors, viewModel::setVideoArtworkColors)
             switch(PlayerAppearanceIndex.groupedQuality, groupedQuality, viewModel::setGroupedQualitySelector)
+            switch(PlayerAppearanceIndex.paidPromotion, paidPromotion, viewModel::setPaidPromotionLabel)
+            switch(PlayerAppearanceIndex.sheetArtworkColors, playerSheetArtworkColors, viewModel::setPlayerSheetArtworkColors)
             nav(PlayerAppearanceIndex.gestureOverlay, value = gestureLabel, onClick = { sheet = PreviewSheet.GESTURE })
+            toggleGroup(
+                PlayerAppearanceIndex.sidePanelWidth,
+                sidePanelOptions,
+                viewModel.fullscreenSidePanelWidth,
+                viewModel::setFullscreenSidePanelWidth,
+            )
         }
         group(key = "player_appearance.shorts", header = R.string.content_settings_header_shorts) {
             toggleGroup(PlayerAppearanceIndex.shortsUi, shortsOptions, shortsUi, viewModel::setShortsUiMode)
@@ -240,6 +282,7 @@ internal fun PlayerAppearanceScreen(
         }
     }
 
+    MusicMiniSheets(musicMini, viewModel)
     when (sheet) {
         PreviewSheet.SLIDER -> {
             SettingsPreviewSheet(

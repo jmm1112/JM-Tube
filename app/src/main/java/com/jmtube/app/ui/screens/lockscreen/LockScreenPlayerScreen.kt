@@ -77,7 +77,7 @@ internal fun LockScreenPlayerScreen(
     val song = track ?: return
     PreciseProgressWhileShown()
 
-    val appearance = rememberMusicPlayerAppearance(song.highResThumbnailUrl)
+    val appearance = rememberMusicPlayerAppearance(song.highResThumbnailUrl, MusicPlayerBackgroundStyle.IMMERSIVE)
     val unlockPx = with(LocalDensity.current) { UnlockDistance.toPx() }
     var dragged by remember { mutableFloatStateOf(0f) }
     MaterialTheme(colorScheme = appearance.playerScheme) {
@@ -124,6 +124,7 @@ internal fun LockScreenPlayerScreen(
                         onPreviousClick = EnhancedMusicPlayerManager::playPrevious,
                         onPlayPauseToggle = EnhancedMusicPlayerManager::togglePlayPause,
                         onNextClick = EnhancedMusicPlayerManager::playNext,
+                        split = appearance.splitTransport,
                     )
                     Spacer(Modifier.height(16.dp))
                     LockScreenActionGroup()

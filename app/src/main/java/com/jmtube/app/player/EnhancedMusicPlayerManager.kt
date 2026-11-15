@@ -1030,6 +1030,23 @@ object EnhancedMusicPlayerManager {
         return true
     }
 
+    /** Gives every queued copy of [videoId] the [artists] a lookup found, so the queue saves them too. */
+    fun updateArtists(
+        videoId: String,
+        artists: List<com.jmtube.app.data.music.model.MusicArtist>,
+    ) {
+        if (artists.isEmpty()) return
+
+        fun com.jmtube.app.data.music.model.MusicTrack.credited() =
+            if (this.videoId == videoId) copy(artists = artists, channelId = channelId.ifBlank { artists.first().id.orEmpty() }) else this
+        val updated = _queue.value.map { it.credited() }
+        _currentTrack.value?.takeIf { it.videoId == videoId }?.let { _currentTrack.value = it.credited() }
+        if (updated != _queue.value) {
+            _queue.value = updated
+            triggerQueueSave()
+        }
+    }
+
     /** Fills in the queued songs that were known only by their id with [details]' titles, artists and art. */
     fun fillDetails(details: Map<String, MusicTrack>) {
         val current = _currentTrack.value ?: return

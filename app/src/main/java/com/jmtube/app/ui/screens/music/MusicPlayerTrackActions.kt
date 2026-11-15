@@ -14,6 +14,7 @@ import com.jmtube.app.data.recommendation.music.MusicBrainEngine
 import com.jmtube.app.data.scrobble.Scrobbler
 import com.jmtube.app.player.EnhancedMusicPlayerManager
 import com.jmtube.app.utils.PerformanceDispatcher
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -120,6 +121,31 @@ internal class MusicPlayerTrackActions(
             EnhancedMusicPlayerManager.removeAutomixItem(track.videoId)
         }
         Toast.makeText(context, context.getString(R.string.added_to_queue_toast), Toast.LENGTH_SHORT).show()
+    }
+
+    /** Downloads the songs not downloaded yet, with one message for all of them. */
+    fun downloadTracks(tracks: List<MusicTrack>) {
+        val fresh = tracks.filter { it.videoId !in uiState.value.downloadedTrackIds }.distinctBy { it.videoId }
+        scope.launch {
+            withContext(kotlinx.coroutines.Dispatchers.Main) {
+                val text =
+                    if (fresh.isEmpty()) {
+                        context.getString(R.string.songs_download_nothing_new)
+                    } else {
+                        context.resources.getQuantityString(R.plurals.songs_downloading, fresh.size, fresh.size)
+                    }
+                Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+            }
+            fresh.forEach { track ->
+                try {
+                    downloadManager.downloadTrack(track)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    android.util.Log.e("MusicDownload", "Download start exception", e)
+                }
+            }
+        }
     }
 
     fun downloadTrack(track: MusicTrack? = null) {

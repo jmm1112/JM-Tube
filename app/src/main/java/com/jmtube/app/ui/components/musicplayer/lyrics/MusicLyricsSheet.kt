@@ -1,4 +1,4 @@
-package com.jmtube.app.ui.components.musicplayer.lyrics
+﻿package com.jmtube.app.ui.components.musicplayer.lyrics
 
 import android.content.ClipData
 import android.os.Build
@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.jmtube.app.R
+import com.jmtube.app.data.local.LyricsBackgroundStyle
 import com.jmtube.app.data.lyrics.LyricsCandidate
 import com.jmtube.app.data.lyrics.LyricsEntry
 import com.jmtube.app.data.lyrics.lrcText
@@ -55,7 +56,7 @@ import kotlin.coroutines.cancellation.CancellationException
 /**
  * Full-screen lyrics surface presented over the expanded player. Show/hide is a manual
  * graphicsLayer animation over content that stays composed while [retainContent] holds, so only
- * the very first open pays the lyrics renderer's composition cost — and even that is deferred
+ * the very first open pays the lyrics renderer's composition cost â€” and even that is deferred
  * past the slide so the transition itself never drops frames. When fully hidden the sheet is
  * parked off-screen, which also keeps it out of hit testing.
  */
@@ -101,9 +102,9 @@ internal fun MusicLyricsSheet(
     var panelComposed by remember { mutableStateOf(false) }
     var showActionsSheet by remember { mutableStateOf(false) }
     var showSourcesSheet by remember { mutableStateOf(false) }
-    var showShareSheet by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
     var showSyncControls by remember { mutableStateOf(false) }
+    var showShareSheet by remember { mutableStateOf(false) }
     var pendingSaveText by remember { mutableStateOf<String?>(null) }
     val visibleState = rememberUpdatedState(visible)
     val onDismissState = rememberUpdatedState(onDismiss)
@@ -128,9 +129,9 @@ internal fun MusicLyricsSheet(
         } else {
             showActionsSheet = false
             showSourcesSheet = false
-            showShareSheet = false
             showEditDialog = false
             showSyncControls = false
+            showShareSheet = false
             sheetShown.animateTo(
                 targetValue = 0f,
                 animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
@@ -195,7 +196,12 @@ internal fun MusicLyricsSheet(
     val sheetAtRestHidden by remember { derivedStateOf { !sheetShown.isRunning && sheetShown.value == 0f } }
     if (!visible && !panelComposed && sheetAtRestHidden) return
 
-    val backdropColor = remember(backdropBaseColor) { lyricsBackdrop(backdropBaseColor) }
+    val usesCover = display.background != LyricsBackgroundStyle.SOLID
+    val cover = rememberLyricsCover(artworkUrl, enabled = usesCover && visible)
+    val backdropColor =
+        remember(backdropBaseColor, cover, usesCover) {
+            cover?.backdrop?.takeIf { usesCover } ?: lyricsBackdrop(backdropBaseColor)
+        }
 
     Box(
         modifier =
@@ -213,6 +219,13 @@ internal fun MusicLyricsSheet(
                     }
                 }.background(backdropColor),
     ) {
+        if (usesCover) {
+            LyricsCoverLayer(
+                cover = cover,
+                moving = display.background == LyricsBackgroundStyle.MOVING,
+                running = visible && isPlaying,
+            )
+        }
         Column(modifier = Modifier.fillMaxSize()) {
             Box(
                 modifier =
@@ -226,7 +239,7 @@ internal fun MusicLyricsSheet(
                     title = trackTitle,
                     artist = trackArtist,
                     artworkUrl = artworkUrl,
-                    // The sheet stays composed at alpha 0 while retained — neither the pill's
+                    // The sheet stays composed at alpha 0 while retained â€” neither the pill's
                     // waveform nor its loading indicator may animate behind an invisible layer.
                     isPlaying = isPlaying && visible,
                     isLoading = isLoading && visible,
@@ -312,6 +325,7 @@ internal fun MusicLyricsSheet(
                 remember(lyrics, syncedLyrics) {
                     isJapaneseLyrics(syncedLyrics.map { it.text }.ifEmpty { lyrics?.lines().orEmpty() })
                 },
+            hasTranslation = remember(syncedLyrics) { syncedLyrics.any { !it.translation.isNullOrBlank() } },
             onRefresh = onRefresh,
             onChooseSource =
                 onBrowseSources?.let { browse ->
@@ -320,7 +334,6 @@ internal fun MusicLyricsSheet(
                         browse()
                     }
                 },
-            onShare = { showShareSheet = true },
             onEdit = { showEditDialog = true },
             onCopy = {
                 val text = lyrics ?: syncedLyrics.joinToString("\n") { it.text }
@@ -337,13 +350,9 @@ internal fun MusicLyricsSheet(
             },
             onSaveFile = {
                 pendingSaveText = lrcText(syncedLyrics, lyrics)
-                val baseName =
-                    listOf(trackArtist, trackTitle)
-                        .filter { it.isNotBlank() }
-                        .joinToString(" - ")
-                        .replace(Regex("[\\\\/:*?\"<>|]"), "_")
-                saveLauncher.launch("$baseName.lrc")
+                saveLauncher.launch(lyricsFileName(trackTitle, trackArtist, "lrc"))
             },
+            onShare = { showShareSheet = true },
             onAlignChange = onAlignChange,
             onDisplayChange = onDisplayChange,
             onAdjustSync = { showSyncControls = true },
@@ -387,3 +396,4 @@ internal fun MusicLyricsSheet(
         )
     }
 }
+

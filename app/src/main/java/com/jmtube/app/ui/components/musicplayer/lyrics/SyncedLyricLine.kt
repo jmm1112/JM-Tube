@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -25,6 +27,9 @@ import androidx.compose.ui.unit.Constraints
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
+import com.jmtube.app.data.local.LyricsAnimationStyle
+import com.jmtube.app.data.local.LyricsGlow
+import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.data.lyrics.LyricsEntry
 import com.jmtube.app.data.lyrics.LyricsUtils
 import com.jmtube.app.player.EnhancedMusicPlayerManager
@@ -89,6 +94,7 @@ internal fun SyncedLyricLine(
     clearInGaps: Boolean = false,
     singleLine: Boolean = false,
     contentAlignment: Alignment = Alignment.BottomStart,
+    animation: LyricsAnimationChoice = rememberLyricsAnimationChoice(),
     empty: @Composable () -> Unit,
 ) {
     val lines = lyrics.lines
@@ -147,6 +153,8 @@ internal fun SyncedLyricLine(
                 syncOffsetMs = lyrics.offsetMs,
                 positionProvider = EnhancedMusicPlayerManager::getCurrentPosition,
                 motionEnabled = motionEnabled,
+                animationStyle = animation.style,
+                glow = animation.glow,
             )
         }
         if (singleLine) {
@@ -178,4 +186,21 @@ private fun fitOneRow(
     val room = (widthPx - measurer.measure(ELLIPSIS, style).size.width).coerceAtLeast(0)
     val cut = measurer.measure(text, style, maxLines = 1, constraints = Constraints(maxWidth = room))
     return text.substring(0, cut.getLineEnd(0, visibleEnd = true)).trimEnd() + ELLIPSIS
+}
+
+/** How synced lines move and glow, as chosen in settings. */
+@Immutable
+internal data class LyricsAnimationChoice(
+    val style: LyricsAnimationStyle,
+    val glow: LyricsGlow,
+)
+
+/** The lyrics animation the user chose, for a host that shows one line on its own. */
+@Composable
+internal fun rememberLyricsAnimationChoice(): LyricsAnimationChoice {
+    val context = LocalContext.current
+    val preferences = remember(context) { PlayerPreferences(context) }
+    val style by preferences.lyricsAnimationStyle.collectAsState(initial = LyricsAnimationStyle.CADENCE)
+    val glow by preferences.lyricsGlow.collectAsState(initial = LyricsGlow.NORMAL)
+    return remember(style, glow) { LyricsAnimationChoice(style, glow) }
 }

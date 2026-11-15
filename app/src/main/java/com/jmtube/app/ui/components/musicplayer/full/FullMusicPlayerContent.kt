@@ -1,4 +1,4 @@
-package com.jmtube.app.ui.components.musicplayer.full
+﻿package com.jmtube.app.ui.components.musicplayer.full
 
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.WindowInsets
@@ -25,11 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.jmtube.app.R
 import com.jmtube.app.data.local.MusicPlayerBackgroundStyle
 import com.jmtube.app.data.localmedia.LocalMediaIds
 import com.jmtube.app.data.music.model.MusicTrack
@@ -44,18 +42,17 @@ import com.jmtube.app.ui.components.musicplayer.lyrics.lyricsBackdrop
 import com.jmtube.app.ui.components.musicplayer.motion.MusicSideSwipeHud
 import com.jmtube.app.ui.components.musicplayer.motion.musicSideSwipes
 import com.jmtube.app.ui.components.musicplayer.motion.rememberMusicSideSwipes
-import com.jmtube.app.ui.components.musicplayer.queue.QueueActions
 import com.jmtube.app.ui.components.musicplayer.queue.QueueList
 import com.jmtube.app.ui.components.musicplayer.queue.QueuePullUpSheet
 import com.jmtube.app.ui.components.musicplayer.queue.QueueSheet
 import com.jmtube.app.ui.components.musicplayer.queue.queuePullUpGesture
 import com.jmtube.app.ui.components.musicplayer.queue.rememberQueuePullUpState
+import com.jmtube.app.ui.components.musicplayer.sheet.PlayerPanel
+import com.jmtube.app.ui.components.musicplayer.sheet.PlayerPanelRequestEffect
 import com.jmtube.app.ui.components.shared.MediaPalette
 import com.jmtube.app.ui.components.shared.MediaPlaybackControls
 import com.jmtube.app.ui.components.shared.MediaSleepTimerSheet
 import com.jmtube.app.ui.components.shared.SkipDirection
-import com.jmtube.app.ui.components.shared.quickactions.QuickActionUndo
-import com.jmtube.app.ui.components.shared.quickactions.sharedQuickActionsViewModel
 import com.jmtube.app.ui.screens.music.MusicPlayerViewModel
 import com.jmtube.app.ui.screens.music.MusicVideoSwitchViewModel
 import com.jmtube.app.ui.screens.music.sharedMusicPlayerViewModel
@@ -73,8 +70,12 @@ internal fun FullMusicPlayerContent(
     backgroundStyle: MusicPlayerBackgroundStyle,
     hideArtwork: Boolean,
     sleepTimerButton: Boolean,
+    splitTransport: Boolean = false,
     // The transport, seek bar, like and download and the action row draw with this scheme.
     controlScheme: ColorScheme = MaterialTheme.colorScheme,
+    onLyricsShownChange: (Boolean) -> Unit = {},
+    panelRequest: PlayerPanel? = null,
+    onPanelRequestHandled: () -> Unit = {},
     viewModel: MusicPlayerViewModel = sharedMusicPlayerViewModel(),
     videoSwitch: MusicVideoSwitchViewModel = hiltViewModel(),
 ) {
@@ -126,20 +127,23 @@ internal fun FullMusicPlayerContent(
     }
 
     var showLyricsSheet by remember { mutableStateOf(false) }
+    DisposableEffect(showLyricsSheet) {
+        onLyricsShownChange(showLyricsSheet)
+        onDispose { onLyricsShownChange(false) }
+    }
 
     FullPlayerSheets(sheets, uiState.currentTrack, isPlayerSheetExpanded)
 
     LaunchedEffect(track.videoId) {
         // A song swapped for its video keeps the song's related list rather than fetching another.
         viewModel.fetchRelatedContent(videoSwitch.listenId(track.videoId))
-        val managerTrack = EnhancedMusicPlayerManager.currentTrack.value
-        val isManagerPlaying = EnhancedMusicPlayerManager.isPlaying()
+        // [track] comes from the manager a frame late, so a different song here only means a newer one was chosen.
+        if (EnhancedMusicPlayerManager.currentTrack.value?.videoId == track.videoId) viewModel.warmLyrics(track)
+    }
 
-        if (managerTrack?.videoId == track.videoId && (isManagerPlaying || managerTrack != null)) {
-            viewModel.ensureLyricsLoaded(track)
-        } else {
-            viewModel.loadAndPlayTrack(track)
-        }
+    DisposableEffect(isPlayerSheetExpanded) {
+        viewModel.setPlayerOpen(isPlayerSheetExpanded)
+        onDispose { viewModel.setPlayerOpen(false) }
     }
 
     if (isPlayerSheetExpanded) {
@@ -149,27 +153,8 @@ internal fun FullMusicPlayerContent(
         }
     }
 
-    val quickActions = sharedQuickActionsViewModel()
-    val removedFromQueue = stringResource(R.string.removed_from_queue)
     val queueSwipes by viewModel.queueSwipes.collectAsState()
-    val queueActions =
-        remember(viewModel, removedFromQueue) {
-            QueueActions(
-                onTrackClick = { viewModel.playFromQueue(it) },
-                onMoveTrack = { from, to -> viewModel.moveTrack(from, to) },
-                onPlayNextFromQueue = { viewModel.playNextFromQueuePosition(it) },
-                onSendQueueTrackToEnd = { viewModel.moveQueueTrackToEnd(it) },
-                onRemoveFromQueue = { index ->
-                    viewModel.removeFromQueue(index)?.let { quickActions.announce(removedFromQueue, QuickActionUndo.MusicQueueRemoval(it)) }
-                },
-                onRadioTrackClick = { viewModel.playRadioTrack(it) },
-                onPlayNextRadio = { viewModel.playNextFromRadio(it) },
-                onAddRadioToQueue = { viewModel.addRadioTrackToQueue(it) },
-                onToggleEndlessRadio = { viewModel.setEndlessRadioEnabled(it) },
-                onShuffleQueue = { viewModel.toggleShuffle() },
-                onCycleRepeat = { viewModel.toggleRepeat() },
-            )
-        }
+    val queueActions = rememberPlayerQueueActions(viewModel, sheets)
 
     val immersiveBackground = backgroundStyle == MusicPlayerBackgroundStyle.IMMERSIVE
     val displayTitle = previewTrack?.title ?: uiState.currentTrack?.title ?: track.title
@@ -213,15 +198,25 @@ internal fun FullMusicPlayerContent(
         LaunchedEffect(isPlayerSheetExpanded) {
             if (!isPlayerSheetExpanded) showLyricsSheet = false
         }
+        PlayerPanelRequestEffect(panelRequest, isPlayerSheetExpanded, onPanelRequestHandled) { panel ->
+            val queue = panel == PlayerPanel.QUEUE
+            val tab = if (queue) PlayerSidePaneTab.UP_NEXT else PlayerSidePaneTab.LYRICS
+            if (isWide) {
+                selectSidePaneTab(tab)
+            } else if (queue) {
+                queueState.open()
+            } else {
+                openLyricsSheet()
+            }
+        }
         val queueCoversArtwork by remember(queueState) { derivedStateOf { queueState.fraction() > QUEUE_COVERS_ARTWORK } }
         val animatedArtwork =
             rememberAnimatedArtwork(
                 track = uiState.currentTrack,
                 // Immersive mode plays it as the background, so hiding the artwork box does not hide it there.
-                visible =
-                    isPlayerSheetExpanded && videoPlayer == null && (immersiveBackground || !hideArtwork) &&
-                        !showLyricsSheet && !queueCoversArtwork,
-                playing = uiState.isPlaying,
+                allowed = videoPlayer == null && (immersiveBackground || !hideArtwork),
+                running = isPlayerSheetExpanded && !showLyricsSheet && !queueCoversArtwork,
+                tallSpace = immersiveBackground && layout != MusicPlayerLayout.WIDE && layout != MusicPlayerLayout.SPLIT,
                 shown = artworkDragPreview == null && previewDirection == null,
             )
 
@@ -292,7 +287,7 @@ internal fun FullMusicPlayerContent(
                                     }
                                 }
                             },
-                            animateTitle = isPlayerSheetExpanded,
+                            animateTrackText = isPlayerSheetExpanded && uiState.isPlaying && !showLyricsSheet && !queueCoversArtwork,
                             showLibraryActions = !LocalMediaIds.isLocal(uiState.currentTrack?.videoId),
                             isLiked = uiState.isLiked,
                             isDownloaded = uiState.downloadedTrackIds.contains(uiState.currentTrack?.videoId),
@@ -309,10 +304,10 @@ internal fun FullMusicPlayerContent(
                             positionProvider = { positionState.value },
                             duration = uiState.duration,
                             onSeekTo = { viewModel.seekTo(it) },
-                            // The tree stays composed while collapsed (warm for a jank-free expand), so the
-                            // squiggly/wavy per-frame wave animations must stop when nobody can see them —
-                            // they otherwise burn a frame budget for the whole background-listening session.
-                            isPlaying = uiState.isPlaying && isPlayerSheetExpanded,
+                            // The tree stays composed while collapsed (warm for a jank-free expand) and under the
+                            // lyrics sheet and the queue, so the squiggly/wavy per-frame wave animations must stop
+                            // when nobody can see them; they otherwise burn a frame budget for the whole session.
+                            isPlaying = uiState.isPlaying && isPlayerSheetExpanded && !showLyricsSheet && !queueCoversArtwork,
                             modifier = modifier,
                         )
                     }
@@ -327,6 +322,7 @@ internal fun FullMusicPlayerContent(
                             onNextClick = { viewModel.skipToNext() },
                             modifier = modifier,
                             onPreviewDirectionChange = { previewDirection = it },
+                            split = splitTransport,
                         )
                     }
                 },
@@ -357,6 +353,12 @@ internal fun FullMusicPlayerContent(
             backdrop = backdrop,
             artworkAtStart = layout == MusicPlayerLayout.WIDE || layout == MusicPlayerLayout.SPLIT,
             animatedArtwork = animatedArtwork.takeIf { immersiveBackground },
+            preloadCovers =
+                listOfNotNull(nextTrack?.highResThumbnailUrl, previousTrack?.highResThumbnailUrl)
+                    .takeIf { immersiveBackground && isPlayerSheetExpanded }
+                    .orEmpty(),
+            trackId = track.videoId,
+            motionRunning = isPlayerSheetExpanded && uiState.isPlaying && !showLyricsSheet && !queueCoversArtwork,
         )
 
         val sideSwipes = rememberMusicSideSwipes(layout, isPlayerSheetExpanded) { queueState.fraction() > 0f || showLyricsSheet }
@@ -401,6 +403,7 @@ internal fun FullMusicPlayerContent(
                                 swipes = queueSwipes,
                                 actions = queueActions,
                                 clearNavigationBar = false,
+                                selectEntry = true,
                             )
                         },
                         lyrics = {
@@ -444,6 +447,7 @@ internal fun FullMusicPlayerContent(
             )
         }
 
+        val largeLyrics = layout == MusicPlayerLayout.WIDE || layout == MusicPlayerLayout.PORTRAIT_LARGE
         NowPlayingLyricsSheet(
             uiState = uiState,
             viewModel = viewModel,
@@ -455,14 +459,7 @@ internal fun FullMusicPlayerContent(
             fallbackArtist = track.artist,
             artworkUrl = thumbnailUrl,
             positionState = positionState,
-            baseTextSize =
-                if (layout == MusicPlayerLayout.WIDE ||
-                    layout == MusicPlayerLayout.PORTRAIT_LARGE
-                ) {
-                    LARGE_LYRICS_TEXT_SIZE
-                } else {
-                    DEFAULT_LYRICS_TEXT_SIZE
-                },
+            baseTextSize = if (largeLyrics) LARGE_LYRICS_TEXT_SIZE else DEFAULT_LYRICS_TEXT_SIZE,
             onDismiss = { showLyricsSheet = false },
         )
 

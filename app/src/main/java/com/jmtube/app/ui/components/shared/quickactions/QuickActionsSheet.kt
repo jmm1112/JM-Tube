@@ -220,7 +220,7 @@ fun QuickActionsHeader(
 @Composable
 fun QuickActionsPageHeader(
     title: String,
-    onBack: () -> Unit,
+    onBack: (() -> Unit)? = null,
     onClose: () -> Unit,
 ) {
     FlowSheetHeader(

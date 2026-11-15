@@ -9,6 +9,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.jmtube.app.R
 import com.jmtube.app.data.local.LikedVideosRepository
+import com.jmtube.app.data.local.LyricsAnimationStyle
+import com.jmtube.app.data.local.LyricsBackgroundStyle
+import com.jmtube.app.data.local.LyricsGlow
 import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.data.local.ViewHistory
 import com.jmtube.app.data.localmedia.LocalLyricsReader
@@ -28,6 +31,7 @@ import com.jmtube.app.data.recommendation.music.onRepeatShelf
 import com.jmtube.app.data.scrobble.Scrobbler
 import com.jmtube.app.player.EnhancedMusicPlayerManager
 import com.jmtube.app.player.PlaybackTarget
+import com.jmtube.app.ui.components.music.sheet.resolveTrackArtists
 import com.jmtube.app.ui.components.musicplayer.queue.QueueSwipes
 import com.jmtube.app.utils.PerformanceDispatcher
 import kotlinx.coroutines.Job
@@ -178,13 +182,13 @@ class MusicPlayerViewModel
                     track?.let {
                         if (!isLocalMediaId(it.videoId)) {
                             checkIfFavorite(it.videoId)
-                            fetchLyrics(it.videoId, it.artist, it.title, it.duration, it.album)
+                            lyrics.onSongChanged(it)
                             fetchRelatedContent(it.videoId)
                         } else {
                             favoriteJob?.cancel()
                             _uiState.update { state -> state.copy(isLiked = false) }
                             EnhancedMusicPlayerManager.setLiked(false)
-                            fetchLyrics(it.videoId, it.artist, it.title, it.duration, it.album)
+                            lyrics.onSongChanged(it)
                         }
                     }
                 }
@@ -390,8 +394,7 @@ class MusicPlayerViewModel
         }
 
         /** The song's credited artists, looked up once when the track kept only the first one. */
-        suspend fun resolveArtists(track: MusicTrack): List<MusicArtist> =
-            track.artists.filter { !it.id.isNullOrBlank() }.ifEmpty { artistLookup.artistsOf(track.videoId) }
+        suspend fun resolveArtists(track: MusicTrack): List<MusicArtist> = resolveTrackArtists(track, artistLookup)
 
         /** A YouTube Music link names only the song, so its details are fetched before it plays. */
         suspend fun playFromLink(videoId: String) {
@@ -562,15 +565,13 @@ class MusicPlayerViewModel
 
         fun downloadTrack(track: MusicTrack? = null) = trackActions.downloadTrack(track)
 
-        fun fetchLyrics(
-            videoId: String,
-            artist: String,
-            title: String,
-            duration: Int? = null,
-            album: String? = null,
-        ) = lyrics.fetch(videoId, artist, title, duration, album)
+        fun downloadTracks(tracks: List<MusicTrack>) = trackActions.downloadTracks(tracks)
 
         fun ensureLyricsLoaded(track: MusicTrack) = lyrics.ensureLoaded(track)
+
+        fun warmLyrics(track: MusicTrack) = lyrics.warm(track)
+
+        fun setPlayerOpen(open: Boolean) = lyrics.setPlayerOpen(open)
 
         fun refreshLyrics() = lyrics.refresh()
 
@@ -594,7 +595,17 @@ class MusicPlayerViewModel
 
         fun setLyricsAutoRomanize(enabled: Boolean) = lyrics.setAutoRomanize(enabled)
 
+        fun setLyricsRomanizationOnly(enabled: Boolean) = lyrics.setRomanizationOnly(enabled)
+
         fun setLyricsKeepScreenOn(enabled: Boolean) = lyrics.setKeepScreenOn(enabled)
+
+        fun setLyricsBlurOtherLines(enabled: Boolean) = lyrics.setBlurOtherLines(enabled)
+
+        fun setLyricsAnimationStyle(style: LyricsAnimationStyle) = lyrics.setAnimationStyle(style)
+
+        fun setLyricsGlow(glow: LyricsGlow) = lyrics.setGlow(glow)
+
+        fun setLyricsBackground(style: LyricsBackgroundStyle) = lyrics.setBackground(style)
 
         override fun onCleared() {
             super.onCleared()

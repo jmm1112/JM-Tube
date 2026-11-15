@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.jmtube.app.R
 import com.jmtube.app.data.local.SliderStyle
 import com.jmtube.app.sync2.live.LiveMessage
+import com.jmtube.app.ui.components.musicplayer.common.rememberSplitTransport
 import com.jmtube.app.ui.components.musicplayer.controls.ExpressivePlayerSlider
 import com.jmtube.app.ui.components.musicplayer.controls.expressiveSliderSpec
 import com.jmtube.app.ui.components.shared.FlowEmptyState
@@ -87,6 +88,7 @@ internal fun PlayOnNowCard(
                 onPreviousClick = { onControl("previous", null) },
                 onPlayPauseToggle = { onControl(if (playing) "pause" else "play", null) },
                 onNextClick = { onControl("next", null) },
+                split = rememberSplitTransport(),
             )
             VolumeBar(session.device.did, now.vol) { onControl("volume", it) }
         }
