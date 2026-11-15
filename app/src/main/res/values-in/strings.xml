@@ -973,10 +973,10 @@
     <string name="location_dialog_subtitle">Pilih tempat penyimpanan file yang diunduh di perangkat Anda.</string>
     <string name="location_preset_header">Lokasi Prasetel</string>
     <string name="location_custom_header">Lokasi Kustom</string>
-    <string name="location_downloads_label">Unduhan / Flow</string>
-    <string name="location_movies_label">Film / Flow</string>
+    <string name="location_downloads_label">Download / JM Tube</string>
+    <string name="location_movies_label">Movies / JM Tube</string>
     <string name="location_internal_app_label">Penyimpanan Internal Aplikasi</string>
-    <string name="location_internal_app_desc">Pribadi untuk Flow. Dihapus jika Anda menghapus instalan.</string>
+    <string name="location_internal_app_desc">Private to JM Tube. Removed if you uninstall.</string>
     <string name="location_custom_saf_label">Jelajahi…</string>
     <string name="location_custom_saf_desc">Pilih folder mana saja menggunakan pemilih file sistem</string>
     <string name="location_custom_manual_label">Masukkan jalur secara manual</string>

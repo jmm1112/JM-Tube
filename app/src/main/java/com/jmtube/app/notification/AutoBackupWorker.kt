@@ -4,6 +4,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
+import java.io.File
 import androidx.core.app.NotificationCompat
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
@@ -102,9 +104,14 @@ class AutoBackupWorker(
                 return@withContext Result.success()
             }
 
+            val defaultBackupFolder =
+                File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                    "JM Tube/Backups",
+                ).apply { mkdirs() }
             val folderUriStr =
                 playerPrefs.autoBackupFolderUri.first()
-                    ?: return@withContext Result.failure()
+                    ?: Uri.fromFile(defaultBackupFolder).toString()
 
             val folderUri = Uri.parse(folderUriStr)
             val profileCount =

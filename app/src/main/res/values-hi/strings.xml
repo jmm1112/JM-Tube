@@ -762,10 +762,10 @@
     <string name="location_dialog_subtitle">चुनें कि डाउनलोड की गई फ़ाइलें आपके डिवाइस पर कहाँ सहेजी जाएँ।</string>
     <string name="location_preset_header">पूर्वनिर्धारित स्थान</string>
     <string name="location_custom_header">कस्टम स्थान</string>
-    <string name="location_downloads_label">डाउनलोड / Flow</string>
-    <string name="location_movies_label">मूवीज़ / Flow</string>
+    <string name="location_downloads_label">Download / JM Tube</string>
+    <string name="location_movies_label">Movies / JM Tube</string>
     <string name="location_internal_app_label">आंतरिक ऐप संग्रहण</string>
-    <string name="location_internal_app_desc">ऐप की निजी फ़ाइलें — यदि आप ऐप अनइंस्टॉल करते हैं तो फ़ाइलें हट सकती हैं</string>
+    <string name="location_internal_app_desc">Private to JM Tube. Removed if you uninstall.</string>
     <string name="location_custom_saf_label">ब्राउज़ करें…</string>
     <string name="location_custom_saf_desc">सिस्टम फ़ाइल पिकर का उपयोग करके कोई भी फ़ोल्डर चुनें</string>
     <string name="location_custom_manual_label">पथ मैन्युअल रूप से दर्ज करें</string>

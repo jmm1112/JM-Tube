@@ -1546,10 +1546,10 @@
     <string name="location_dialog_subtitle">Wählen Sie aus, wo die heruntergeladenen Dateien auf Ihrem Gerät gespeichert werden sollen.</string>
     <string name="location_preset_header">Voreingestellte Standorte</string>
     <string name="location_custom_header">Benutzerdefinierter Standort</string>
-    <string name="location_downloads_label">Downloads / Flow</string>
-    <string name="location_movies_label">Movies / Flow</string>
+    <string name="location_downloads_label">Download / JM Tube</string>
+    <string name="location_movies_label">Movies / JM Tube</string>
     <string name="location_internal_app_label">Interner App-Speicher</string>
-    <string name="location_internal_app_desc">Nur in der App verfügbar – Dateien werden möglicherweise gelöscht, wenn Sie die App deinstallieren</string>
+    <string name="location_internal_app_desc">Private to JM Tube. Removed if you uninstall.</string>
     <string name="location_custom_saf_desc">Wählen Sie mithilfe der System-Dateiauswahl einen beliebigen Ordner aus.</string>
     <string name="location_custom_manual_desc">Geben Sie einen absoluten Pfad ein, z. B. /storage/emulated/0/MeinOrdner</string>
     <string name="location_manual_dialog_title">Benutzerdefinierter Download-Pfad</string>
@@ -1987,7 +1987,7 @@
         <item quantity="one">%1$d Eintrag</item>
         <item quantity="other">%1$d Einträge</item>
     </plurals>
-    <string name="downloads_recover_body">Flow speichert Dowloads in Download/Flow und Music/Flow. Um die Dateien aufzulisten, die eine frühere Installation dort gespeichert hat, erlaube Zugriff auf Videos und Musik.</string>
+    <string name="downloads_recover_body">Flow speichert Dowloads in Download/JM Tube und Download/JM Tube/Music. Um die Dateien aufzulisten, die eine frühere Installation dort gespeichert hat, erlaube Zugriff auf Videos und Musik.</string>
     <string name="downloads_recover_allow">Zugriff erlauben</string>
     <string name="downloads_recover_dismiss">Nicht jetzt</string>
     <plurals name="downloads_recovered_count">

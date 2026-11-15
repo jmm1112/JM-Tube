@@ -1173,10 +1173,10 @@
     <string name="location_dialog_subtitle">다운로드한 파일을 기기에 저장할 위치를 선택하세요.</string>
     <string name="location_preset_header">미리 설정된 위치</string>
     <string name="location_custom_header">사용자 지정 위치</string>
-    <string name="location_downloads_label">다운로드/Flow</string>
-    <string name="location_movies_label">영화/Flow</string>
+    <string name="location_downloads_label">Download / JM Tube</string>
+    <string name="location_movies_label">Movies / JM Tube</string>
     <string name="location_internal_app_label">앱 내부 저장공간</string>
-    <string name="location_internal_app_desc">앱 전용 공간 — 앱을 삭제하면 파일도 삭제될 수 있습니다</string>
+    <string name="location_internal_app_desc">Private to JM Tube. Removed if you uninstall.</string>
     <string name="location_custom_saf_label">찾아보기…</string>
     <string name="location_custom_saf_desc">시스템 파일 선택기로 원하는 폴더를 선택합니다</string>
     <string name="location_custom_manual_label">경로 직접 입력</string>

@@ -1174,10 +1174,10 @@
     <string name="location_dialog_subtitle">Endirilən faylların cihazınızda harada saxlanılacağını seçin.</string>
     <string name="location_preset_header">Hazır məkanlar</string>
     <string name="location_custom_header">Fərdi məkan</string>
-    <string name="location_downloads_label">Endirmələr / Flow</string>
-    <string name="location_movies_label">Filmlər / Flow</string>
+    <string name="location_downloads_label">Download / JM Tube</string>
+    <string name="location_movies_label">Movies / JM Tube</string>
     <string name="location_internal_app_label">Tətbiqin daxili yaddaşı</string>
-    <string name="location_internal_app_desc">Yalnız tətbiqə məxsusdur — tətbiqi silsəniz fayllar da silinə bilər</string>
+    <string name="location_internal_app_desc">Private to JM Tube. Removed if you uninstall.</string>
     <string name="location_custom_saf_label">Gözdən keçir…</string>
     <string name="location_custom_saf_desc">Sistem fayl seçicisi ilə istənilən qovluğu seçin</string>
     <string name="location_custom_manual_label">Yolu əl ilə daxil et</string>

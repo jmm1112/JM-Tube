@@ -604,10 +604,10 @@
     <string name="location_dialog_subtitle">Choisissez où les fichiers téléchargés sont enregistrés sur votre appareil.</string>
     <string name="location_preset_header">Emplacements prédéfinis</string>
     <string name="location_custom_header">Emplacement personnalisé</string>
-    <string name="location_downloads_label">Téléchargements / Flow</string>
-    <string name="location_movies_label">Vidéos / Flow</string>
+    <string name="location_downloads_label">Download / JM Tube</string>
+    <string name="location_movies_label">Movies / JM Tube</string>
     <string name="location_internal_app_label">Stockage interne de l\'application</string>
-    <string name="location_internal_app_desc">Privé à l\'application — les fichiers peuvent être supprimés si vous désinstallez</string>
+    <string name="location_internal_app_desc">Private to JM Tube. Removed if you uninstall.</string>
     <string name="location_custom_saf_label">Parcourir…</string>
     <string name="location_custom_saf_desc">Sélectionnez un dossier à l\'aide du sélecteur de fichiers du système</string>
     <string name="location_custom_manual_label">Saisir un chemin manuellement</string>

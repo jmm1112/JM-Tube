@@ -1990,6 +1990,14 @@ class BackupRepository(
     ): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {
+                if (folderUri.scheme == "file" || !folderUri.toString().startsWith("content://")) {
+                    val rawPath = folderUri.path ?: folderUri.toString().removePrefix("file://")
+                    val dir = java.io.File(rawPath).apply { mkdirs() }
+                    val targetFile = java.io.File(dir, filename)
+                    java.io.FileOutputStream(targetFile).use { write(it) }
+                    return@withContext Result.success(Unit)
+                }
+
                 val treeDocId = DocumentsContract.getTreeDocumentId(folderUri)
                 val treeUri = DocumentsContract.buildDocumentUriUsingTree(folderUri, treeDocId)
                 val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(folderUri, treeDocId)

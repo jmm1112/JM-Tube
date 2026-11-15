@@ -225,12 +225,14 @@ class VideoDownloadManager
         private fun defaultDirectories(fileType: DownloadFileType): List<File> =
             buildList {
                 if (fileType == DownloadFileType.AUDIO) {
-                    publicDirectory(Environment.DIRECTORY_MUSIC, AUDIO_DIR)?.let(::add)
                     publicDirectory(Environment.DIRECTORY_DOWNLOADS, AUDIO_DIR)?.let(::add)
+                    publicDirectory(Environment.DIRECTORY_MUSIC, AUDIO_DIR)?.let(::add)
+                    context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.let { add(File(it, AUDIO_DIR)) }
                     context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.let { add(File(it, AUDIO_DIR)) }
                 } else {
                     publicDirectory(Environment.DIRECTORY_DOWNLOADS, VIDEO_DIR)?.let(::add)
                     if (hasAllFilesAccess()) publicDirectory(Environment.DIRECTORY_MOVIES, VIDEO_DIR)?.let(::add)
+                    context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.let { add(File(it, VIDEO_DIR)) }
                     context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)?.let { add(File(it, VIDEO_DIR)) }
                 }
                 add(File(context.filesDir, INTERNAL_DIR))

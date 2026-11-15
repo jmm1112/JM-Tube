@@ -1,4 +1,4 @@
-﻿package com.jmtube.app.ui.components.musicplayer.queue
+package com.jmtube.app.ui.components.musicplayer.queue
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
@@ -285,7 +285,7 @@ internal fun QueueTrackRow(
                         )
                         if (track.duration > 0) {
                             Text(
-                                text = "â€¢ " + formatTime(track.duration * 1000L),
+                                text = "• " + formatTime(track.duration * 1000L),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 maxLines = 1,

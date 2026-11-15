@@ -1,4 +1,4 @@
-﻿package com.jmtube.app.ui.components.musicplayer.lyrics
+package com.jmtube.app.ui.components.musicplayer.lyrics
 
 import android.content.ClipData
 import android.os.Build
@@ -56,7 +56,7 @@ import kotlin.coroutines.cancellation.CancellationException
 /**
  * Full-screen lyrics surface presented over the expanded player. Show/hide is a manual
  * graphicsLayer animation over content that stays composed while [retainContent] holds, so only
- * the very first open pays the lyrics renderer's composition cost â€” and even that is deferred
+ * the very first open pays the lyrics renderer's composition cost - and even that is deferred
  * past the slide so the transition itself never drops frames. When fully hidden the sheet is
  * parked off-screen, which also keeps it out of hit testing.
  */
@@ -239,7 +239,7 @@ internal fun MusicLyricsSheet(
                     title = trackTitle,
                     artist = trackArtist,
                     artworkUrl = artworkUrl,
-                    // The sheet stays composed at alpha 0 while retained â€” neither the pill's
+                    // The sheet stays composed at alpha 0 while retained - neither the pill's
                     // waveform nor its loading indicator may animate behind an invisible layer.
                     isPlaying = isPlaying && visible,
                     isLoading = isLoading && visible,

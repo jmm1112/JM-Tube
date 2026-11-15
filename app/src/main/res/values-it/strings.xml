@@ -850,10 +850,10 @@
     <string name="location_dialog_subtitle">Scegli dove salvare i file scaricati nel dispositivo.</string>
     <string name="location_preset_header">Posizioni predefinite</string>
     <string name="location_custom_header">Posizione personalizzata</string>
-    <string name="location_downloads_label">Downloads / Flow</string>
-    <string name="location_movies_label">Movies / Flow</string>
+    <string name="location_downloads_label">Download / JM Tube</string>
+    <string name="location_movies_label">Movies / JM Tube</string>
     <string name="location_internal_app_label">Archiviazione app interna</string>
-    <string name="location_internal_app_desc">Privata dell\'app — i file potrebbero essere eliminati se disinstalli l\'app</string>
+    <string name="location_internal_app_desc">Private to JM Tube. Removed if you uninstall.</string>
     <string name="location_custom_saf_label">Sfoglia…</string>
     <string name="location_custom_saf_desc">Scegli qualsiasi cartella tramite il selettore file di sistema</string>
     <string name="location_custom_manual_label">Inserisci il percorso manualmente</string>
@@ -2807,7 +2807,7 @@
     <string name="mark_as_unwatched">Contrassegna come non visto</string>
     <string name="mark_as_unwatched_toast">Contrassegnato come non visto</string>
     <string name="downloads_recover_title">Ricerca downloads da una precedente installazione</string>
-    <string name="downloads_recover_body">Flow salva i download nella cartella Download/Flow e Music/Flow. Per vedere i file che una precedente installazione ha salvato consenti l\'accesso a video e audio.</string>
+    <string name="downloads_recover_body">Flow salva i download nella cartella Download/JM Tube e Download/JM Tube/Music. Per vedere i file che una precedente installazione ha salvato consenti l\'accesso a video e audio.</string>
     <string name="downloads_recover_allow">Consenti l\'accesso</string>
     <string name="downloads_recover_dismiss">Non ora</string>
     <plurals name="downloads_recovered_count">
