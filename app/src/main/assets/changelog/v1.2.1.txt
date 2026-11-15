@@ -4,7 +4,7 @@ DATE: 2026-11-15
 STATUS: stable
 
 HIGHLIGHTS
-- Flow-Sync 2.0 Multi-Device Sync & Remote Control: End-to-end encrypted device linking protocol with QR code pairing, 12-word recovery seed phrase backup, real-time sync across devices, linked device management, and "Play on Device" remote streaming control
+- JM-Sync 2.0 Multi-Device Sync & Remote Control: End-to-end encrypted device linking protocol with QR code pairing, 12-word recovery seed phrase backup, real-time sync across devices, linked device management, and "Play on Device" remote streaming control
 - Modular Video Transcripts: Full interactive transcript sheet with instant keyword search, language selector menu, real-time auto-follow scrolling synchronized with video playback, and TXT/SRT export
 - Hierarchical Nested Comment Reply Threads: Dedicated nested comment reply threads with expandable branches, author badges, and fluid drawer animations
 - Comment Media Support: Rich GIF and image rendering support in comment sections with optional Wi-Fi only restriction
