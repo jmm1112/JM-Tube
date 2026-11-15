@@ -4,6 +4,8 @@ DATE: 2026-11-15
 STATUS: stable
 
 HIGHLIGHTS
+- Atmospheric Video Ambient Glow: Restored the complete ambient frame capture pipeline and immersive lighting layers underneath the player, with a dedicated toggle under Player Settings > Display.
+- 360° Spherical Video View & Motion Controls: Added full 360° spherical video playback with gyroscope look-around motion, touch drag navigation, and customizable drag speed under Player Settings > Display.
 - Linked Push on Change: Linked devices receive playlists, likes, channel subscriptions, and watch history changes in near real-time while both devices are actively open in the foreground via LAN/WebSocket channel with burst debounce protection.
 - Remote Playback Elsewhere Hint & Quick Transfer: When another linked device is playing media and local playback is idle, the mini player displays a remote hint with a "Play here" button to seamlessly transfer and resume playback on this device with one tap.
 - Handoff Timeout Extension & Slow-Start Resilience: Extended remote handoff response timeout to 25s, ensuring slow-buffering or high-latency media transitions on remote targets never report false failure or cause simultaneous playback.
