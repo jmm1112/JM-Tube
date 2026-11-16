@@ -2,6 +2,7 @@ package com.jmtube.app.ui.screens.subscriptions
 
 import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.data.model.Video
+import com.jmtube.app.data.subscriptions.fetchSubscriptionPlayerMetadata
 import com.jmtube.app.utils.PerformanceDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

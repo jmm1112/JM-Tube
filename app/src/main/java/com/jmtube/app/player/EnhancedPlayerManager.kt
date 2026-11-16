@@ -68,6 +68,7 @@ import com.jmtube.app.player.sabr.integration.SabrStreamInfo
 import com.jmtube.app.player.sabr.integration.SabrUrlResolver
 import com.jmtube.app.player.service.BackgroundServiceManager
 import com.jmtube.app.player.sponsorblock.SponsorBlockHandler
+import com.jmtube.app.player.sponsorblock.SponsorBlockSkip
 import com.jmtube.app.player.state.EnhancedPlayerState
 import com.jmtube.app.player.state.PlaybackCompletion
 import com.jmtube.app.player.state.QualityOption
@@ -3006,11 +3007,11 @@ class EnhancedPlayerManager private constructor() {
     val subtitleLoadFailedEvent: SharedFlow<SubtitleLoadFailure>
         get() = _subtitleLoadFailedEvent
 
-    val skipEvent: SharedFlow<SponsorBlockSegment>
-        get() = sponsorBlockHandler?.skipEvent ?: MutableSharedFlow()
+    val skipEvent: SharedFlow<SponsorBlockSkip>
+        get() = sponsorBlockHandler?.skipEvent ?: MutableSharedFlow<SponsorBlockSkip>()
 
     val sbToastEvent: SharedFlow<SponsorBlockSegment>
-        get() = sponsorBlockHandler?.toastEvent ?: MutableSharedFlow()
+        get() = sponsorBlockHandler?.toastEvent ?: MutableSharedFlow<SponsorBlockSegment>()
 
     val sbCategoryActions: Map<String, SponsorBlockAction>
         get() = sponsorBlockHandler?.categoryActions ?: emptyMap()

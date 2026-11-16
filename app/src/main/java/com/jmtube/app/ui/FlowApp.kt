@@ -26,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.jmtube.app.MainActivity
+import com.jmtube.app.data.local.NavBarLook
 import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.notification.NotificationHelper
 import com.jmtube.app.data.profile.PendingSlice
@@ -129,6 +130,7 @@ fun FlowApp(
     val defaultNavTabIndex by preferences.defaultNavTabIndex.collectAsState(initial = 0)
     val subscriptionRefreshOnStartup by preferences.subscriptionRefreshOnStartup.collectAsState(initial = false)
     val bottomNavHideOnScroll by preferences.bottomNavHideOnScroll.collectAsState(initial = true)
+    val bottomNavLook by preferences.bottomNavLook.collectAsState(initial = NavBarLook())
     val sleepTimerCloseAppOnExpiry by preferences.sleepTimerCloseAppOnExpiry.collectAsState(
         initial = SleepTimerManager.preferredCloseAppOnExpiry,
     )
@@ -475,8 +477,9 @@ fun FlowApp(
                     navController.navigateToTab(tab, defaultStartRoute)
                 }
             },
-            barVisible = showBottomNav && navScrollState.isBarVisible,
-            hideLabels = hideNavBarLabels,
+            barVisible = showBottomNav,
+            barScrollState = navScrollState,
+            barLook = bottomNavLook,
             railVisible = isNavigationRailVisible,
             onBarHeightChanged = { navigationBarHeight = it },
             onRailWidthChanged = { navigationRailWidth = it },

@@ -18,7 +18,9 @@ import com.jmtube.app.data.recommendation.FlowNeuroEngine
 import com.jmtube.app.data.subscriptions.SubscriptionFeedRepository
 import com.jmtube.app.data.subscriptions.SubscriptionRefreshPlan
 import com.jmtube.app.data.subscriptions.SubscriptionWatchedVideos
+import com.jmtube.app.data.subscriptions.fetchSubscriptionPlayerMetadata
 import com.jmtube.app.data.subscriptions.withHighQualityThumbnails
+import com.jmtube.app.data.subscriptions.withPlayerMetadata
 import com.jmtube.app.utils.PerformanceDispatcher
 import com.jmtube.app.utils.ThumbnailUrlResolver
 import com.jmtube.app.utils.formatYouTubeRelativeTime

@@ -5302,4 +5302,42 @@
     <plurals name="songs_removed_from_queue"><item quantity="one">Removed %d song from the queue</item><item quantity="other">Removed %d songs from the queue</item></plurals>
     <plurals name="import_takeout_part_ads_removed"><item quantity="one">%d ad removed from history</item><item quantity="other">%d ads removed from history</item></plurals>
 
+
+    <!-- Flow-nightly 4 additions -->
+    <string name="linked_device_online">%1$s, online</string>
+    <string name="linked_auto_sync">Sync automatically</string>
+    <string name="linked_auto_sync_on">On open, on leaving, every hour and when your devices meet</string>
+    <string name="linked_auto_sync_off">Only when you tap Sync now. Until this device syncs, the server keeps everything your other devices send.</string>
+    <string name="linked_sync_choice">What this device syncs</string>
+    <string name="linked_sync_choice_body">Off: this device stops sending it and ignores it from your other devices. Turning one back on catches up from the group. The server clears old data only while at least one of your devices syncs everything.</string>
+    <string name="linked_sync_choice_all">Everything</string>
+    <string name="linked_sync_choice_except">Everything except %1$s</string>
+    <string name="linked_sync_choice_count">%1$d of %2$d</string>
+    <string name="notification_new_video_live">Live now: %1$s</string>
+    <string name="notification_new_video_scheduled">Live at %1$s: %2$s</string>
+    <string name="notification_new_video_premiere">Premiere at %1$s: %2$s</string>
+    <string name="settings_keywords_nav_labels">labels, names, icons only, text</string>
+    <string name="settings_nav_labels_title">Tab labels</string>
+    <string name="settings_nav_labels_summary">Names under the icons in the bottom bar</string>
+    <string name="settings_nav_labels_always">Always</string>
+    <string name="settings_nav_labels_selected">Selected</string>
+    <string name="settings_nav_labels_never">Never</string>
+    <string name="settings_keywords_nav_style">floating, pill, style, bottom bar</string>
+    <string name="settings_nav_style_title">Bar style</string>
+    <string name="settings_nav_style_summary">Full width, or floating above the page</string>
+    <string name="settings_nav_style_standard">Standard</string>
+    <string name="settings_nav_style_floating">Floating</string>
+    <string name="ai_music_block_title">Hide AI music</string>
+    <string name="ai_music_artist_listed">This artist is on the AI music list</string>
+    <string name="ai_music_artist_show">Show their music</string>
+    <string name="ai_music_block_summary">Songs and albums by AI artists</string>
+    <string name="ai_music_status_count">%1$s artists, updated %2$s</string>
+    <string name="ai_music_status_count_now">%1$s artists, updated just now</string>
+    <string name="ai_lists_status_count">%1$s channels and %2$s artists, updated %3$s</string>
+    <string name="ai_lists_status_count_now">%1$s channels and %2$s artists, updated just now</string>
+    <string name="ai_music_attribution_soul_title">Music list by Soul Over AI</string>
+    <string name="ai_music_attribution_soul_summary">CC BY 4.0, changed by JM Tube</string>
+    <string name="ai_music_attribution_blocker_title">Music list by Spotify AI Blocker</string>
+    <string name="ai_music_attribution_blocker_summary">MIT, © CennoxX</string>
+
 </resources>

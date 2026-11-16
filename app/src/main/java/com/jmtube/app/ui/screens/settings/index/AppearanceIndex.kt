@@ -106,30 +106,14 @@ internal object AppearanceIndex {
             section = R.string.settings_section_video_cards,
             destination = page,
         )
-    val highlightNewSettings =
-        SettingEntry(
-            key = "appearance.highlight_new_settings",
-            title = R.string.settings_highlight_new_title,
-            summary = R.string.settings_highlight_new_summary,
-            keywords = R.string.settings_keywords_appearance,
-            section = R.string.settings_section_general,
-            destination = page,
-        )
-    val highlightNewSettingsDays =
-        SettingEntry(
-            key = "appearance.highlight_new_settings_days",
-            title = R.string.settings_highlight_new_days_title,
-            keywords = R.string.settings_keywords_appearance,
-            section = R.string.settings_section_general,
-            revealVia = "appearance.highlight_new_settings",
-            destination = page,
-        )
+
     val skeletonGradient =
         SettingEntry(
             key = "appearance.skeleton_gradient",
             title = R.string.settings_skeleton_gradient_title,
             summary = R.string.settings_skeleton_gradient_summary,
-            section = R.string.settings_section_general,
+            keywords = R.string.settings_skeleton_gradient_keywords,
+            section = R.string.settings_section_style,
             destination = page,
         )
     val marquee =
@@ -137,7 +121,8 @@ internal object AppearanceIndex {
             key = "appearance.marquee",
             title = R.string.settings_marquee_title,
             summary = R.string.settings_marquee_summary,
-            section = R.string.settings_section_general,
+            keywords = R.string.settings_marquee_keywords,
+            section = R.string.settings_section_style,
             destination = page,
         )
     val classicLoadingIndicator =
@@ -145,7 +130,8 @@ internal object AppearanceIndex {
             key = "appearance.classic_loading_indicator",
             title = R.string.settings_classic_loader_title,
             summary = R.string.settings_classic_loader_summary,
-            section = R.string.settings_section_general,
+            keywords = R.string.settings_classic_loader_keywords,
+            section = R.string.settings_section_style,
             destination = page,
         )
     val haptics =
@@ -153,7 +139,8 @@ internal object AppearanceIndex {
             key = "appearance.haptics",
             title = R.string.player_appearance_haptics_title,
             summary = R.string.player_appearance_haptics_subtitle,
-            section = R.string.settings_section_general,
+            keywords = R.string.settings_keywords_haptics,
+            section = R.string.settings_section_style,
             destination = page,
         )
     val hapticsIgnoreSystem =
@@ -161,14 +148,38 @@ internal object AppearanceIndex {
             key = "appearance.haptics_ignore_system",
             title = R.string.settings_haptics_ignore_system_title,
             summary = R.string.settings_haptics_ignore_system_summary,
-            section = R.string.settings_section_general,
+            keywords = R.string.settings_keywords_haptics,
+            section = R.string.settings_section_style,
             destination = page,
+        )
+    val highlightNewSettings =
+        SettingEntry(
+            key = "appearance.highlight_new_settings",
+            title = R.string.settings_highlight_new_title,
+            summary = R.string.settings_highlight_new_summary,
+            section = R.string.settings_section_style,
+            destination = page,
+        )
+    val highlightNewSettingsDays =
+        SettingEntry(
+            key = "appearance.highlight_new_settings_days",
+            title = R.string.settings_highlight_new_days_title,
+            section = R.string.settings_section_style,
+            destination = page,
+            revealVia = "appearance.highlight_new_settings",
         )
 
     val all =
         listOf(
             appIcon,
             interfaceMode,
+            skeletonGradient,
+            marquee,
+            classicLoadingIndicator,
+            haptics,
+            hapticsIgnoreSystem,
+            highlightNewSettings,
+            highlightNewSettingsDays,
             homeViewMode,
             homeColumns,
             musicArtworkSize,
@@ -213,13 +224,31 @@ internal object NavigationBarIndex {
             section = R.string.settings_section_tabs,
             destination = page,
         )
-    val showNavOnSearch =
+    val showOnSearch =
         SettingEntry(
             key = "navigation_bar.show_on_search",
-            title = R.string.settings_show_nav_on_search_title,
-            summary = R.string.settings_show_nav_on_search_subtitle,
+            title = R.string.content_settings_navbar_show_on_search_title,
+            summary = R.string.content_settings_navbar_show_on_search_subtitle,
             keywords = R.string.settings_keywords_nav_bar,
             section = R.string.settings_section_tabs,
+            destination = page,
+        )
+    val style =
+        SettingEntry(
+            key = "navigation_bar.style",
+            title = R.string.settings_nav_style_title,
+            summary = R.string.settings_nav_style_summary,
+            keywords = R.string.settings_keywords_nav_style,
+            section = R.string.settings_section_style,
+            destination = page,
+        )
+    val labels =
+        SettingEntry(
+            key = "navigation_bar.labels",
+            title = R.string.settings_nav_labels_title,
+            summary = R.string.settings_nav_labels_summary,
+            keywords = R.string.settings_keywords_nav_labels,
+            section = R.string.settings_section_style,
             destination = page,
         )
     val showOnOtherPages =
@@ -227,24 +256,6 @@ internal object NavigationBarIndex {
             key = "navigation_bar.show_on_other_pages",
             title = R.string.content_settings_navbar_show_on_other_pages_title,
             summary = R.string.content_settings_navbar_show_on_other_pages_subtitle,
-            keywords = R.string.settings_keywords_nav_bar,
-            section = R.string.settings_section_tabs,
-            destination = page,
-        )
-    val hideLabels =
-        SettingEntry(
-            key = "navigation_bar.hide_labels",
-            title = R.string.settings_hide_nav_bar_labels_title,
-            summary = R.string.settings_hide_nav_bar_labels_subtitle,
-            keywords = R.string.settings_keywords_nav_bar,
-            section = R.string.settings_section_tabs,
-            destination = page,
-        )
-    val hideOnShorts =
-        SettingEntry(
-            key = "navigation_bar.hide_on_shorts",
-            title = R.string.settings_hide_nav_on_shorts_title,
-            summary = R.string.settings_hide_nav_on_shorts_subtitle,
             keywords = R.string.settings_keywords_nav_bar,
             section = R.string.settings_section_tabs,
             destination = page,
@@ -258,7 +269,7 @@ internal object NavigationBarIndex {
             destination = page,
         )
 
-    val all = listOf(home, shorts, music, search, explore, downloads, hideOnScroll, hideLabels, hideOnShorts, order)
+    val all = listOf(style, labels, home, shorts, music, search, explore, downloads, hideOnScroll, showOnSearch, showOnOtherPages, order)
 }
 
 internal object ThemeIndex {

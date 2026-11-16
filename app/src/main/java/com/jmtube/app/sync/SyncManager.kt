@@ -1,4 +1,4 @@
-﻿package com.jmtube.app.sync
+package com.jmtube.app.sync
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -24,11 +24,11 @@ import com.jmtube.app.sync.protocol.SyncProtocol
 import com.jmtube.app.sync.protocol.SyncRole
 import com.jmtube.app.sync.protocol.TransferSummary
 import com.jmtube.app.sync.qr.QrCodec
-import com.jmtube.app.sync.transport.LanAddress
 import com.jmtube.app.sync.transport.SyncConnection
 import com.jmtube.app.sync.transport.SyncForegroundService
 import com.jmtube.app.sync.transport.WsClient
 import com.jmtube.app.sync.transport.WsServer
+import com.jmtube.app.utils.LanAddress
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope

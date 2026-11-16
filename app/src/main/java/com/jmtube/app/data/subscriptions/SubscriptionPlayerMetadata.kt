@@ -1,4 +1,4 @@
-package com.jmtube.app.ui.screens.subscriptions
+package com.jmtube.app.data.subscriptions
 
 import com.jmtube.app.data.model.Video
 import com.jmtube.app.innertube.YouTube

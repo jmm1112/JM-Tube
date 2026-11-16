@@ -8,6 +8,8 @@ import com.jmtube.app.data.local.DEFAULT_NAV_TAB_ORDER
 import com.jmtube.app.data.local.HomeFeedColumns
 import com.jmtube.app.data.local.HomeViewMode
 import com.jmtube.app.data.local.LocalDataManager
+import com.jmtube.app.data.local.NavBarLabels
+import com.jmtube.app.data.local.NavBarStyle
 import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.platform.AppIconController
 import com.jmtube.app.platform.AppUiMode
@@ -68,6 +70,10 @@ class AppearanceViewModel
             }.combine(preferences.downloadsNavigationEnabled) { visibility, downloads -> visibility.copy(downloads = downloads) }
                 .asState(NavigationVisibility())
         val hideNavOnScroll = preferences.bottomNavHideOnScroll.asState(true)
+        val navLabels = preferences.bottomNavLabels.asState(NavBarLabels.ALWAYS)
+        val navStyle = preferences.bottomNavStyle.asState(NavBarStyle.STANDARD)
+        val searchShowsNavBar = preferences.searchShowsNavBar.asState(false)
+        val innerPagesShowNavBar = preferences.innerPagesShowNavBar.asState(false)
         val hideNavBarLabels = preferences.hideNavBarLabels.asState(false)
         val hideNavOnShorts = preferences.hideNavOnShorts.asState(false)
         val showNavOnSearch = preferences.showNavOnSearch.asState(true)
@@ -135,6 +141,14 @@ class AppearanceViewModel
         fun setDownloadsTab(enabled: Boolean) = write { preferences.setDownloadsNavigationEnabled(enabled) }
 
         fun setHideNavOnScroll(enabled: Boolean) = write { preferences.setBottomNavHideOnScroll(enabled) }
+
+        fun setNavLabels(labels: NavBarLabels) = write { preferences.setBottomNavLabels(labels) }
+
+        fun setNavStyle(style: NavBarStyle) = write { preferences.setBottomNavStyle(style) }
+
+        fun setSearchShowsNavBar(enabled: Boolean) = write { preferences.setSearchShowsNavBar(enabled) }
+
+        fun setInnerPagesShowNavBar(enabled: Boolean) = write { preferences.setInnerPagesShowNavBar(enabled) }
 
         fun setHideNavBarLabels(enabled: Boolean) = write { preferences.setHideNavBarLabels(enabled) }
 

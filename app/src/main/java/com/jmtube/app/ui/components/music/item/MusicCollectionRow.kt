@@ -23,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,12 +33,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.jmtube.app.R
+import com.jmtube.app.data.contentfilter.aislist.AiVerdict
 import com.jmtube.app.innertube.models.AlbumItem
 import com.jmtube.app.innertube.models.ArtistItem
 import com.jmtube.app.innertube.models.PlaylistItem
 import com.jmtube.app.innertube.models.SongItem
 import com.jmtube.app.innertube.models.YTItem
+import com.jmtube.app.ui.components.shared.card.LocalAiListMatcher
 import com.jmtube.app.ui.components.shared.flowArtistShape
+import com.jmtube.app.ui.components.shared.onMenuKey
+import com.jmtube.app.ui.screens.music.aiCreditedIds
 import com.jmtube.app.ui.screens.music.convertSongToMusicTrack
 
 /**
@@ -71,10 +76,15 @@ fun MusicCollectionRow(
         return
     }
 
+    val aiMatcher = LocalAiListMatcher.current
+    val aiWarned = remember(aiMatcher, item) { aiMatcher.musicVerdict(item.aiCreditedIds()) == AiVerdict.WARN }
+    val aiLabel = if (aiWarned) stringResource(R.string.ai_list_label) else null
+
     Row(
         modifier =
             modifier
                 .fillMaxWidth()
+                .then(if (onLongClick != null) Modifier.onMenuKey(onLongClick) else Modifier)
                 .combinedClickable(
                     onClick = onClick,
                     onLongClick = onLongClick,
@@ -100,7 +110,9 @@ fun MusicCollectionRow(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = item.rowSubtitle(showPlayCount),
+                text =
+                    listOfNotNull(item.rowSubtitle(showPlayCount), aiLabel)
+                        .joinToString(" ${stringResource(R.string.metadata_separator)} "),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                 maxLines = 1,

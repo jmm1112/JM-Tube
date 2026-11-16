@@ -12,6 +12,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.jmtube.app.data.model.Video
+import com.jmtube.app.innertube.pages.isMix
 import com.jmtube.app.player.GlobalPlayerState
 import com.jmtube.app.ui.components.videoplayer.PlayerDraggableState
 import com.jmtube.app.ui.screens.music.sharedMusicPlayerViewModel
@@ -104,7 +105,7 @@ internal fun NavGraphBuilder.linkPlaybackRoutes(
         // Use passed state
         val playerUiState = playerUiStateResult.value
         LaunchedEffect(effectiveVideoId) {
-            if (!playerUiState.shouldExpandInsteadOfPlaying(effectiveVideoId)) {
+            if (!playerUiState.shouldExpandInsteadOfPlaying(effectiveVideoId, GlobalPlayerState.playerState.value.currentVideoId)) {
                 val video =
                     playerUiState.cachedVideo?.takeIf { it.id == effectiveVideoId }
                         ?: linkedVideo(effectiveVideoId)

@@ -1,7 +1,6 @@
-﻿package com.jmtube.app.sync2.linking
+package com.jmtube.app.sync2.linking
 
 import com.jmtube.app.sync.qr.LocalNetworkAddress
-import com.jmtube.app.sync.transport.LanAddress
 import com.jmtube.app.sync.transport.SyncConnection
 import com.jmtube.app.sync.transport.WsClient
 import com.jmtube.app.sync.transport.WsServer
@@ -11,6 +10,7 @@ import com.jmtube.app.sync2.data.LinkedDatabase
 import com.jmtube.app.sync2.engine.LinkedException
 import com.jmtube.app.sync2.lan.MAX_LAN_FRAME
 import com.jmtube.app.sync2.store.Mailbox
+import com.jmtube.app.utils.LanAddress
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel

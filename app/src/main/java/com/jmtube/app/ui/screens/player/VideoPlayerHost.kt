@@ -357,7 +357,7 @@ fun VideoPlayerHost(
         showShortsPlayerPrompt = prefs.showShortsPlayerPrompt,
     )
 
-    SponsorSkipEffect(context, onSkipped = playerViewModel::onSponsorSegmentSkipped)
+    SponsorSkipEffect(context, showSkipNotice = prefs.sbSkipNoticeEnabled, onSkipped = playerViewModel::onSponsorSegmentSkipped)
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { playerViewModel.checkpointWatchSession() }
 
     SubtitleLoadErrorEffect(

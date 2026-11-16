@@ -1,0 +1,16 @@
+JM TUBE CHANGE LOG
+VERSION: 1.2.4
+DATE: 2026-11-16
+STATUS: stable
+
+HIGHLIGHTS
+- Floating Navigation Bar & Granular Tab Labels: Added a modern floating pill navigation bar style alongside the classic bottom bar, with customizable edge margins and settings to display tab labels Always, Selected only, or Never.
+- Per-Device Auto-Sync & Granular Collection Filtering: Configure automatic background sync individually per linked device in JM-Sync 2.0, with full control over which collections (History, Playlists, Subscriptions, Settings) sync to each peer.
+- Linked Device Live Badges & Local Device Section: Real-time online/active playback status badges, detailed LAN and WebDAV sync timestamps, and a dedicated "This Device" card for clear device distinction.
+- AI Music Blocker & Channel Filtering: Integrated Soul Over AI and Spotify AI Blocker community blocklists to hide suspected AI music from Music Home, Quick Picks, and Search results, complete with artist warning banners and one-tap overrides.
+- Interactive Playlist Download Picker: Tapping "Download all" on any playlist now opens an interactive item picker to select or deselect specific tracks before queuing downloads.
+- Live Stream & Premiere Subscriptions: Background subscription checker accurately identifies live streams and scheduled premieres, presenting specialized notification layouts with broadcast times.
+- Hotspot DLNA Discovery: Discover and cast to Smart TVs connected directly to the Android Wi-Fi hotspot subnet (192.168.43.x) with queue resilience.
+- SponsorBlock Overlapping Segment Resolver: Intelligently resolves overlapping SponsorBlock categories without stutter or repetitive seeks.
+- Chapter Highlight Stabilization: Fixed brief previous chapter highlight flickering when selecting chapters in the player sheet.
+- Play On Pull-Back Smooth Transition: Seamlessly pulls remote playback back to the phone while the video details page remains open.

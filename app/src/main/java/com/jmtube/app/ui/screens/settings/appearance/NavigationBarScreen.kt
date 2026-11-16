@@ -3,15 +3,15 @@ package com.jmtube.app.ui.screens.settings.appearance
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CallToAction
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.LabelOff
-import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Slideshow
 import androidx.compose.material.icons.outlined.UnfoldLess
+import androidx.compose.material.icons.outlined.WebAsset
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,10 +21,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jmtube.app.R
+import com.jmtube.app.data.local.NavBarLabels
+import com.jmtube.app.data.local.NavBarStyle
 import com.jmtube.app.ui.components.layout.navigation.resolveDefaultFlowTab
 import com.jmtube.app.ui.components.layout.navigation.visibleFlowTabs
 import com.jmtube.app.ui.components.settings.SettingsPage
 import com.jmtube.app.ui.components.settings.switch
+import com.jmtube.app.ui.components.settings.toggleGroup
+import com.jmtube.app.ui.components.shared.FlowToggleOption
 import com.jmtube.app.ui.screens.settings.index.NavigationBarIndex
 
 /** Which tabs the navigation bar shows, in what order, and which one Flow opens on. */
@@ -37,10 +41,10 @@ internal fun NavigationBarScreen(
     val visibility by viewModel.navigationVisibility.collectAsStateWithLifecycle()
     val shortsContent by viewModel.shortsContent.collectAsStateWithLifecycle()
     val hideOnScroll by viewModel.hideNavOnScroll.collectAsStateWithLifecycle()
-    val hideNavBarLabels by viewModel.hideNavBarLabels.collectAsStateWithLifecycle()
-    val hideNavOnShorts by viewModel.hideNavOnShorts.collectAsStateWithLifecycle()
-    val showNavOnSearch by viewModel.showNavOnSearch.collectAsStateWithLifecycle()
-    val showNavOnOtherPages by viewModel.showNavOnOtherPages.collectAsStateWithLifecycle()
+    val labels by viewModel.navLabels.collectAsStateWithLifecycle()
+    val style by viewModel.navStyle.collectAsStateWithLifecycle()
+    val searchShowsBar by viewModel.searchShowsNavBar.collectAsStateWithLifecycle()
+    val innerPagesShowBar by viewModel.innerPagesShowNavBar.collectAsStateWithLifecycle()
     val order by viewModel.navTabOrder.collectAsStateWithLifecycle()
     val defaultIndex by viewModel.defaultNavTabIndex.collectAsStateWithLifecycle()
 
@@ -48,12 +52,27 @@ internal fun NavigationBarScreen(
     val visibleTabs = visibleFlowTabs(order, effectiveVisibility)
     val defaultTab = resolveDefaultFlowTab(defaultIndex, order, effectiveVisibility)
     val shortsHiddenSummary = stringResource(R.string.settings_shorts_tab_disabled_summary)
+    val styleOptions =
+        listOf(
+            FlowToggleOption(NavBarStyle.STANDARD, stringResource(R.string.settings_nav_style_standard)),
+            FlowToggleOption(NavBarStyle.FLOATING, stringResource(R.string.settings_nav_style_floating)),
+        )
+    val labelOptions =
+        listOf(
+            FlowToggleOption(NavBarLabels.ALWAYS, stringResource(R.string.settings_nav_labels_always)),
+            FlowToggleOption(NavBarLabels.SELECTED, stringResource(R.string.settings_nav_labels_selected)),
+            FlowToggleOption(NavBarLabels.NEVER, stringResource(R.string.settings_nav_labels_never)),
+        )
 
     SettingsPage(
         title = stringResource(R.string.settings_navigation_bar_title),
         onBack = onBack,
         highlight = highlight,
     ) {
+        group(key = "navigation_bar.style", header = R.string.settings_section_style) {
+            toggleGroup(NavigationBarIndex.style, styleOptions, style, viewModel::setNavStyle)
+            toggleGroup(NavigationBarIndex.labels, labelOptions, labels, viewModel::setNavLabels)
+        }
         group(key = "navigation_bar.tabs", header = R.string.settings_section_tabs) {
             switch(NavigationBarIndex.home, visibility.home, viewModel::setHomeTab, icon = Icons.Outlined.Home)
             switch(
@@ -69,10 +88,13 @@ internal fun NavigationBarScreen(
             switch(NavigationBarIndex.explore, visibility.categories, viewModel::setExploreTab, icon = Icons.Outlined.Explore)
             switch(NavigationBarIndex.downloads, visibility.downloads, viewModel::setDownloadsTab, icon = Icons.Outlined.Download)
             switch(NavigationBarIndex.hideOnScroll, hideOnScroll, viewModel::setHideNavOnScroll, icon = Icons.Outlined.UnfoldLess)
-            switch(NavigationBarIndex.hideLabels, hideNavBarLabels, viewModel::setHideNavBarLabels, icon = Icons.Outlined.LabelOff)
-            switch(NavigationBarIndex.hideOnShorts, hideNavOnShorts, viewModel::setHideNavOnShorts, icon = Icons.Outlined.Slideshow)
-            switch(NavigationBarIndex.showNavOnSearch, showNavOnSearch, viewModel::setShowNavOnSearch, icon = Icons.Outlined.Search)
-            switch(NavigationBarIndex.showOnOtherPages, showNavOnOtherPages, viewModel::setShowNavOnOtherPages, icon = Icons.Outlined.Layers)
+            switch(NavigationBarIndex.showOnSearch, searchShowsBar, viewModel::setSearchShowsNavBar, icon = Icons.Outlined.CallToAction)
+            switch(
+                NavigationBarIndex.showOnOtherPages,
+                innerPagesShowBar,
+                viewModel::setInnerPagesShowNavBar,
+                icon = Icons.Outlined.WebAsset,
+            )
         }
         group(
             key = NavigationBarIndex.order.key,

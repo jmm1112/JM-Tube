@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -75,6 +76,8 @@ fun PlaylistDetailScreen(
     var dialog by remember { mutableStateOf<PlaylistDialog?>(null) }
     var selectedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var selectionMode by remember { mutableStateOf(false) }
+    // Set while "Download all" picks: the videos left out, so pages that arrive later join the pick.
+    var leftOut by remember { mutableStateOf<Set<String>?>(null) }
     var displayVideos by remember { mutableStateOf(sortedVideos) }
     var searchQuery by rememberSaveable { mutableStateOf<String?>(null) }
     val isSearching = searchQuery != null
@@ -100,6 +103,11 @@ fun PlaylistDetailScreen(
     val exitSelection = {
         selectionMode = false
         selectedIds = emptySet()
+        leftOut = null
+    }
+    val toggleSelected = { ids: Set<String>, select: Boolean ->
+        selectedIds = if (select) selectedIds + ids else selectedIds - ids
+        leftOut = leftOut?.let { if (select) it - ids else it + ids }
     }
 
     val reorderState =
@@ -114,7 +122,8 @@ fun PlaylistDetailScreen(
     LaunchedEffect(sortedVideos, reorderState.isDragging) {
         if (reorderState.isDragging) return@LaunchedEffect
         displayVideos = sortedVideos
-        selectedIds = selectedIds.intersect(sortedVideos.mapTo(HashSet()) { it.id })
+        val sortedIds = sortedVideos.mapTo(LinkedHashSet()) { it.id }
+        selectedIds = leftOut?.let { sortedIds - it } ?: selectedIds.intersect(sortedIds)
         if (sortedVideos.isEmpty()) exitSelection()
     }
 
@@ -151,7 +160,14 @@ fun PlaylistDetailScreen(
                     )
                 }
             },
-            onDownloadAll = { dialog = PlaylistDialog.DownloadAll },
+            onDownloadAll = {
+                scope.launch {
+                    val left = viewModel.downloadLeftOut() ?: return@launch
+                    leftOut = left
+                    selectedIds = displayVideos.mapTo(LinkedHashSet()) { it.id } - left
+                    selectionMode = true
+                }
+            },
             onSaveToggle = { if (uiState.isSaved) viewModel.unsaveFromLibrary() else viewModel.saveToLibrary() },
             onAddAll = { dialog = PlaylistDialog.AddAll },
             onShare = {
@@ -184,7 +200,7 @@ fun PlaylistDetailScreen(
                 inSelectionMode = selectionMode,
                 selectedCount = selectedIds.size,
                 allSelected = shownVideos.isNotEmpty() && shownVideos.all { it.id in selectedIds },
-                canSelect = canModify && displayVideos.isNotEmpty(),
+                canSelect = displayVideos.isNotEmpty(),
                 search =
                     PlaylistSearchBar(
                         query = searchQuery,
@@ -197,7 +213,7 @@ fun PlaylistDetailScreen(
                 onClearSelection = exitSelection,
                 onSelectAll = {
                     val shownIds = shownVideos.mapTo(HashSet()) { it.id }
-                    selectedIds = if (selectedIds.containsAll(shownIds)) selectedIds - shownIds else selectedIds + shownIds
+                    toggleSelected(shownIds, !selectedIds.containsAll(shownIds))
                 },
             )
         },
@@ -241,7 +257,7 @@ fun PlaylistDetailScreen(
                             reorderState = reorderState,
                             onVideoClick = { index, video ->
                                 if (selectionMode) {
-                                    selectedIds = if (video.id in selectedIds) selectedIds - video.id else selectedIds + video.id
+                                    toggleSelected(setOf(video.id), video.id !in selectedIds)
                                 } else {
                                     onPlayPlaylist(displayVideos, positions[video.id]?.minus(1) ?: index, false, uiState.playlistName)
                                 }
@@ -275,10 +291,14 @@ fun PlaylistDetailScreen(
                 visible = selectionMode && selectedIds.isNotEmpty(),
                 summary = pluralStringResource(R.plurals.selected_count_template, selectedIds.size, selectedIds.size),
                 actions =
-                    listOf(
+                    listOfNotNull(
+                        FlowSelectionAction(Icons.Outlined.Download, stringResource(R.string.download)) {
+                            leftOut?.let(viewModel::downloadAllExcept) ?: viewModel.downloadVideos(selectedIds)
+                            exitSelection()
+                        },
                         FlowSelectionAction(Icons.Outlined.Delete, stringResource(R.string.remove)) {
                             dialog = PlaylistDialog.RemoveSelected(selectedIds)
-                        },
+                        }.takeIf { canModify },
                     ),
                 modifier = Modifier.align(Alignment.BottomCenter),
             )

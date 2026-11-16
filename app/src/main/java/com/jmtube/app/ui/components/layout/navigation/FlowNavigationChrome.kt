@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ShortNavigationBarDefaults
@@ -23,10 +24,16 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass
+import com.jmtube.app.data.local.NavBarLook
+import com.jmtube.app.data.local.NavBarStyle
+import com.jmtube.app.ui.utils.LocalWindowIsLandscape
 import com.jmtube.app.ui.utils.LocalWindowSizeClass
 import com.jmtube.app.ui.utils.isExpandedWidth
 import com.jmtube.app.ui.utils.isMediumHeight
+import kotlin.math.roundToInt
 
 const val FLOW_NAV_BAR_TAG = "flow_nav_bar"
 const val FLOW_NAV_RAIL_TAG = "flow_nav_rail"
@@ -40,18 +47,28 @@ object FlowNavigationDefaults {
 }
 
 /**
- * Whether this window is wide enough to navigate from the start edge instead of the bottom. The
- * decision belongs to the window's size class, so a phone in a narrow split window keeps the bar
- * even on a large display.
+ * Whether this window navigates from the start edge instead of the bottom. An expanded window tall
+ * enough for the rail's items gets it, as on tablets. A landscape window too short for that, which
+ * is a phone on its side, gets it too: a bottom bar would take a sixth of its height (#1845), and
+ * the rail moves what does not fit behind "More". The decision belongs to the window, so a phone in
+ * a narrow portrait split window keeps the bar even on a large display.
  */
 @Composable
-fun flowUsesNavigationRail(): Boolean = LocalWindowSizeClass.current.let { it.isExpandedWidth && it.isMediumHeight }
+fun flowUsesNavigationRail(): Boolean = usesNavigationRail(LocalWindowSizeClass.current, LocalWindowIsLandscape.current)
+
+internal fun usesNavigationRail(
+    windowSizeClass: WindowSizeClass,
+    isLandscape: Boolean,
+): Boolean =
+    (windowSizeClass.isExpandedWidth && windowSizeClass.isMediumHeight) ||
+        (isLandscape && !windowSizeClass.isMediumHeight)
 
 /**
  * The app's primary navigation around [content]: the bottom bar over it on compact and medium
  * windows, the wide navigation rail beside it once the window is expanded.
  *
- * The bar overlays the content, so callers reserve [onBarHeightChanged] themselves. The rail takes
+ * The bar overlays the content, so callers reserve [onBarHeightChanged] themselves. [barScrollState]
+ * moves it with the content's scroll. The rail takes
  * its own column; [onRailWidthChanged] is only for overlays drawn outside this layout.
  */
 @Composable
@@ -62,7 +79,8 @@ fun FlowNavigationChrome(
     barVisible: Boolean,
     railVisible: Boolean,
     modifier: Modifier = Modifier,
-    hideLabels: Boolean = false,
+    barScrollState: FlowNavigationScrollState? = null,
+    barLook: NavBarLook = NavBarLook(),
     onBarHeightChanged: (Dp) -> Unit = {},
     onRailWidthChanged: (Dp) -> Unit = {},
     content: @Composable BoxScope.() -> Unit,
@@ -104,7 +122,8 @@ fun FlowNavigationChrome(
                     selectedTab = selectedTab,
                     onTabSelected = onTabSelected,
                     visible = barVisible,
-                    hideLabels = hideLabels,
+                    scrollState = barScrollState,
+                    look = barLook,
                     onHeightChanged = onBarHeightChanged,
                 )
             }
@@ -118,7 +137,8 @@ private fun BoxScope.NavigationBarSlot(
     selectedTab: FlowTab?,
     onTabSelected: (FlowTab) -> Unit,
     visible: Boolean,
-    hideLabels: Boolean,
+    scrollState: FlowNavigationScrollState?,
+    look: NavBarLook,
     onHeightChanged: (Dp) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -130,15 +150,33 @@ private fun BoxScope.NavigationBarSlot(
         enter = slideInVertically(motion.defaultSpatialSpec()) { it } + fadeIn(motion.defaultEffectsSpec()),
         exit = slideOutVertically(motion.fastSpatialSpec()) { it } + fadeOut(motion.fastEffectsSpec()),
     ) {
-        FlowNavigationBar(
-            tabs = tabs,
-            selectedTab = selectedTab,
-            onTabSelected = onTabSelected,
-            hideLabels = hideLabels,
-            modifier =
-                Modifier
-                    .testTag(FLOW_NAV_BAR_TAG)
-                    .onSizeChanged { onHeightChanged(with(density) { (it.height - bottomInsetPx).toDp() }) },
-        )
+        val barModifier =
+            Modifier
+                .testTag(FLOW_NAV_BAR_TAG)
+                .onSizeChanged {
+                    onHeightChanged(with(density) { (it.height - bottomInsetPx).toDp() })
+                    scrollState?.setBarHeight(it.height.toFloat())
+                }.offset { IntOffset(0, scrollState?.offsetPx?.roundToInt() ?: 0) }
+        when (look.style) {
+            NavBarStyle.STANDARD -> {
+                FlowNavigationBar(
+                    tabs = tabs,
+                    selectedTab = selectedTab,
+                    onTabSelected = onTabSelected,
+                    labels = look.labels,
+                    modifier = barModifier,
+                )
+            }
+
+            NavBarStyle.FLOATING -> {
+                FlowFloatingNavigationBar(
+                    tabs = tabs,
+                    selectedTab = selectedTab,
+                    onTabSelected = onTabSelected,
+                    labels = look.labels,
+                    modifier = barModifier,
+                )
+            }
+        }
     }
 }

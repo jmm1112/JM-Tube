@@ -1,4 +1,4 @@
-﻿package com.jmtube.app.sync2.service
+package com.jmtube.app.sync2.service
 
 import android.util.Log
 import com.jmtube.app.di.ApplicationScope
@@ -53,6 +53,7 @@ class LinkedLive
         private val sync: LinkedSync,
         private val live: LiveChannel,
         private val devices: LiveDevices,
+        private val autoSync: AutoSync,
         @ApplicationScope private val scope: CoroutineScope,
     ) {
         private var running: Job? = null
@@ -173,7 +174,8 @@ class LinkedLive
                             delay(DEBOUNCE_MS)
                             val again = changed.tryReceive().getOrNull() == true
                             // Changes stored while the socket was closed sent no frame; the sync on app open may have fetched them already.
-                            if (stored || again || (sync.lastSync.value?.atMs ?: 0) < openedAt) sync.syncNow()
+                            val due = stored || again || (sync.lastSync.value?.atMs ?: 0) < openedAt
+                            if (due && autoSync.allows(SyncTrigger.SERVER_CHANGE)) sync.syncNow()
                         }
                     }
                 val relaying =

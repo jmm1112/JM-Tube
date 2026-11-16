@@ -51,6 +51,7 @@ import com.jmtube.app.ui.components.layout.flowBottomContentPadding
 import com.jmtube.app.ui.components.layout.topbar.FlowTopBar
 import com.jmtube.app.ui.components.music.section.HomeSectionType
 import com.jmtube.app.ui.components.music.section.MusicHomeLibrary
+import com.jmtube.app.ui.screens.music.MusicHomeChipStatus
 import com.jmtube.app.ui.components.music.section.musicHomeFeed
 import com.jmtube.app.ui.components.music.sheet.LocalMusicMenus
 import com.jmtube.app.ui.components.shared.FlowErrorState
@@ -253,7 +254,7 @@ fun EnhancedMusicScreen(
                     val pullState = rememberPullToRefreshState()
 
                     FlowPullToRefreshBox(
-                        isRefreshing = uiState.isLoading,
+                        isRefreshing = uiState.isLoading || uiState.homeChipPage?.status == MusicHomeChipStatus.REFRESHING,
                         onRefresh = { viewModel.refresh() },
                         state = pullState,
                         modifier = Modifier.fillMaxSize(),
@@ -280,6 +281,8 @@ fun EnhancedMusicScreen(
                                 onTrackMenu = musicMenus::openSong,
                                 onCollectionMenu = musicMenus::openCollection,
                                 onLoadMore = { viewModel.loadMoreHomeContent() },
+                                onChipRetry = { viewModel.retryHomeChip() },
+                                onChipLoadMore = { viewModel.loadMoreHomeChip() },
                             )
                         }
                     }

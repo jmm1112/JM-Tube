@@ -5,11 +5,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Link
@@ -44,7 +41,6 @@ import com.jmtube.app.data.music.model.MusicTrack
 import com.jmtube.app.data.recommendation.music.MusicArtistInsights
 import com.jmtube.app.ui.LocalStatusBarHero
 import com.jmtube.app.ui.components.layout.flowBottomContentPadding
-import com.jmtube.app.ui.components.layout.topbar.FlowTopBar
 import com.jmtube.app.ui.components.music.common.rememberMusicCollectionColorScheme
 import com.jmtube.app.ui.components.music.detail.ArtistBio
 import com.jmtube.app.ui.components.music.detail.ArtistHero
@@ -54,48 +50,21 @@ import com.jmtube.app.ui.components.music.detail.artistHeroPhotoHeight
 import com.jmtube.app.ui.components.music.header.MusicSectionAction
 import com.jmtube.app.ui.components.music.header.MusicSectionHeader
 import com.jmtube.app.ui.components.music.item.MusicCollectionCard
-import com.jmtube.app.ui.components.music.item.MusicTrackItem
 import com.jmtube.app.ui.components.music.section.MusicArtistShelf
 import com.jmtube.app.ui.components.music.section.MusicCollectionShelf
 import com.jmtube.app.ui.components.music.section.MusicShelf
 import com.jmtube.app.ui.components.music.sheet.LocalMusicMenus
 import com.jmtube.app.ui.components.music.sheet.toCollectionActionItem
-import com.jmtube.app.ui.components.shared.FlowErrorState
-import com.jmtube.app.ui.components.shared.FlowSegmentedGap
 import com.jmtube.app.ui.components.shared.dpadDownTo
-import com.jmtube.app.ui.components.shared.flowSegmentShape
-import com.jmtube.app.ui.theme.Dimensions
-import com.jmtube.app.utils.formatViewCount
 import kotlinx.coroutines.launch
 
 private const val TOP_TRACKS_SHOWN = 5
 private val VideoCardHeight = 124.dp
 private const val VIDEO_ASPECT_RATIO = 16f / 9f
 
-/** The artist route when the page could not be loaded: the error with Retry, under a bar that leads back. */
-@Composable
-fun ArtistPageError(
-    onBackClick: () -> Unit,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = { FlowTopBar(title = "", onBack = onBackClick) },
-    ) { padding ->
-        FlowErrorState(
-            error = stringResource(R.string.error_failed_to_load_artist),
-            onRetry = onRetry,
-            modifier = Modifier.padding(padding),
-        )
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ArtistPage(
+internal fun ArtistPage(
     artistDetails: ArtistDetails,
     onBackClick: () -> Unit,
     onTrackClick: (MusicTrack, List<MusicTrack>) -> Unit,
@@ -109,6 +78,8 @@ fun ArtistPage(
     onSeeAllClick: (String, String?) -> Unit = { _, _ -> },
     onPlayWatchPlaylist: suspend (playlistId: String, params: String?) -> Boolean = { _, _ -> false },
     onStartRadio: (MusicTrack) -> Unit = {},
+    aiNotice: ArtistAiNotice? = null,
+    onShowAiArtist: () -> Unit = {},
 ) {
     val scrollState = rememberLazyListState()
     val contentFocus = remember { FocusRequester() }
@@ -227,6 +198,8 @@ fun ArtistPage(
                             },
                     )
                 }
+
+                artistAiNotice(aiNotice, onShowAiArtist)
 
                 if (artistDetails.description.isNotEmpty()) {
                     item(key = "bio") {
@@ -376,59 +349,3 @@ private fun Modifier.reachUnderStatusBar(topPx: Int): Modifier =
         val placeable = measurable.measure(constraints.copy(minHeight = height, maxHeight = height))
         layout(placeable.width, constraints.maxHeight) { placeable.place(0, -topPx) }
     }
-
-private fun LazyListScope.segmentedTracks(
-    id: String,
-    tracks: List<MusicTrack>,
-    queue: List<MusicTrack>,
-    downloadedTrackIds: Set<String>,
-    onTrackClick: (MusicTrack, List<MusicTrack>) -> Unit,
-    onTrackMenu: (MusicTrack) -> Unit,
-) {
-    itemsIndexed(tracks, key = { index, track -> "$id:$index:${track.videoId}" }) { index, track ->
-        MusicTrackItem(
-            track = track,
-            index = index + 1,
-            shape = flowSegmentShape(index = index, count = tracks.size),
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            isDownloaded = downloadedTrackIds.contains(track.videoId),
-            onClick = { onTrackClick(track, queue) },
-            onLongClick = { onTrackMenu(track) },
-            onMenuClick = { onTrackMenu(track) },
-            modifier =
-                Modifier
-                    .padding(horizontal = Dimensions.ContentPaddingHorizontal)
-                    .padding(bottom = FlowSegmentedGap),
-        )
-    }
-}
-
-private fun seeAllAction(
-    browseId: String?,
-    params: String?,
-    onSeeAllClick: (String, String?) -> Unit,
-): MusicSectionAction? = browseId?.let { MusicSectionAction.SeeAll { onSeeAllClick(it, params) } }
-
-@Composable
-private fun MusicArtistInsights.summaryLine(): String {
-    val plays = stringResource(R.string.artist_insights_played_times, this.plays)
-    return if (liked) {
-        "$plays ${stringResource(R.string.metadata_separator)} ${stringResource(R.string.artist_insights_liked)}"
-    } else {
-        plays
-    }
-}
-
-@Composable
-private fun MusicPlaylist.collectionSubtitle(showAuthor: Boolean): String =
-    when {
-        showAuthor -> stringResource(R.string.subtitle_playlist_template, author)
-        trackCount > 0 -> stringResource(R.string.tracks_count_template, trackCount)
-        else -> stringResource(R.string.album_label)
-    }
-
-@Composable
-private fun MusicTrack.videoSubtitle(): String {
-    val viewsText = if (views > 0) formatViewCount(views) else null
-    return if (viewsText != null) stringResource(R.string.artist_views_template, artist, viewsText) else artist
-}

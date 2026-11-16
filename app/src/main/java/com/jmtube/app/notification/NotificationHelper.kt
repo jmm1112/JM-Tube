@@ -59,7 +59,7 @@ object NotificationHelper {
     private val ProfileChannels =
         setOf(CHANNEL_SUBSCRIPTIONS, CHANNEL_REMINDERS, CHANNEL_GENERAL, CHANNEL_IMPORTS, AutoBackupWorker.NOTIFICATION_CHANNEL_ID)
 
-    private fun profileIntent(context: Context): Intent =
+    internal fun profileIntent(context: Context): Intent =
         Intent(context, MainActivity::class.java).putExtra(EXTRA_PROFILE_ID, ActiveProfile.get(context).id)
 
     /** Clears the running profile's notifications before a switch; downloads and updates stay. */
@@ -101,7 +101,7 @@ object NotificationHelper {
     /**
      * Store notification in database
      */
-    private suspend fun storeNotification(
+    internal suspend fun storeNotification(
         context: Context,
         entity: NotificationEntity,
     ) {

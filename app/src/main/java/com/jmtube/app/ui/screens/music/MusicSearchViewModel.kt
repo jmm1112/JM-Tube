@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.jmtube.app.R
+import com.jmtube.app.data.contentfilter.aislist.AiListRepository
+import com.jmtube.app.data.local.PrivacyGate
 import com.jmtube.app.data.local.SearchHistoryItem
 import com.jmtube.app.data.local.SearchHistoryRepository
 import com.jmtube.app.data.local.SearchHistoryScope
@@ -20,7 +22,7 @@ import com.jmtube.app.innertube.models.YTItem
 import com.jmtube.app.innertube.pages.ArtistSectionKind
 import com.jmtube.app.innertube.pages.MoodAndGenres
 import com.jmtube.app.innertube.pages.SearchSummaryPage
-import com.jmtube.app.ui.components.search.matchingTyped
+import com.jmtube.app.ui.components.search.recentOrMatching
 import com.jmtube.app.utils.PerformanceDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -38,14 +40,16 @@ class MusicSearchViewModel
     constructor(
         private val downloadManager: DownloadManager,
         private val searchHistory: SearchHistoryRepository,
+        private val privacyGate: PrivacyGate,
         @ApplicationContext private val context: Context,
+        private val aiList: AiListRepository,
     ) : ViewModel() {
         private val _query = MutableStateFlow("")
         val query: StateFlow<String> = _query.asStateFlow()
 
         val matchingHistory: StateFlow<List<SearchHistoryItem>> =
             combine(searchHistory.getSearchHistoryFlow(SearchHistoryScope.MUSIC), _query) { history, typed ->
-                history.matchingTyped(typed)
+                history.recentOrMatching(typed)
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
         private val _moods = MutableStateFlow<List<MoodAndGenres>>(emptyList())
@@ -55,7 +59,10 @@ class MusicSearchViewModel
 
         // One result request at a time: an answer for an older query or chip must not land over a newer one.
         private var resultsJob: Job? = null
-        val uiState: StateFlow<MusicSearchUiState> = _uiState.asStateFlow()
+        val uiState: StateFlow<MusicSearchUiState> =
+            combine(_uiState, aiList.matcher) { state, ai -> state.withoutAiMusic(ai) }
+                .flowOn(PerformanceDispatcher.parsing)
+                .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), _uiState.value)
 
         init {
             // Handle search suggestions with debounce
@@ -124,7 +131,11 @@ class MusicSearchViewModel
             if (q.isBlank()) return
 
             _query.value = q
-            viewModelScope.launch { searchHistory.saveSearchQuery(q.trim(), type, SearchHistoryScope.MUSIC) }
+            viewModelScope.launch {
+                if (privacyGate.allowsSearchHistory()) {
+                    searchHistory.saveSearchQuery(q.trim(), type, SearchHistoryScope.MUSIC)
+                }
+            }
             _uiState.update { it.copy(isLoading = true, isSearching = true, activeFilter = null, error = null, isMoreLoading = false) }
             resultsJob?.cancel()
             resultsJob = viewModelScope.launch(PerformanceDispatcher.networkIO) { loadSummary(q) }
