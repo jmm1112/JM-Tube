@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
@@ -71,6 +72,17 @@ const val MINI_PLAYER_CORNER_RADIUS_DP = 12f
 private val MiniPlayerMargin = 8.dp
 
 /**
+ * Where the mini player rests while the floating navigation bar is shrunk beside it: its bottom
+ * edge [restBottom] above the window's bottom, and, in the bar's bottom corner, [sideClearance]
+ * in from that edge.
+ */
+@Immutable
+data class MiniPlayerDock(
+    val restBottom: Dp,
+    val sideClearance: Dp,
+)
+
+/**
  * What the mini player is worth on a window too wide to size it by fraction: the width the default
  * size setting gets, which the smaller and larger settings scale around.
  */
@@ -109,6 +121,7 @@ fun DraggablePlayerLayout(
     miniPlayerScale: Float = 0.45f,
     isLargeWindow: Boolean = false,
     startInset: Dp = 0.dp,
+    miniDock: MiniPlayerDock? = null,
     isTwoPaneWindow: Boolean = false,
     detailPaneWidth: Dp = 0.dp,
     tapToExpand: Boolean = true,
@@ -194,6 +207,9 @@ fun DraggablePlayerLayout(
                     isShrinkingToCorner = state.isShrinkingToCorner,
                     cachedTargetX = state.cachedTargetX,
                     offsetXFallback = { state.offsetX.value },
+                    dockedBottomNavPad = miniDock?.let { with(density) { (it.restBottom - MiniPlayerMargin).toPx() } },
+                    dockedSideClearance = miniDock?.let { with(density) { it.sideClearance.toPx() } } ?: 0f,
+                    dockedOnLeft = LocalLayoutDirection.current == LayoutDirection.Ltr,
                 )
             val expandedVideoWidth = geometry.expandedVideoWidth
             val visualMiniScale = geometry.visualMiniScale

@@ -1,0 +1,14 @@
+JM TUBE CHANGE LOG
+VERSION: 1.2.5
+DATE: 2026-11-16
+STATUS: stable
+
+HIGHLIGHTS
+- Floating Navigation Bubble Shrink: On scroll, the floating navigation bar gracefully shrinks down into a compact circular bubble showing only the active tab's icon, maximizing screen real estate while remaining instantly accessible.
+- Mini Player Beside Docked Bubble: When the floating navigation shrinks into a bubble, the video and music mini players automatically shift horizontally to sit neatly beside the bubble, keeping full playback controls unclipped.
+- Navigation Bar Glide Scrub & Spring Indicators: Slide smoothly across bottom navigation tabs with gesture scrubbing, fluid spring-animated pill indicators, and subtle icon pop feedback.
+- Pause Video When Muted: Added a playback preference to automatically pause video playback whenever the device volume is muted to zero, and automatically resume when volume is restored.
+- Hide Watched Suggestions: Option in Content settings to filter out videos you have already watched from suggested and related videos under the player and in autoplay transitions.
+- Exact Timestamp & Chapter Seeking: Enhanced player seeking engine to perform sample-exact millisecond seeking when tapping timestamps or chapters in descriptions, transcripts, comments, and chapter lists.
+- Watch History Autoplay Discontinuity Completion: Perfectly registers watched progress and full history completion when continuous autoplay jumps between videos.
+- Protected Update Session Flow: Modernized in-app updater with an interactive install state machine, preventing accidental dismissal or race conditions during system APK installation.

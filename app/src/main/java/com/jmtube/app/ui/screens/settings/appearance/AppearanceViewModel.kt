@@ -9,6 +9,7 @@ import com.jmtube.app.data.local.HomeFeedColumns
 import com.jmtube.app.data.local.HomeViewMode
 import com.jmtube.app.data.local.LocalDataManager
 import com.jmtube.app.data.local.NavBarLabels
+import com.jmtube.app.data.local.NavBarScroll
 import com.jmtube.app.data.local.NavBarStyle
 import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.platform.AppIconController
@@ -72,6 +73,10 @@ class AppearanceViewModel
         val hideNavOnScroll = preferences.bottomNavHideOnScroll.asState(true)
         val navLabels = preferences.bottomNavLabels.asState(NavBarLabels.ALWAYS)
         val navStyle = preferences.bottomNavStyle.asState(NavBarStyle.STANDARD)
+        val navScrub = preferences.bottomNavScrub.asState(true)
+        val navIconPop = preferences.bottomNavIconPop.asState(false)
+        val navScroll = preferences.bottomNavScroll.asState(NavBarScroll.SHRINK)
+        val navMiniBeside = preferences.bottomNavMiniBeside.asState(false)
         val searchShowsNavBar = preferences.searchShowsNavBar.asState(false)
         val innerPagesShowNavBar = preferences.innerPagesShowNavBar.asState(false)
         val hideNavBarLabels = preferences.hideNavBarLabels.asState(false)
@@ -145,6 +150,14 @@ class AppearanceViewModel
         fun setNavLabels(labels: NavBarLabels) = write { preferences.setBottomNavLabels(labels) }
 
         fun setNavStyle(style: NavBarStyle) = write { preferences.setBottomNavStyle(style) }
+
+        fun setNavScrub(enabled: Boolean) = write { preferences.setBottomNavScrub(enabled) }
+
+        fun setNavIconPop(enabled: Boolean) = write { preferences.setBottomNavIconPop(enabled) }
+
+        fun setNavScroll(scroll: NavBarScroll) = write { preferences.setBottomNavScroll(scroll) }
+
+        fun setNavMiniBeside(enabled: Boolean) = write { preferences.setBottomNavMiniBeside(enabled) }
 
         fun setSearchShowsNavBar(enabled: Boolean) = write { preferences.setSearchShowsNavBar(enabled) }
 

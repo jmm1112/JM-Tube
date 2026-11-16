@@ -96,6 +96,7 @@ fun UpdateScreen(
                 actions = {
                     if (release != null) {
                         UpdateMenu(
+                            enabled = state.stage !is UpdateStage.Installing,
                             onSkip = onClose,
                             onOpenGitHub = { uriHandler.openUri(release.downloadUrl) },
                         )
@@ -244,12 +245,13 @@ private fun StageNotice(stage: UpdateStage) {
 
 @Composable
 private fun UpdateMenu(
+    enabled: Boolean,
     onSkip: () -> Unit,
     onOpenGitHub: () -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
     Box {
-        IconButton(onClick = { open = true }) {
+        IconButton(onClick = { open = true }, enabled = enabled) {
             Icon(Icons.Outlined.MoreVert, contentDescription = stringResource(R.string.more_options))
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {

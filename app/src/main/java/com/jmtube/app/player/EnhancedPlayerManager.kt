@@ -43,6 +43,7 @@ import com.jmtube.app.player.stats.PlayerStatsReadings
 import com.jmtube.app.player.analytics.RenderedFirstFrameListener
 import com.jmtube.app.player.analytics.SphericalVideoListener
 import com.jmtube.app.player.audio.AudioEffectsEntryPoint
+import com.jmtube.app.player.audio.VideoMutePause
 import com.jmtube.app.player.audio.AudioFeaturesManager
 import com.jmtube.app.player.audio.AudioSessionAnnouncer
 import com.jmtube.app.player.audio.eq.EqualizerAudioProcessor
@@ -235,6 +236,9 @@ class EnhancedPlayerManager private constructor() {
     /** Set by the DI graph; null until then, when autoplay hides nothing as before. */
     @Volatile
     var feedExclusionsSource: FeedExclusionsSource? = null
+
+    @Volatile
+    var watchedSuggestionsSource: WatchedSuggestionsSource? = null
 
     // Coroutine scope
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -825,6 +829,7 @@ class EnhancedPlayerManager private constructor() {
         audioFeaturesManager?.observeVolumeNormalizationPreference(context, built)
 
         val prefs = PlayerPreferences(context)
+        player?.let { VideoMutePause.attach(it, prefs.pauseVideoWhenMuted, built) }
         built.launch {
             prefs.sponsorBlockEnabled.collect { isEnabled ->
                 sponsorBlockHandler?.setEnabled(isEnabled)
@@ -1010,6 +1015,7 @@ class EnhancedPlayerManager private constructor() {
                     reason: Int,
                 ) {
                     if (reason == Player.DISCONTINUITY_REASON_SEEK) _seekEvent.tryEmit(Unit)
+                    if (reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) emitCompletionOnAdvance(oldPosition)
                 }
 
                 override fun onRenderedFirstFrame() {
@@ -1929,6 +1935,16 @@ class EnhancedPlayerManager private constructor() {
         _playbackCompletedEvent.tryEmit(PlaybackCompletion(videoId, durationMs))
     }
 
+    // The preloaded next video shares the timeline, so the one that finished never reports ENDED.
+    private fun emitCompletionOnAdvance(old: Player.PositionInfo) {
+        val videoId = currentVideoId ?: return
+        val timeline = player?.currentTimeline ?: return
+        if (old.mediaItemIndex !in 0 until timeline.windowCount) return
+        val windowDurationMs = timeline.getWindow(old.mediaItemIndex, Timeline.Window()).durationMs
+        val durationMs = PlaybackResumePolicy.finishedDurationOnAdvance(windowDurationMs, old.positionMs) ?: return
+        _playbackCompletedEvent.tryEmit(PlaybackCompletion(videoId, durationMs))
+    }
+
     private fun maybeStartAutoplayCountdownOrAdvance() {
         val delaySeconds = autoplayCountdownSeconds
         val nextVideo = nextSessionVideo()
@@ -2239,7 +2255,7 @@ class EnhancedPlayerManager private constructor() {
     private suspend fun visibleRelatedCandidates(videoId: String): List<Video> {
         val candidates = YouTubeRepository.getInstance().getRelatedCandidates(videoId)
         return withContext(Dispatchers.Default) {
-            PlayerRelatedVideosPolicy.sanitizeHidden(videoId, candidates, feedExclusionsSource)
+            PlayerRelatedVideosPolicy.sanitizeHidden(videoId, candidates, feedExclusionsSource, watchedSuggestionsSource)
         }
     }
 
@@ -2503,7 +2519,14 @@ class EnhancedPlayerManager private constructor() {
         p.setSeekParameters(SeekParameters.CLOSEST_SYNC)
     }
 
-    fun seekTo(position: Long) {
+    /**
+     * VOD seeks snap to the closest keyframe, which can land after a chapter start or a linked
+     * timestamp, so jumps to a named moment pass [exact] (#2149).
+     */
+    fun seekTo(
+        position: Long,
+        exact: Boolean = false,
+    ) {
         val p = player ?: return
         val isLive = currentIsLiveStream || p.isCurrentMediaItemLive
         val target = resolveSeekTarget(p, position)
@@ -2512,7 +2535,8 @@ class EnhancedPlayerManager private constructor() {
             sabrSeekTo(target)
             return
         }
-        if (isLive || isEndBoundary) {
+        val exactVod = !isLive && (isEndBoundary || exact)
+        if (isLive || exactVod) {
             p.setSeekParameters(SeekParameters.EXACT)
         }
         if (isLive) {
@@ -2521,7 +2545,7 @@ class EnhancedPlayerManager private constructor() {
         p.seekTo(target)
         if (isLive) {
             updateLiveEdgeState(p)
-        } else if (isEndBoundary) {
+        } else if (exactVod) {
             p.setSeekParameters(SeekParameters.CLOSEST_SYNC)
         }
     }

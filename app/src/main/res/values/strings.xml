@@ -1170,6 +1170,8 @@
     <string name="content_settings_channel_shorts_tab_subtitle">Keep a channel\'s Shorts tab while Shorts are hidden</string>
     <string name="content_settings_hide_watched_shorts_title">Hide watched Shorts</string>
     <string name="content_settings_hide_watched_shorts_subtitle">Keep Shorts you finished out of shelves and the Shorts feed</string>
+    <string name="content_settings_hide_watched_suggestions_title">Hide watched videos from suggestions</string>
+    <string name="content_settings_hide_watched_suggestions_subtitle">Keep them out of Up next and autoplay</string>
     <string name="content_settings_header_content_components">Content Components</string>
     <string name="content_settings_restored_music_mini_player_title">Show restored music mini player</string>
     <string name="content_settings_restored_music_mini_player_subtitle">Show your last music session after it\'s restored</string>
@@ -2243,6 +2245,7 @@
     <string name="music_video_failed">Couldn\'t load the music video</string>
     <string name="music_watch_video">Watch video</string>
     <string name="settings_pause_music_muted_title">Pause music when muted</string>
+    <string name="settings_pause_video_muted_title">Pause video when muted</string>
     <string name="settings_pause_music_muted_summary">Resume when the volume comes back</string>
     <string name="settings_music_resume_title">Resume podcasts and long tracks</string>
     <string name="settings_music_resume_summary">Start tracks over 10 minutes where you left off</string>
@@ -5327,6 +5330,16 @@
     <string name="settings_nav_style_summary">Full width, or floating above the page</string>
     <string name="settings_nav_style_standard">Standard</string>
     <string name="settings_nav_style_floating">Floating</string>
+    <string name="settings_nav_scroll_title">When you scroll</string>
+    <string name="settings_nav_scroll_summary">Hide the bar, or shrink it to the open tab</string>
+    <string name="settings_nav_scroll_hide">Hide</string>
+    <string name="settings_nav_scroll_shrink">Shrink</string>
+    <string name="settings_nav_mini_beside_title">Mini player beside the bubble</string>
+    <string name="settings_nav_mini_beside_summary">While the bar is shrunk, the mini player moves into its row</string>
+    <string name="settings_nav_scrub_title">Drag to switch tabs</string>
+    <string name="settings_nav_scrub_summary">Slide along the floating bar to move between tabs</string>
+    <string name="settings_nav_icon_pop_title">Icon pop</string>
+    <string name="settings_nav_icon_pop_summary">The tab icon bounces when you open it</string>
     <string name="ai_music_block_title">Hide AI music</string>
     <string name="ai_music_artist_listed">This artist is on the AI music list</string>
     <string name="ai_music_artist_show">Show their music</string>

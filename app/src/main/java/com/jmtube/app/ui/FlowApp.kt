@@ -27,6 +27,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.jmtube.app.MainActivity
 import com.jmtube.app.data.local.NavBarLook
+import com.jmtube.app.data.local.NavBarScroll
+import com.jmtube.app.data.local.NavBarStyle
 import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.notification.NotificationHelper
 import com.jmtube.app.data.profile.PendingSlice
@@ -413,59 +415,20 @@ fun FlowApp(
             !isInPipMode && remote.shows(activeMiniPlayer, activeVideo != null, musicPlayerSheetState.isDismissed, isShortsPlayerRoute)
         val isMiniBarObscuringContent =
             (isMusicSheetShown && !musicPlayerSheetState.isDismissed && !musicPlayerSheetState.isExpanded) || showVideoBar || showRemoteBar
-        val motionScheme = MaterialTheme.motionScheme
-        val barFraction = remember { Animatable(if (isBottomNavShown) 1f else 0f) }
-        LaunchedEffect(isBottomNavShown) {
-            // The same springs as the bar's own slide, so whatever rides on it stays glued to it.
-            barFraction.animateTo(
-                targetValue = if (isBottomNavShown) 1f else 0f,
-                animationSpec = if (isBottomNavShown) motionScheme.defaultSpatialSpec() else motionScheme.fastSpatialSpec(),
+        val isBottomNavPresent = !usesNavigationRail && showBottomNav
+        val (bottomInsets, miniPlayerBounds, miniPlayerDock) =
+            rememberFlowBottomChrome(
+                barPresent = isBottomNavPresent,
+                barShown = isBottomNavShown,
+                miniPlayerShown = isMiniBarObscuringContent,
+                systemBottomPx = navBarBottomInset,
+                barHeight = if (usesNavigationRail) 0.dp else navigationBarHeight,
+                containerWidthPx = constraints.maxWidth.toFloat(),
+                railWidth = if (usesNavigationRail && isNavigationRailVisible) navigationRailWidth else 0.dp,
+                navScrollState = navScrollState,
+                miniPlayerBesideShrunkBar =
+                    bottomNavLook.style == NavBarStyle.FLOATING && bottomNavLook.scroll == NavBarScroll.SHRINK && bottomNavLook.miniBeside,
             )
-        }
-        val systemBottomState = rememberUpdatedState(with(density) { navBarBottomInset.toDp() })
-        val barHeightState = rememberUpdatedState(if (usesNavigationRail) 0.dp else navigationBarHeight)
-        val barShownState = rememberUpdatedState(isBottomNavShown)
-        val miniPlayerFraction = remember { Animatable(if (isMiniBarObscuringContent) 1f else 0f) }
-        LaunchedEffect(isMiniBarObscuringContent) {
-            miniPlayerFraction.animateTo(
-                targetValue = if (isMiniBarObscuringContent) 1f else 0f,
-                animationSpec = motionScheme.defaultSpatialSpec(),
-            )
-        }
-        val miniPlayerShownState = rememberUpdatedState(isMiniBarObscuringContent)
-        val miniPlayerHeightState = rememberUpdatedState(MediaMiniBarDefaults.Height + MediaMiniBarDefaults.BottomSpacer)
-        val miniPlayerBounds =
-            with(density) {
-                mediaMiniBarBounds(
-                    containerWidthPx = constraints.maxWidth.toFloat(),
-                    startInsetPx = (if (usesNavigationRail && isNavigationRailVisible) navigationRailWidth else 0.dp).toPx(),
-                    isCompactWidth = !LocalWindowSizeClass.current.isMediumWidth,
-                    compactMarginPx = MediaMiniBarDefaults.CompactMargin.toPx(),
-                    largeMarginPx = MediaMiniBarDefaults.LargeMargin.toPx(),
-                    maxWidthPx = MediaMiniBarDefaults.MaxWidth.toPx(),
-                )
-            }
-        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-        val miniPlayerSpanState =
-            rememberUpdatedState(
-                miniPlayerBounds.let { bounds ->
-                    val left = if (isRtl) constraints.maxWidth - bounds.start - bounds.width else bounds.start
-                    left..(left + bounds.width)
-                },
-            )
-        val bottomInsets =
-            remember {
-                FlowBottomInsets(
-                    systemInset = systemBottomState,
-                    barHeight = barHeightState,
-                    barShown = barShownState,
-                    miniPlayerHeight = miniPlayerHeightState,
-                    miniPlayerShown = miniPlayerShownState,
-                    barFraction = { barFraction.value },
-                    miniPlayerFraction = { miniPlayerFraction.value },
-                    miniPlayerSpanPx = miniPlayerSpanState,
-                )
-            }
         FlowNavigationChrome(
             tabs = navigationTabs,
             selectedTab = selectedTab,
@@ -594,6 +557,7 @@ fun FlowApp(
             isShortsPlayerRoute = isShortsPlayerRoute,
             bottomPadding = bottomPaddingTarget,
             startInset = if (usesNavigationRail && isNavigationRailVisible) navigationRailWidth else 0.dp,
+            miniDock = miniPlayerDock,
             miniPlayerScale = miniPlayerScale,
             miniPlayerShowSkipControls = miniPlayerShowSkipControls,
             miniPlayerShowNextPrevControls = miniPlayerShowNextPrevControls,

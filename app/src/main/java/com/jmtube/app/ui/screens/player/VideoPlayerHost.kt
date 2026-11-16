@@ -25,6 +25,7 @@ import com.jmtube.app.player.EnhancedPlayerManager
 import com.jmtube.app.player.GlobalPlayerState
 import com.jmtube.app.player.dlna.DlnaCastManager
 import com.jmtube.app.ui.components.videoplayer.DraggablePlayerLayout
+import com.jmtube.app.ui.components.videoplayer.MiniPlayerDock
 import com.jmtube.app.ui.components.videoplayer.PlayerDraggableState
 import com.jmtube.app.ui.components.videoplayer.PlayerSheetValue
 import com.jmtube.app.ui.components.videoplayer.isImmersivePlayer
@@ -62,6 +63,7 @@ fun VideoPlayerHost(
     playerSheetState: PlayerDraggableState,
     bottomPadding: androidx.compose.ui.unit.Dp = 0.dp,
     startInset: androidx.compose.ui.unit.Dp = 0.dp,
+    miniDock: MiniPlayerDock? = null,
     miniPlayerScale: Float = 0.45f,
     miniPlayerShowSkipControls: Boolean = false,
     miniPlayerShowNextPrevControls: Boolean = false,
@@ -483,6 +485,7 @@ fun VideoPlayerHost(
                 isTwoPaneWindow = isTwoPaneWindow,
                 detailPaneWidth = detailPaneWidth,
                 startInset = startInset,
+                miniDock = miniDock,
                 tapToExpand = true,
                 onDismiss = onClose,
                 onCollapseGesture = {

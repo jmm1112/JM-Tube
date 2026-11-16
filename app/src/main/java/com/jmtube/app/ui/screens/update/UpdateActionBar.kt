@@ -55,10 +55,11 @@ internal fun UpdateActionBar(
         ) {
             TextButton(
                 onClick = onSecondary,
+                enabled = stage !is UpdateStage.Installing,
             ) {
                 Text(
                     text = stringResource(if (stage is UpdateStage.Downloading) R.string.cancel else R.string.update_not_now),
-                    color = Color(0xFFFF0000),
+                    color = if (stage !is UpdateStage.Installing) Color(0xFFFF0000) else Color.Gray,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 )
             }
@@ -86,6 +87,38 @@ internal fun UpdateActionBar(
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 Text(
                                     text = "Downloading $percentText%",
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                        }
+                    }
+                }
+
+                is UpdateStage.Installing -> {
+                    val progress = stage.progress ?: 0f
+                    val percentText = if (stage.progress != null) " ${(progress * 100).toInt()}%" else ""
+                    Surface(
+                        onClick = {},
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(54.dp)
+                            .padding(start = 16.dp),
+                    ) {
+                        Box(contentAlignment = Alignment.CenterStart) {
+                            if (stage.progress != null) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .fillMaxWidth(progress.coerceIn(0f, 1f))
+                                        .background(Color(0xFFFFC0CB)),
+                                )
+                            }
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "Installing$percentText",
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                     color = MaterialTheme.colorScheme.onSurface,
                                 )

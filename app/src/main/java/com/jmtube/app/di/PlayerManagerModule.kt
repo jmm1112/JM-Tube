@@ -15,6 +15,8 @@ import com.jmtube.app.player.FeedExclusionsSource
 import com.jmtube.app.player.LocalCaptionSource
 import com.jmtube.app.player.LocalCaptions
 import com.jmtube.app.player.LocalCopySource
+import com.jmtube.app.player.WatchedSuggestions
+import com.jmtube.app.player.WatchedSuggestionsSource
 import com.jmtube.app.player.shorts.ShortsPlayerPool
 import com.jmtube.app.utils.PerformanceDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
@@ -43,6 +45,7 @@ object PlayerManagerModule {
         neuroEngine: Lazy<FlowNeuroEngine>,
         localSubtitles: Lazy<LocalSubtitles>,
         offlineSubtitleStore: Lazy<OfflineSubtitleStore>,
+        watchedSuggestions: Lazy<WatchedSuggestions>,
     ): EnhancedPlayerManager =
         EnhancedPlayerManager.getInstance().also {
             it.localCopySource =
@@ -57,6 +60,7 @@ object PlayerManagerModule {
                     LocalCaptions(own + subtitles.picked(videoId), subtitles.offsetMs(videoId))
                 }
             it.feedExclusionsSource = FeedExclusionsSource { neuroEngine.get().feedExclusions() }
+            it.watchedSuggestionsSource = WatchedSuggestionsSource { videos -> watchedSuggestions.get().watchedAmong(videos) }
         }
 
     @Provides

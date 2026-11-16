@@ -10,6 +10,7 @@ import com.jmtube.app.data.video.OfflineSubtitleStore
 import com.jmtube.app.innertube.models.response.PlayerResponse
 import com.jmtube.app.player.EnhancedPlayerManager
 import com.jmtube.app.player.PlaybackResumePolicy
+import com.jmtube.app.player.PlayerRelatedVideosPolicy
 import com.jmtube.app.player.sabr.SabrRoutingPolicy
 import com.jmtube.app.player.sabr.integration.SabrStreamInfo
 import com.jmtube.app.player.stream.ResolvedCaption
@@ -58,12 +59,14 @@ internal class PlaybackPreparer(
     suspend fun applyAutoplayCandidates(
         videoId: String,
         videos: List<Video>,
-    ): Boolean =
-        withContext(Dispatchers.Main) {
+    ): Boolean {
+        val unwatched = PlayerRelatedVideosPolicy.withoutWatched(videos, playerManager.watchedSuggestionsSource)
+        return withContext(Dispatchers.Main) {
             val autoplay = playerPreferences.autoplayEnabled.first()
-            playerManager.setAutoplayCandidates(sourceVideoId = videoId, videos = videos, enabled = autoplay)
+            playerManager.setAutoplayCandidates(sourceVideoId = videoId, videos = unwatched, enabled = autoplay)
             autoplay
         }
+    }
 
     /** The InnerTube-only VOD assembly, unpacked onto the full hand-off below. */
     suspend fun prepareVodStreams(

@@ -174,6 +174,10 @@ class PlayerPreferences(
         val BOTTOM_NAV_HIDE_ON_SCROLL = booleanPreferencesKey("bottom_nav_hide_on_scroll")
         val BOTTOM_NAV_LABELS = stringPreferencesKey("bottom_nav_labels")
         val BOTTOM_NAV_STYLE = stringPreferencesKey("bottom_nav_style")
+        val BOTTOM_NAV_SCRUB = booleanPreferencesKey("bottom_nav_scrub")
+        val BOTTOM_NAV_ICON_POP = booleanPreferencesKey("bottom_nav_icon_pop")
+        val BOTTOM_NAV_SCROLL = stringPreferencesKey("bottom_nav_scroll")
+        val BOTTOM_NAV_MINI_BESIDE = booleanPreferencesKey("bottom_nav_mini_beside")
         val SEARCH_SHOWS_NAV_BAR = booleanPreferencesKey("search_shows_nav_bar")
         val INNER_PAGES_SHOW_NAV_BAR = booleanPreferencesKey("inner_pages_show_nav_bar")
         val AI_MUSIC_BLOCK_ENABLED = booleanPreferencesKey("ai_music_block_enabled")
@@ -349,6 +353,7 @@ class PlayerPreferences(
         val HIDE_WATCHED_HOME_FEED = booleanPreferencesKey("hide_watched_home_feed")
         val HIDE_WATCHED_SUBSCRIPTIONS = booleanPreferencesKey("hide_watched_subscriptions")
         val HIDE_WATCHED_SHORTS = booleanPreferencesKey("hide_watched_shorts")
+        val HIDE_WATCHED_SUGGESTIONS = booleanPreferencesKey("hide_watched_suggestions")
         val WATCHED_THRESHOLD = stringPreferencesKey("watched_threshold")
         val COUNT_IMPORTED_AS_WATCHED = booleanPreferencesKey("count_imported_as_watched")
         val SHARED_LINK_ACTION = stringPreferencesKey("shared_link_action")
@@ -575,6 +580,7 @@ class PlayerPreferences(
 
         // Remember playback speed
         val PAUSE_MUSIC_WHEN_MUTED = device(booleanPreferencesKey("pause_music_when_muted"))
+        val PAUSE_VIDEO_WHEN_MUTED = device(booleanPreferencesKey("pause_video_when_muted"))
         val MUSIC_SIDE_SWIPES = device(booleanPreferencesKey("music_side_swipes"))
         val LOCK_SCREEN_PLAYER = device(booleanPreferencesKey("lock_screen_player"))
         val ANIMATED_ARTWORK_WIFI_ONLY = device(booleanPreferencesKey("animated_artwork_wifi_only"))
@@ -1576,8 +1582,66 @@ class PlayerPreferences(
         }
     }
 
+    // Dragging along the floating bar moves between tabs.
+    val bottomNavScrub: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.BOTTOM_NAV_SCRUB] ?: true }
+            .distinctUntilChanged()
+
+    suspend fun setBottomNavScrub(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.BOTTOM_NAV_SCRUB] = enabled
+        }
+    }
+
+    val bottomNavIconPop: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.BOTTOM_NAV_ICON_POP] ?: false }
+            .distinctUntilChanged()
+
+    suspend fun setBottomNavIconPop(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.BOTTOM_NAV_ICON_POP] = enabled
+        }
+    }
+
+    val bottomNavScroll: Flow<NavBarScroll> =
+        context.playerPreferencesDataStore.data
+            .map { preferences ->
+                preferences[Keys.BOTTOM_NAV_SCROLL]
+                    ?.let { stored -> runCatching { NavBarScroll.valueOf(stored) }.getOrNull() }
+                    ?: NavBarScroll.SHRINK
+            }.distinctUntilChanged()
+
+    suspend fun setBottomNavScroll(scroll: NavBarScroll) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.BOTTOM_NAV_SCROLL] = scroll.name
+        }
+    }
+
+    // Beside the shrunk floating bar, the mini player drops into the bar's row.
+    val bottomNavMiniBeside: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.BOTTOM_NAV_MINI_BESIDE] ?: false }
+            .distinctUntilChanged()
+
+    suspend fun setBottomNavMiniBeside(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.BOTTOM_NAV_MINI_BESIDE] = enabled
+        }
+    }
+
     val bottomNavLook: Flow<NavBarLook> =
-        combine(bottomNavStyle, bottomNavLabels) { style, labels -> NavBarLook(style, labels) }.distinctUntilChanged()
+        combine(
+            bottomNavStyle,
+            bottomNavLabels,
+            bottomNavScrub,
+            bottomNavIconPop,
+            bottomNavScroll,
+        ) { style, labels, scrub, iconPop, scroll ->
+            NavBarLook(style, labels, scrub, iconPop, scroll)
+        }.combine(bottomNavMiniBeside) { look, miniBeside -> look.copy(miniBeside = miniBeside) }
+            .distinctUntilChanged()
 
     // Search keeps its full-screen layout unless this is on.
     val searchShowsNavBar: Flow<Boolean> =
@@ -3207,6 +3271,17 @@ class PlayerPreferences(
         }
     }
 
+    val pauseVideoWhenMuted: Flow<Boolean> =
+        context.devicePreferencesDataStore.data
+            .map { preferences -> preferences[DeviceKeys.PAUSE_VIDEO_WHEN_MUTED] ?: false }
+            .distinctUntilChanged()
+
+    suspend fun setPauseVideoWhenMuted(enabled: Boolean) {
+        context.devicePreferencesDataStore.edit { preferences ->
+            preferences[DeviceKeys.PAUSE_VIDEO_WHEN_MUTED] = enabled
+        }
+    }
+
     /** Podcasts and other long tracks pick up where they stopped when played again. */
     val musicResumeLongTracks: Flow<Boolean> =
         context.playerPreferencesDataStore.data
@@ -3827,6 +3902,17 @@ class PlayerPreferences(
     suspend fun setHideWatchedShorts(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.HIDE_WATCHED_SHORTS] = enabled
+        }
+    }
+
+    /** Watched videos leave the suggestions under the player, and with them autoplay and the queue. */
+    val hideWatchedSuggestions: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.HIDE_WATCHED_SUGGESTIONS] ?: false }
+
+    suspend fun setHideWatchedSuggestions(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.HIDE_WATCHED_SUGGESTIONS] = enabled
         }
     }
 
@@ -5780,5 +5866,15 @@ enum class NavBarStyle {
 data class NavBarLook(
     val style: NavBarStyle = NavBarStyle.STANDARD,
     val labels: NavBarLabels = NavBarLabels.ALWAYS,
+    val scrub: Boolean = true,
+    val iconPop: Boolean = false,
+    val scroll: NavBarScroll = NavBarScroll.SHRINK,
+    val miniBeside: Boolean = false,
 )
+
+/** What scrolling does to the floating bar, when the bar reacts to scrolling at all. */
+enum class NavBarScroll {
+    HIDE,
+    SHRINK,
+}
 

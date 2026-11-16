@@ -71,7 +71,7 @@ import com.jmtube.app.innertube.models.WatchEndpoint
 import com.jmtube.app.player.LifecyclePlaybackPreferences
 import com.jmtube.app.player.MusicFailureStreak
 import com.jmtube.app.player.MusicLoadErrorPolicy
-import com.jmtube.app.player.MusicMutePause
+import com.jmtube.app.player.MutePausePolicy
 import com.jmtube.app.player.MusicPlaybackDiagnostics
 import com.jmtube.app.player.MusicPlaybackRecoveryPlanner
 import com.jmtube.app.player.MusicQueuePlanner
@@ -751,19 +751,19 @@ class Media3MusicService : MediaLibraryService() {
                     volume: Int,
                     muted: Boolean,
                 ) {
-                    val action = MusicMutePause.onVolume(muted || volume == 0, pauseWhenMuted, player.isPlaying, pausedForMute)
+                    val action = MutePausePolicy.onVolume(muted || volume == 0, pauseWhenMuted, player.isPlaying, pausedForMute)
                     when (action) {
-                        MusicMutePause.Action.PAUSE -> {
+                        MutePausePolicy.Action.PAUSE -> {
                             player.pause()
                             pausedForMute = true
                         }
 
-                        MusicMutePause.Action.RESUME -> {
+                        MutePausePolicy.Action.RESUME -> {
                             pausedForMute = false
                             player.play()
                         }
 
-                        MusicMutePause.Action.NONE -> {}
+                        MutePausePolicy.Action.NONE -> {}
                     }
                 }
 

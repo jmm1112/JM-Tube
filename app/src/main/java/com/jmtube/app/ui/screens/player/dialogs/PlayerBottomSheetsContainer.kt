@@ -60,7 +60,7 @@ internal fun PlayerBottomSheetsContainer(
 
     val handleSeek: (Long) -> Unit =
         remember {
-            { positionMs -> EnhancedPlayerManager.getInstance().seekTo(positionMs) }
+            { positionMs -> EnhancedPlayerManager.getInstance().seekTo(positionMs, exact = true) }
         }
 
     LaunchedEffect(Unit) {

@@ -6,9 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.jmtube.app.data.update.AppRelease
+import com.jmtube.app.data.update.ReleaseNotes
 import com.jmtube.app.data.update.UpdateDownload
 import com.jmtube.app.data.update.UpdateFailure
 import com.jmtube.app.data.update.UpdateRepository
+import com.jmtube.app.data.update.parseReleaseNotes
 import com.jmtube.app.updater.AppUpdateInstaller
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,9 +22,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-import com.jmtube.app.data.update.ReleaseNotes
-import com.jmtube.app.data.update.parseReleaseNotes
 
 private const val STOP_TIMEOUT_MS = 5_000L
 
@@ -43,7 +42,6 @@ class UpdateViewModel
         private val installer: AppUpdateInstaller,
     ) : ViewModel() {
         private val canInstall = MutableStateFlow(installer.canInstall())
-        private val installing = MutableStateFlow(false)
         private val loading = MutableStateFlow(true)
         private val _release = MutableStateFlow<AppRelease?>(null)
 
@@ -57,10 +55,9 @@ class UpdateViewModel
                         combine(
                             installer.state(release.versionName),
                             canInstall,
-                            installing,
-                            installer.installFailed,
-                        ) { download, allowed, busy, failed ->
-                            UpdateUiState(release, notes, updateStage(download, allowed, busy, failed))
+                            installer.installPhase,
+                        ) { download, allowed, install ->
+                            UpdateUiState(release, notes, updateStage(download, allowed, install))
                         }
                     }
                 },
@@ -91,13 +88,16 @@ class UpdateViewModel
 
         fun installPermissionIntent(): Intent = installer.installPermissionIntent()
 
+        fun skip() {
+            installer.cancel()
+        }
+
         fun onResume() {
             canInstall.value = installer.canInstall()
-            installing.value = false
+            installer.reconcile()
         }
 
         private fun install(release: AppRelease) {
-            installing.value = true
-            viewModelScope.launch { if (!installer.install(release.versionName)) installing.value = false }
+            viewModelScope.launch { installer.install(release.versionName) }
         }
     }
