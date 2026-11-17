@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.jmtube.app.R
+import com.jmtube.app.data.local.PlaylistSwipes
 import com.jmtube.app.data.model.Video
 import com.jmtube.app.ui.components.layout.flowBottomContentPadding
 import com.jmtube.app.ui.components.library.PlaylistVideoRow
@@ -37,6 +38,8 @@ internal class PlaylistListMode(
     val isWatchLater: Boolean,
     val isLikes: Boolean = false,
     val searchQuery: String = "",
+    val swipes: PlaylistSwipes = PlaylistSwipes(),
+    val swipeEnabled: Boolean = false,
 )
 
 /**
@@ -52,6 +55,7 @@ internal fun PlaylistDetailList(
     reorderState: ReorderableLazyListState,
     onVideoClick: (index: Int, video: Video) -> Unit,
     onRemove: (Video) -> Unit,
+    onMoveToEdge: (video: Video, toTop: Boolean) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(bottom = flowBottomContentPadding()),
     header: (@Composable () -> Unit)? = null,
@@ -109,7 +113,11 @@ internal fun PlaylistDetailList(
                     showAddedDate = mode.showAddedDate,
                     isWatchLater = mode.isWatchLater,
                     isLikes = mode.isLikes,
+                    swipes = mode.swipes,
+                    swipeEnabled = mode.swipeEnabled,
                     onRemove = { onRemove(video) },
+                    onMoveToTop = if (mode.canReorder && index > 0) ({ onMoveToEdge(video, true) }) else null,
+                    onMoveToBottom = if (mode.canReorder && index < videos.lastIndex) ({ onMoveToEdge(video, false) }) else null,
                     onClick = { onVideoClick(index, video) },
                     thumbnailWidth = thumbnailWidth,
                 )

@@ -48,6 +48,7 @@ class ViewHistory private constructor(
     companion object {
         private const val TAG = "ViewHistory"
         private const val WATCH_HISTORY_TABLE = "watch_history"
+        private const val UNPLAYED_DELETE_BATCH = 500
 
         @Volatile
         private var instance: ViewHistory? = null
@@ -243,6 +244,10 @@ class ViewHistory private constructor(
     suspend fun clearVideoHistory(videoId: String) {
         dao.deleteEntry(videoId)
     }
+
+    /** Removes [videoIds] from history where they were only imported, never played; returns how many went. */
+    suspend fun removeUnplayedEntries(videoIds: Collection<String>): Int =
+        videoIds.chunked(UNPLAYED_DELETE_BATCH).sumOf { dao.deleteUnplayed(it) }
 
     /**
      * Marks the given video as fully watched (position = duration) so it no longer

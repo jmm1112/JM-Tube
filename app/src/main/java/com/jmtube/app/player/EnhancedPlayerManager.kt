@@ -2671,7 +2671,10 @@ class EnhancedPlayerManager private constructor() {
     }
 
     private fun updateEffectiveLoopState() {
-        _playerState.value = _playerState.value.copy(isLooping = manualLoopEnabled || globalLoopEnabled)
+        val looping = manualLoopEnabled || globalLoopEnabled
+        if (_playerState.value.isLooping == looping) return
+        _playerState.value = _playerState.value.copy(isLooping = looping)
+        if (looping) preload.clear() else preload.schedule()
     }
 
     fun stop() {

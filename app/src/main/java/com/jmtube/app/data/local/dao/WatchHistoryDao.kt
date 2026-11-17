@@ -26,6 +26,9 @@ interface WatchHistoryDao {
     @Query("DELETE FROM watch_history WHERE videoId = :videoId")
     suspend fun deleteEntry(videoId: String)
 
+    @Query("DELETE FROM watch_history WHERE videoId IN (:videoIds) AND position = 0 AND duration = 0")
+    suspend fun deleteUnplayed(videoIds: List<String>): Int
+
     @Query("DELETE FROM watch_history")
     suspend fun clearAll()
 

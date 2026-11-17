@@ -278,6 +278,8 @@ fun VideoPlayerHost(
         isBackgroundPlaybackMode = playerUiState.isBackgroundPlaybackMode,
         videoAspectRatio = videoAspectRatio,
         pipPreferences = pipPreferences,
+        hasNext = playerState.hasNext || playerUiState.relatedVideos.isNotEmpty(),
+        onNext = { playerViewModel.playNext() },
         // A PiP window can't be sent back; finishing closes it and onDestroy keeps the background audio.
         onListenInBackground = {
             playerViewModel.startBackgroundPlayback()

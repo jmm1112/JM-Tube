@@ -13,6 +13,8 @@ import com.jmtube.app.player.EnhancedPlayerManager
 import com.jmtube.app.player.GlobalPlayerState
 import com.jmtube.app.player.PictureInPictureHelper
 
+import com.jmtube.app.player.videoHandlesPipNext
+
 private const val TAG = "PipModeHandler"
 
 /**
@@ -21,19 +23,23 @@ private const val TAG = "PipModeHandler"
 @Composable
 private fun PipBroadcastReceiverEffect(
     context: Context,
+    onNext: () -> Unit,
     onBackground: () -> Unit,
 ) {
+    val currentOnNext by rememberUpdatedState(onNext)
     val currentOnBackground by rememberUpdatedState(onBackground)
     DisposableEffect(Unit) {
         val receiver =
             PictureInPictureHelper.createPipActionReceiver(
                 onPlay = { EnhancedPlayerManager.getInstance().play() },
                 onPause = { EnhancedPlayerManager.getInstance().pause() },
+                onNext = { if (videoHandlesPipNext(PictureInPictureHelper.shortsNavigation)) currentOnNext() },
                 onClose = {
                     GlobalPlayerState.requestDismiss()
                     EnhancedPlayerManager.getInstance().stop()
                     EnhancedPlayerManager.getInstance().stopBackgroundService()
                 },
+                onBackground = { currentOnBackground() },
             )
 
         ContextCompat.registerReceiver(
@@ -62,9 +68,13 @@ private fun PipParamsUpdateEffect(
     autoPipEnabled: Boolean,
     isBackgroundPlaybackMode: Boolean,
     videoAspectRatio: Float,
+    hasNext: Boolean,
     activity: Activity?,
 ) {
-    LaunchedEffect(isPlaying, autoPipEnabled, isBackgroundPlaybackMode, videoAspectRatio) {
+    LaunchedEffect(isPlaying, autoPipEnabled, isBackgroundPlaybackMode, videoAspectRatio, hasNext) {
+        val nextChanged = PictureInPictureHelper.videoHasNext != hasNext
+        PictureInPictureHelper.setVideoHasNext(hasNext)
+        if (nextChanged && !videoHandlesPipNext(PictureInPictureHelper.shortsNavigation)) return@LaunchedEffect
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && activity != null) {
             val autoEnterEnabled =
                 BackgroundPlaybackPolicy.shouldEnterAutoPip(
@@ -77,12 +87,14 @@ private fun PipParamsUpdateEffect(
                 aspectRatio = videoAspectRatio,
                 isPlaying = isPlaying,
                 autoEnterEnabled = autoEnterEnabled,
+                offerBackground = !isBackgroundPlaybackMode,
             )
         }
     }
 
     DisposableEffect(activity) {
         onDispose {
+            PictureInPictureHelper.setVideoHasNext(false)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && activity != null) {
                 PictureInPictureHelper.updatePipParams(
                     activity = activity,
@@ -129,10 +141,16 @@ internal fun SetupPipEffects(
     isBackgroundPlaybackMode: Boolean,
     videoAspectRatio: Float,
     pipPreferences: PipPreferences,
+    hasNext: Boolean = false,
+    onNext: () -> Unit = {},
     onListenInBackground: () -> Unit,
 ) {
     // Register broadcast receiver
-    PipBroadcastReceiverEffect(context, onListenInBackground)
+    PipBroadcastReceiverEffect(
+        context = context,
+        onNext = onNext,
+        onBackground = onListenInBackground,
+    )
 
     // Update PiP params
     PipParamsUpdateEffect(
@@ -140,6 +158,7 @@ internal fun SetupPipEffects(
         autoPipEnabled = pipPreferences.autoPipEnabled,
         isBackgroundPlaybackMode = isBackgroundPlaybackMode,
         videoAspectRatio = videoAspectRatio,
+        hasNext = hasNext,
         activity = activity,
     )
 }

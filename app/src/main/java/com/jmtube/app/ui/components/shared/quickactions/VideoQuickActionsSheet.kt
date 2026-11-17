@@ -18,6 +18,8 @@ import androidx.compose.material.icons.outlined.QueuePlayNext
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
+import androidx.compose.material.icons.outlined.VerticalAlignBottom
+import androidx.compose.material.icons.outlined.VerticalAlignTop
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.outlined.WatchLater
@@ -44,6 +46,7 @@ import com.jmtube.app.data.model.Video
 import com.jmtube.app.data.model.VideoCollaborator
 import com.jmtube.app.ui.components.layout.navigation.LocalMediaNavigator
 import com.jmtube.app.ui.components.shared.ChannelAvatarStack
+import com.jmtube.app.ui.components.shared.ChannelOrganizeTarget
 import com.jmtube.app.ui.components.shared.FlowNavRow
 import com.jmtube.app.ui.components.shared.FlowSubscribeButton
 import com.jmtube.app.ui.components.shared.FlowSubscribeButtonSize
@@ -58,6 +61,7 @@ import com.jmtube.app.ui.components.shared.card.rememberCollaboratorChannelDispl
 import com.jmtube.app.ui.components.shared.card.rememberCollaboratorItems
 import com.jmtube.app.ui.components.shared.card.rememberWatchProgress
 import com.jmtube.app.ui.components.shared.collaboratorRows
+import com.jmtube.app.ui.components.shared.rememberChannelOrganizeActions
 import com.jmtube.app.ui.components.shared.rememberVideoShareAction
 import com.jmtube.app.ui.components.shared.sharedSubscriptionBellViewModel
 import com.jmtube.app.utils.youtubeWatchUrl
@@ -86,6 +90,8 @@ fun VideoQuickActionsBottomSheet(
     removeFromCollectionLabel: String? = null,
     removeFromCollectionIcon: ImageVector = Icons.Outlined.PlaylistRemove,
     onPlayNow: (() -> Unit)? = null,
+    onMoveToTop: (() -> Unit)? = null,
+    onMoveToBottom: (() -> Unit)? = null,
     viewModel: QuickActionsViewModel = sharedQuickActionsViewModel(),
 ) {
     var page by rememberSaveable(video.id) { mutableStateOf(VideoMenuPage.Actions) }
@@ -163,9 +169,28 @@ fun VideoQuickActionsBottomSheet(
                     } else {
                         null
                     }
+                val moveRows =
+                    listOfNotNull(
+                        onMoveToTop?.let { move ->
+                            actionRow("move_to_top", Icons.Outlined.VerticalAlignTop, stringResource(R.string.playlist_move_to_top)) {
+                                move()
+                                close()
+                            }
+                        },
+                        onMoveToBottom?.let { move ->
+                            actionRow(
+                                "move_to_bottom",
+                                Icons.Outlined.VerticalAlignBottom,
+                                stringResource(R.string.playlist_move_to_bottom),
+                            ) {
+                                move()
+                                close()
+                            }
+                        },
+                    )
                 QuickActionsGroup(
                     title = stringResource(R.string.section_options),
-                    rows = moreRows(video, viewModel, close) { page = VideoMenuPage.Details } + listOfNotNull(removeRow),
+                    rows = moreRows(video, viewModel, close) { page = VideoMenuPage.Details } + moveRows + listOfNotNull(removeRow),
                 )
             }
         }
@@ -300,13 +325,30 @@ private fun channelRow(
                 } else {
                     {
                         val toggle = { viewModel.toggleSubscription(video.channelId, video.channelName, video.channelThumbnailUrl) }
+                        val isSubscribed = video.channelId in subscribedChannelIds
+                        val organize =
+                            rememberChannelOrganizeActions(
+                                target =
+                                    remember(video.channelId, video.channelName, avatars) {
+                                        ChannelOrganizeTarget(
+                                            channelId = video.channelId,
+                                            title = video.channelName,
+                                            avatarUrl = avatars.firstOrNull().orEmpty(),
+                                        )
+                                    },
+                                isSubscribed = isSubscribed,
+                                beforeOpen = onDismiss,
+                            )
                         FlowSubscribeButton(
-                            isSubscribed = video.channelId in subscribedChannelIds,
+                            isSubscribed = isSubscribed,
                             onSubscribeClick = toggle,
                             onUnsubscribeClick = toggle,
                             isNotificationsEnabled = video.channelId in notifyingChannelIds,
                             onNotificationChange = { bell.setNotifications(video.channelId, it) },
                             size = FlowSubscribeButtonSize.Compact,
+                            showSubscribedLabel = false,
+                            onAddNote = organize.onAddNote,
+                            onManageGroups = organize.onManageGroups,
                         )
                     }
                 },

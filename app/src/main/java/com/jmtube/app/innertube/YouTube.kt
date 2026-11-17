@@ -119,6 +119,10 @@ import com.jmtube.app.innertube.pages.toVideoCommentsPage
 import com.jmtube.app.innertube.pages.toVideoDescriptionPage
 import com.jmtube.app.innertube.pages.toVideoPlaylistPage
 import com.jmtube.app.innertube.pages.videoCommentsContinuation
+import com.jmtube.app.innertube.pages.videoCommentsPanelHeader
+import com.jmtube.app.innertube.pages.videoCommentsSection
+import com.jmtube.app.innertube.pages.VideoCommentsPanelHeader
+import com.jmtube.app.innertube.pages.VideoCommentsSection
 import com.jmtube.app.utils.PerformanceDispatcher
 import com.jmtube.app.utils.avatarImageIdentityKey
 import com.jmtube.app.utils.relativedate.RelativeUploadDateParser
@@ -2450,6 +2454,12 @@ object YouTube {
 
     /** The continuation that opens [videoId]'s comment section, from an already-fetched watch response. */
     fun commentsContinuation(watchNext: JsonElement): String? = watchNext.videoCommentsContinuation()
+
+    /** The comment section of an already-fetched watch response: its continuation, or that comments are off. */
+    fun commentsSection(watchNext: JsonElement): VideoCommentsSection? = watchNext.videoCommentsSection()
+
+    /** The sort menu and count in [watchNext]'s comments panel, from an already-fetched watch response. */
+    fun commentsPanelHeader(watchNext: JsonElement): VideoCommentsPanelHeader? = watchNext.videoCommentsPanelHeader()
 
     suspend fun comments(
         continuation: String,

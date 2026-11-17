@@ -1,0 +1,16 @@
+JM TUBE CHANGE LOG
+VERSION: 1.2.7
+DATE: 2026-11-17
+STATUS: stable
+
+HIGHLIGHTS
+- Landscape Navigation Rail Overflow: Dynamic item capacity calculation on landscape phones ensures all navigation tabs remain easily accessible via a neat overflow menu without vertical clipping.
+- PiP Background Audio Button & Smooth Transitions: Added a dedicated "Listen in Background" button directly to the Picture-in-Picture window, alongside accurate layout bounds tracking to eliminate black letterbox borders when entering PiP.
+- Playlist Gestures & Quick Edge Reordering: Swipe items in custom playlists to instantly move videos to the top or bottom of the list, with full TalkBack accessibility support and Quick Action sheet integration.
+- YouTube Auto Chapters & Seamless Looping: Added support for engagement macro-marker auto chapters with decimal timestamp precision, and improved looping playback without unnecessary preloader overhead.
+- Android Auto Video Playlists & Resume: Car screens now browse video playlists and Watch Later with individual resume positions, cleanly grouped alongside music collections.
+- Google Takeout Ad Filtering: Imported Takeout watch history now automatically detects and skips sponsored/ad video entries and cleans out unplayed ad records from your history.
+- WebView Crash Recovery: Protected JavaScript cipher decoding with automatic renderer recovery (`onRenderProcessGone`) to prevent background webview terminations from crashing the app.
+- Multi-Language Upload Dates: Extended relative upload date parsing across German, Spanish, French, Italian, Portuguese, and Russian date units.
+- Paxsenix & Apple Music Lyrics Reliability: Added iTunes search fallback and rate-limit recovery for timed synced lyrics.
+- Updated Global Translations: Updated translation resources for Arabic, Azerbaijani, Spanish, Polish, Brazilian Portuguese, Russian, Vietnamese, and Traditional Chinese.

@@ -52,6 +52,7 @@ import com.jmtube.app.ui.components.shared.rememberReorderableLazyListState
 import com.jmtube.app.ui.components.shared.rememberShareLinksWithoutText
 import com.jmtube.app.utils.PLAYLIST_FILE_MIME_TYPE
 import com.jmtube.app.utils.filterBySearch
+import com.jmtube.app.utils.movedToEdge
 import com.jmtube.app.utils.sharePlaylist
 import com.jmtube.app.utils.sharePlaylistFile
 import kotlinx.coroutines.launch
@@ -68,6 +69,7 @@ fun PlaylistDetailScreen(
     val downloadBatch by viewModel.downloadBatch.collectAsStateWithLifecycle()
     val downloadedCollection by viewModel.downloadedCollection.collectAsStateWithLifecycle()
     val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
+    val swipes by viewModel.playlistSwipes.collectAsStateWithLifecycle()
     val mergeTargets by viewModel.userCreatedPlaylists.collectAsStateWithLifecycle()
     val quickActions = sharedQuickActionsViewModel()
     val context = LocalContext.current
@@ -125,6 +127,15 @@ fun PlaylistDetailScreen(
         val sortedIds = sortedVideos.mapTo(LinkedHashSet()) { it.id }
         selectedIds = leftOut?.let { sortedIds - it } ?: selectedIds.intersect(sortedIds)
         if (sortedVideos.isEmpty()) exitSelection()
+    }
+
+    fun moveToEdge(
+        video: Video,
+        toTop: Boolean,
+    ) {
+        val moved = displayVideos.movedToEdge(displayVideos.indexOfFirst { it.id == video.id }, toTop) ?: return
+        displayVideos = moved
+        viewModel.reorderVideos(moved.map { it.id })
     }
 
     LaunchedEffect(searchQuery) {
@@ -251,6 +262,8 @@ fun PlaylistDetailScreen(
                                     isWatchLater = uiState.isWatchLater,
                                     isLikes = uiState.isLikes,
                                     searchQuery = searchQuery.orEmpty(),
+                                    swipes = swipes,
+                                    swipeEnabled = !selectionMode && !reorderState.isDragging,
                                 ),
                             isLoadingMore = uiState.isLoadingMore,
                             listState = listState,
@@ -263,6 +276,7 @@ fun PlaylistDetailScreen(
                                 }
                             },
                             onRemove = { viewModel.removeVideo(it.id) },
+                            onMoveToEdge = ::moveToEdge,
                             header = header,
                         )
                     }

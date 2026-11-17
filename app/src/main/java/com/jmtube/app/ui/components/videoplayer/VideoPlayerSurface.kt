@@ -50,8 +50,8 @@ import androidx.media3.exoplayer.video.spherical.SphericalGLSurfaceView
 import androidx.media3.ui.PlayerView
 import com.jmtube.app.data.model.Video
 import com.jmtube.app.player.EnhancedPlayerManager
-import com.jmtube.app.player.PictureInPictureHelper
 import com.jmtube.app.player.PipBounds
+import com.jmtube.app.player.PictureInPictureHelper
 import com.jmtube.app.player.toDisplayAspectRatioOrNull
 import com.jmtube.app.ui.components.shared.clipToCornerRadius
 import com.jmtube.app.ui.components.shared.flowPlayerViewLayout
@@ -193,7 +193,7 @@ fun VideoPlayerSurface(
     }
 
     DisposableEffect(playerView) {
-        onDispose { PictureInPictureHelper.sourceRectHint = null }
+        onDispose { PictureInPictureHelper.setVideoViewBounds(context as? Activity, null) }
     }
 
     if (sphericalView != null) {
@@ -445,13 +445,15 @@ private fun rememberPipSourceHintModifier(activity: Activity?): Modifier {
             .onLayoutRectChanged {
                 val bounds = placed.value?.takeIf { it.isAttached }?.boundsInWindow()
                 if (bounds != null && !bounds.isEmpty) {
-                    PictureInPictureHelper.sourceRectHint =
-                        android.graphics.Rect(
+                    PictureInPictureHelper.setVideoViewBounds(
+                        activity,
+                        PipBounds(
                             bounds.left.roundToInt(),
                             bounds.top.roundToInt(),
                             bounds.right.roundToInt(),
                             bounds.bottom.roundToInt(),
-                        )
+                        ),
+                    )
                 }
             }
     }
