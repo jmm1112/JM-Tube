@@ -17,6 +17,7 @@ import com.jmtube.app.ui.components.music.sheet.SaveSongSheet
 import com.jmtube.app.ui.components.music.sheet.SaveSongsSheet
 import com.jmtube.app.ui.components.musicplayer.sheet.AudioSettingsSheet
 import com.jmtube.app.ui.screens.music.CrossfadePauseViewModel
+import com.jmtube.app.ui.screens.music.MusicCastViewModel
 
 /** Which of the full player's own sheets is open. */
 @Stable
@@ -53,14 +54,18 @@ internal fun FullPlayerSheets(
         val crossfade: CrossfadePauseViewModel = hiltViewModel()
         val crossfadeOn by crossfade.crossfadeOn.collectAsStateWithLifecycle()
         val crossfadePaused by crossfade.paused.collectAsStateWithLifecycle()
+        val cast: MusicCastViewModel = hiltViewModel()
         MusicQuickActionsSheet(
             track = currentTrack,
             onDismiss = { state.moreOptions = false },
             onAudioEffectsClick = { state.audioSettings = true },
             onSleepTimerClick = { state.sleepTimer = true },
             crossfadePause = if (crossfadeOn) CrossfadePauseRow(crossfadePaused, crossfade::toggle) else null,
+            onCastClick = cast::openPicker,
         )
     }
+
+    currentTrack?.let { MusicCastHost(title = it.title) }
 
     if (state.audioSettings) {
         AudioSettingsSheet(

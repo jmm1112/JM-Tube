@@ -5,21 +5,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.data.profile.ActiveProfile
 import com.jmtube.app.data.profile.ProfileRegistryState
 import com.jmtube.app.data.profile.ProfileRepository
 import com.jmtube.app.data.profile.ProfileSwitcher
 import com.jmtube.app.data.profile.SwitchRefusal
 import com.jmtube.app.data.profile.SwitchResult
+import com.jmtube.app.ui.components.layout.topbar.TopBarAccountSettings
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import com.jmtube.app.sync2.service.LinkedProfiles
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,8 +34,15 @@ class ProfileSwitchViewModel
         private val profiles: ProfileRepository,
         private val switcher: ProfileSwitcher,
         linked: LinkedProfiles,
+        preferences: PlayerPreferences,
     ) : ViewModel() {
         val state: StateFlow<ProfileRegistryState?> = profiles.state.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+        /** Whether the top bars show the avatar and whether its menu holds Settings; null until read. */
+        val topBarAccount: StateFlow<TopBarAccountSettings?> =
+            combine(preferences.showProfileInTopBar, preferences.settingsInProfileMenu, ::TopBarAccountSettings)
+                .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
         val synced: StateFlow<Set<String>> =
             linked.choices
                 .map { choices -> choices.local.filter { it.link != null }.mapTo(HashSet()) { it.id } }

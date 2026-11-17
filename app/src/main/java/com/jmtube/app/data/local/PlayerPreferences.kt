@@ -8,6 +8,8 @@ import androidx.datastore.preferences.core.*
 import com.jmtube.app.data.model.SponsorBlockCategories
 import com.jmtube.app.data.playlist.PlaylistListOrder
 import com.jmtube.app.data.profile.StoreScope
+import com.jmtube.app.data.translation.TranslationServerType
+import com.jmtube.app.data.translation.TranslationSettings
 import com.jmtube.app.data.video.downloader.work.RetagResult
 import com.jmtube.app.data.video.storage.DownloadLocation
 import com.jmtube.app.network.AppProxyConfig
@@ -67,10 +69,10 @@ val DEFAULT_NAV_TAB_ORDER = listOf(0, 1, 2, 3, 4, 5, 6, 7)
 private const val MAX_UNPLAYABLE_VIDEO_IDS = 1_000
 
 /**
- * Preferences that never leave the device in a backup: the proxy password, and SponsorBlock's
- * submission id, which is a private identity for the user's votes and segments.
+ * Preferences that never leave the device in a backup: the proxy password, the translation
+ * server's API key, and SponsorBlock's submission id.
  */
-private val BackupExcludedKeys = setOf("proxy_password", "sb_user_id")
+private val BackupExcludedKeys = setOf("proxy_password", "translation_api_key", "sb_user_id")
 
 private val ReminderJson = Json { ignoreUnknownKeys = true }
 
@@ -205,6 +207,7 @@ class PlayerPreferences(
         val WIFI_ONLY_DOWNLOADS = booleanPreferencesKey("wifi_only_downloads")
         val REMOVE_WATCHED_WATCH_LATER = booleanPreferencesKey("remove_watched_watch_later")
         val LYRICS_IN_MINI_PLAYER = booleanPreferencesKey("lyrics_in_mini_player")
+        val IMMERSIVE_LYRICS_ON_COVER = booleanPreferencesKey("immersive_lyrics_on_cover")
         val LYRICS_ON_LOCK_SCREEN = booleanPreferencesKey("lyrics_on_lock_screen")
         val LYRICS_ON_DEMAND = booleanPreferencesKey("lyrics_on_demand")
         val LYRICS_ON_LOCK_SCREEN_DELAY_MS = intPreferencesKey("lyrics_on_lock_screen_delay_ms")
@@ -286,6 +289,7 @@ class PlayerPreferences(
         val DEARROW_ENABLED = booleanPreferencesKey("dearrow_enabled")
         val DEARROW_BADGE_ENABLED = booleanPreferencesKey("dearrow_badge_enabled")
         val DEARROW_RANDOM_FRAME = booleanPreferencesKey("dearrow_random_frame")
+        val DEARROW_THUMBNAILS_ONLY = booleanPreferencesKey("dearrow_thumbnails_only")
 
         // AI channel list
         val AI_LIST_BLOCK_ENABLED = booleanPreferencesKey("ai_list_block_enabled")
@@ -392,6 +396,8 @@ class PlayerPreferences(
 
         // Show app logo icon in home screen top bar
         val SHOW_APP_LOGO_ICON = booleanPreferencesKey("show_app_logo_icon")
+        val SHOW_PROFILE_IN_TOP_BAR = booleanPreferencesKey("show_profile_in_top_bar")
+        val SETTINGS_IN_PROFILE_MENU = booleanPreferencesKey("settings_in_profile_menu")
 
         // Player comments preview
         val COMMENTS_ENABLED = booleanPreferencesKey("comments_enabled")
@@ -405,6 +411,9 @@ class PlayerPreferences(
         val SUBSCRIPTION_SHOW_LIVE = booleanPreferencesKey("subscription_show_live")
         val SUBSCRIPTION_SHOW_UPCOMING = booleanPreferencesKey("subscription_show_upcoming")
         val SUBS_POSTS_CHIP = booleanPreferencesKey("subs_posts_chip")
+        val SUBS_HIDDEN_GROUPS = stringSetPreferencesKey("subs_hidden_groups")
+        val SUBS_GROUPS_OUT_OF_ALL = stringSetPreferencesKey("subs_groups_out_of_all")
+        val SUBS_ALL_CHIP = booleanPreferencesKey("subs_all_chip")
         val SUBS_UNGROUPED_ENABLED = booleanPreferencesKey("subs_ungrouped_enabled")
         val SUBS_UNGROUPED_POSITION = intPreferencesKey("subs_ungrouped_position")
         val SUBS_PINNED_CHANNELS = stringPreferencesKey("subs_pinned_channels")
@@ -610,6 +619,13 @@ class PlayerPreferences(
         // Volume boost: opt-in, default off
         val ALLOW_VOLUME_BOOST = device(booleanPreferencesKey("allow_volume_boost"))
 
+        // Translation server settings
+        val TRANSLATION_USE_SERVER = device(booleanPreferencesKey("translation_use_server"))
+        val TRANSLATION_SERVER_TYPE = device(stringPreferencesKey("translation_server_type"))
+        val TRANSLATION_SERVER_URL = device(stringPreferencesKey("translation_server_url"))
+        val TRANSLATION_API_KEY = device(stringPreferencesKey("translation_api_key"))
+        val TRANSLATION_TARGET = device(stringPreferencesKey("translation_target"))
+
         val NAMES: Set<String> = names
     }
 
@@ -641,6 +657,54 @@ class PlayerPreferences(
     suspend fun setAllowVolumeBoost(enabled: Boolean) {
         context.devicePreferencesDataStore.edit { preferences ->
             preferences[DeviceKeys.ALLOW_VOLUME_BOOST] = enabled
+        }
+    }
+
+    val translationSettings: Flow<TranslationSettings> =
+        context.devicePreferencesDataStore.data.map { preferences ->
+            TranslationSettings(
+                useServer = preferences[DeviceKeys.TRANSLATION_USE_SERVER] ?: false,
+                serverType = TranslationServerType.fromKey(preferences[DeviceKeys.TRANSLATION_SERVER_TYPE]),
+                serverUrl = preferences[DeviceKeys.TRANSLATION_SERVER_URL],
+                apiKey = preferences[DeviceKeys.TRANSLATION_API_KEY],
+                target = preferences[DeviceKeys.TRANSLATION_TARGET].orEmpty(),
+            )
+        }
+
+    suspend fun setTranslationUseServer(useServer: Boolean) {
+        context.devicePreferencesDataStore.edit { preferences ->
+            preferences[DeviceKeys.TRANSLATION_USE_SERVER] = useServer
+        }
+    }
+
+    suspend fun setTranslationServer(
+        type: TranslationServerType,
+        url: String?,
+        apiKey: String?,
+    ) {
+        context.devicePreferencesDataStore.edit { preferences ->
+            preferences[DeviceKeys.TRANSLATION_SERVER_TYPE] = type.key
+            if (url.isNullOrBlank()) {
+                preferences.remove(DeviceKeys.TRANSLATION_SERVER_URL)
+            } else {
+                preferences[DeviceKeys.TRANSLATION_SERVER_URL] = url
+            }
+            if (apiKey.isNullOrBlank()) {
+                preferences.remove(DeviceKeys.TRANSLATION_API_KEY)
+            } else {
+                preferences[DeviceKeys.TRANSLATION_API_KEY] = apiKey
+            }
+            preferences[DeviceKeys.TRANSLATION_USE_SERVER] = true
+        }
+    }
+
+    suspend fun setTranslationTarget(languageTag: String) {
+        context.devicePreferencesDataStore.edit { preferences ->
+            if (languageTag.isBlank()) {
+                preferences.remove(DeviceKeys.TRANSLATION_TARGET)
+            } else {
+                preferences[DeviceKeys.TRANSLATION_TARGET] = languageTag
+            }
         }
     }
 
@@ -1922,6 +1986,14 @@ class PlayerPreferences(
         }
     }
 
+    /** Whether the immersive player's lyrics button shows lyrics over the cover instead of opening the sheet. */
+    val immersiveLyricsOnCover: Flow<Boolean> =
+        context.playerPreferencesDataStore.data.map { it[Keys.IMMERSIVE_LYRICS_ON_COVER] ?: false }
+
+    suspend fun setImmersiveLyricsOnCover(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { it[Keys.IMMERSIVE_LYRICS_ON_COVER] = enabled }
+    }
+
     val lyricsOnLockScreen: Flow<Boolean> =
         context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_ON_LOCK_SCREEN] ?: false }
 
@@ -2678,6 +2750,13 @@ class PlayerPreferences(
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.DEARROW_RANDOM_FRAME] = enabled
         }
+    }
+
+    val deArrowThumbnailsOnly: Flow<Boolean> =
+        context.playerPreferencesDataStore.data.map { it[Keys.DEARROW_THUMBNAILS_ONLY] ?: false }
+
+    suspend fun setDeArrowThumbnailsOnly(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { it[Keys.DEARROW_THUMBNAILS_ONLY] = enabled }
     }
 
     // AI channel list
@@ -3804,6 +3883,54 @@ class PlayerPreferences(
         context.playerPreferencesDataStore.edit { preferences -> preferences[Keys.SUBS_POSTS_CHIP] = enabled }
     }
 
+    val subscriptionAllChip: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SUBS_ALL_CHIP] ?: true }
+
+    suspend fun setSubscriptionAllChip(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences -> preferences[Keys.SUBS_ALL_CHIP] = enabled }
+    }
+
+    /** Group names whose chip is hidden; their channels are left out of All and its refreshes (#1387). */
+    val subscriptionHiddenGroups: Flow<Set<String>> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SUBS_HIDDEN_GROUPS].orEmpty() }
+
+    /** Group names that keep their chip but whose channels All leaves out (#1387). */
+    val subscriptionGroupsOutOfAll: Flow<Set<String>> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SUBS_GROUPS_OUT_OF_ALL].orEmpty() }
+
+    suspend fun setSubscriptionGroupHidden(
+        name: String,
+        hidden: Boolean,
+    ) = editGroupNames(Keys.SUBS_HIDDEN_GROUPS) { if (hidden) it + name else it - name }
+
+    suspend fun setSubscriptionGroupInAll(
+        name: String,
+        inAll: Boolean,
+    ) = editGroupNames(Keys.SUBS_GROUPS_OUT_OF_ALL) { if (inAll) it - name else it + name }
+
+    /** Carries a group's hidden and out-of-All flags over to [newName], or drops them when [newName] is null. */
+    suspend fun moveSubscriptionGroupFlags(
+        oldName: String,
+        newName: String?,
+    ) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            listOf(Keys.SUBS_HIDDEN_GROUPS, Keys.SUBS_GROUPS_OUT_OF_ALL).forEach { key ->
+                val names = preferences[key].orEmpty()
+                if (oldName in names) preferences[key] = names - oldName + listOfNotNull(newName)
+            }
+        }
+    }
+
+    private suspend fun editGroupNames(
+        key: Preferences.Key<Set<String>>,
+        change: (Set<String>) -> Set<String>,
+    ) {
+        context.playerPreferencesDataStore.edit { preferences -> preferences[key] = change(preferences[key].orEmpty()) }
+    }
+
     val subscriptionUngroupedEnabled: Flow<Boolean> =
         context.playerPreferencesDataStore.data
             .map { preferences -> preferences[Keys.SUBS_UNGROUPED_ENABLED] ?: false }
@@ -4308,6 +4435,26 @@ class PlayerPreferences(
     suspend fun setShowAppLogoIcon(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.SHOW_APP_LOGO_ICON] = enabled
+        }
+    }
+
+    val showProfileInTopBar: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SHOW_PROFILE_IN_TOP_BAR] ?: true }
+
+    suspend fun setShowProfileInTopBar(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.SHOW_PROFILE_IN_TOP_BAR] = enabled
+        }
+    }
+
+    val settingsInProfileMenu: Flow<Boolean> =
+        context.playerPreferencesDataStore.data
+            .map { preferences -> preferences[Keys.SETTINGS_IN_PROFILE_MENU] ?: false }
+
+    suspend fun setSettingsInProfileMenu(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.SETTINGS_IN_PROFILE_MENU] = enabled
         }
     }
 

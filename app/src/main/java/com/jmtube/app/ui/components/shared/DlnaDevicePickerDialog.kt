@@ -1,10 +1,11 @@
-package com.jmtube.app.ui.components.videoplayer
+package com.jmtube.app.ui.components.shared
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,15 +26,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.jmtube.app.R
 import com.jmtube.app.player.dlna.DlnaDevice
-import com.jmtube.app.ui.components.shared.FlowAlertDialog
 
-/** DLNA / UPnP device-picker dialog shown when the cast button is pressed. */
+/** The DLNA / UPnP renderers to cast [title] to, or the one it plays on with Stop while [isCasting]. */
 @Composable
-internal fun DlnaDevicePickerDialog(
+fun DlnaDevicePickerDialog(
     devices: List<DlnaDevice>,
     isDiscovering: Boolean,
     isCasting: Boolean,
-    videoTitle: String,
+    title: String,
     onDeviceSelected: (DlnaDevice) -> Unit,
     onStopCasting: () -> Unit,
     onDismiss: () -> Unit,
@@ -56,19 +56,19 @@ internal fun DlnaDevicePickerDialog(
         },
         text = {
             Column {
-                if (!isCasting && devices.isEmpty() && !isDiscovering) {
+                if (!isCasting && devices.isEmpty()) {
                     Text(
-                        text = stringResource(R.string.dlna_no_devices),
+                        text = stringResource(if (isDiscovering) R.string.dlna_searching else R.string.dlna_no_devices),
                         style = MaterialTheme.typography.bodySmall,
                     )
-                } else if (!isCasting && devices.isEmpty()) {
+                    Spacer(Modifier.height(12.dp))
                     Text(
-                        text = stringResource(R.string.dlna_searching),
+                        text = stringResource(R.string.dlna_google_cast_unsupported),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 } else if (isCasting) {
                     Text(
-                        text = stringResource(R.string.dlna_now_casting, videoTitle),
+                        text = stringResource(R.string.dlna_now_casting, title),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 } else {

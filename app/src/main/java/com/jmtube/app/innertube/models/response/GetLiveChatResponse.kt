@@ -27,6 +27,8 @@ data class GetLiveChatResponse(
         val timedContinuationData: ContinuationData? = null,
         val invalidationContinuationData: ContinuationData? = null,
         val reloadContinuationData: ContinuationData? = null,
+        val liveChatReplayContinuationData: ContinuationData? = null,
+        val playerSeekContinuationData: ContinuationData? = null,
     ) {
         @Serializable
         data class ContinuationData(
@@ -46,7 +48,14 @@ data class GetLiveChatResponse(
     @Serializable
     data class Action(
         val addChatItemAction: AddChatItemAction? = null,
+        val replayChatItemAction: ReplayChatItemAction? = null,
     ) {
+        @Serializable
+        data class ReplayChatItemAction(
+            val actions: List<Action> = emptyList(),
+            val videoOffsetTimeMsec: String? = null,
+        )
+
         @Serializable
         data class AddChatItemAction(
             val item: Item? = null,

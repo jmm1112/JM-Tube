@@ -174,6 +174,7 @@ fun SubscriptionsScreen(
             } else {
                 FlowTopBar(
                     title = stringResource(R.string.top_bar_subscriptions_title),
+                    crowded = true,
                     actions = {
                         IconButton(onClick = { viewModel.toggleViewMode() }) {
                             Icon(

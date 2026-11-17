@@ -47,6 +47,7 @@ import com.jmtube.app.ui.components.shared.ChannelAvatarStack
 import com.jmtube.app.ui.components.shared.FlowNavRow
 import com.jmtube.app.ui.components.shared.FlowSubscribeButton
 import com.jmtube.app.ui.components.shared.FlowSubscribeButtonSize
+import com.jmtube.app.ui.components.shared.LocalYouTubeFramesOnly
 import com.jmtube.app.ui.components.shared.MediaThumbnail
 import com.jmtube.app.ui.components.shared.SaveVideoSheet
 import com.jmtube.app.ui.components.shared.card.LocalVideoCardPreferences
@@ -78,6 +79,7 @@ fun VideoQuickActionsBottomSheet(
     onDismiss: () -> Unit,
     title: String = rememberCardTitle(video),
     thumbnailUrl: String = video.thumbnailUrl,
+    youTubeFrames: Boolean = LocalYouTubeFramesOnly.current && !video.isShort,
     showChannel: Boolean = true,
     whyShown: String? = null,
     onRemoveFromCollection: (() -> Unit)? = null,
@@ -127,6 +129,7 @@ fun VideoQuickActionsBottomSheet(
                         width = QuickActionsDefaults.VideoArtworkWidth,
                         shape = MaterialTheme.shapes.medium,
                         showWatchProgress = LocalVideoCardPreferences.current.showWatchProgress,
+                        youTubeFrames = youTubeFrames,
                     )
                 }
                 VideoPrimaryActions(video, viewModel, onSave = { sheet.hideThen { page = VideoMenuPage.Save } }, onDismiss = close)

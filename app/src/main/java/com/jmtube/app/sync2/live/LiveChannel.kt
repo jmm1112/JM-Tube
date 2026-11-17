@@ -1,6 +1,7 @@
-﻿package com.jmtube.app.sync2.live
+package com.jmtube.app.sync2.live
 
 import android.content.Context
+import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.jmtube.app.platform.DeviceFormFactor
 import com.jmtube.app.platform.DeviceFormFactorDetector
@@ -25,6 +26,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val TAG = "LiveChannel"
 
 /** Something a live envelope goes out on: the server's live socket, or a LAN session. */
 interface LiveTransport {
@@ -74,7 +77,10 @@ class LiveChannel
                 // Saved before it leaves, so a crash can't make a counter repeat.
                 db.live().setCounter(LiveCounterRow(session.me, seq))
                 val envelope = session.sealLive(message, seq)
-                transports.value.forEach { it.send(envelope) }
+                deliverLive(transports.value, envelope) { transport, e ->
+                    Log.w(TAG, "A live transport failed and was dropped: ${e.javaClass.simpleName}: ${e.message}")
+                    transports.update { it - transport }
+                }
                 sealed.emit(envelope)
                 seq
             }

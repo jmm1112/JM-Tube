@@ -1204,7 +1204,7 @@
     <string name="content_settings_comments_preview_title">Comments preview</string>
     <string name="content_settings_comments_preview_subtitle">Show the latest comment inside the comments card</string>
     <string name="content_settings_live_chat_enabled_title">Live chat</string>
-    <string name="content_settings_live_chat_enabled_subtitle">Show chat on live streams</string>
+    <string name="content_settings_live_chat_enabled_subtitle">Show chat on live streams and their replays</string>
     <string name="content_settings_subs_startup_refresh_title">Refresh subscriptions at startup</string>
     <string name="content_settings_subs_startup_refresh_subtitle">Check your subscription feed when the app opens</string>
     <string name="content_settings_subs_show_checked_count_title">Checked video count</string>
@@ -5352,5 +5352,72 @@
     <string name="ai_music_attribution_soul_summary">CC BY 4.0, changed by JM Tube</string>
     <string name="ai_music_attribution_blocker_title">Music list by Spotify AI Blocker</string>
     <string name="ai_music_attribution_blocker_summary">MIT, © CennoxX</string>
+
+    <!-- Flow-nightly 6 additions -->
+    <string name="lyrics_repeat_count">(×%1$d)</string>
+    <string name="player_appearance_lyrics_on_cover_title">Lyrics on the cover</string>
+    <string name="player_appearance_lyrics_on_cover_subtitle">The lyrics button shows lyrics in the player instead of a sheet</string>
+    <string name="chat_replay">Chat replay</string>
+    <string name="translate">Translate</string>
+    <string name="translate_with">Translate with</string>
+    <string name="translate_no_app">No translator app found. You can add your own server in Settings › Language &amp; region.</string>
+    <string name="translation_in_progress">Translating…</string>
+    <string name="translation_show_original">Show original</string>
+    <string name="translation_by_host">Translated by %1$s</string>
+    <string name="translation_failed">%1$s couldn\'t translate this</string>
+    <string name="translate_description">Translate title and description</string>
+    <string name="group_hide">Hide group</string>
+    <string name="group_unhide">Show group</string>
+    <string name="group_show_in_all">Show in All</string>
+    <string name="group_show_in_all_hidden">Hidden groups stay out of All</string>
+    <string name="downloads_folder_lost_title">Choose your download folder again</string>
+    <string name="downloads_folder_lost_body">JM Tube lost access to the folder you picked for downloads, as happens after a reinstall. Choose it again to find your earlier downloads and keep saving there.</string>
+    <string name="downloads_folder_lost_choose">Choose folder</string>
+    <string name="settings_top_bar_profile_title">Profile in the top bar</string>
+    <string name="settings_top_bar_profile_summary">Switch profiles from every main tab</string>
+    <string name="settings_profile_menu_settings_title">Settings in the profile menu</string>
+    <string name="settings_profile_menu_settings_summary">Hide the settings icon and open Settings from your profile</string>
+    <string name="settings_top_bar_profile_keywords">profile, avatar, account, top bar, settings icon, gear</string>
+    <string name="content_settings_subs_all_chip_title">All chip</string>
+    <string name="content_settings_subs_all_chip_subtitle">Off opens the feed on your first group</string>
+    <string name="dearrow_thumbnails_only">DeArrow thumbnails only</string>
+    <string name="dearrow_thumbnails_only_subtitle">Never show the uploader\'s thumbnail</string>
+    <string name="dlna_cast_no_stream">This video can\'t be cast</string>
+    <string name="cast_to_tv_desc">Play the queue on a TV or speaker</string>
+    <string name="cast_song_unavailable">Can\'t cast %1$s, skipped</string>
+    <string name="cast_connection_lost">Lost the connection to %1$s</string>
+    <string name="profiles_action_settings_description">Profile: %1$s. Switch profile or open settings</string>
+    <string name="export_playlists_title">Playlists</string>
+    <string name="export_playlists_desc">Your playlists, Watch later, likes and Saved Shorts in one file JM Tube can import</string>
+    <string name="settings_translation_header">Translate</string>
+    <string name="settings_translate_with">Translate with</string>
+    <string name="translate_with_app">Translator app</string>
+    <string name="translate_with_app_summary">Sends comments and descriptions to the translator app you have</string>
+    <string name="translate_with_server">Your server</string>
+    <string name="translate_with_server_summary">Translates in place with a LibreTranslate or Lingva server you enter</string>
+    <string name="translation_server_title">Translation server</string>
+    <string name="settings_translation_server_summary">Not set</string>
+    <string name="translation_server_value">%1$s · %2$s</string>
+    <string name="translation_server_dialog_body">JM Tube sends the text you translate to this server. JM Tube has no server of its own.</string>
+    <string name="translation_server_libretranslate">LibreTranslate</string>
+    <string name="translation_server_lingva">Lingva</string>
+    <string name="translation_server_url_hint">Server address</string>
+    <string name="translation_server_url_placeholder">https://translate.example.com</string>
+    <string name="translation_server_url_help">https, or http on your local network</string>
+    <string name="translation_server_invalid">Use an https address, or http on your local network</string>
+    <string name="translation_server_key_hint">API key (optional)</string>
+    <string name="settings_translate_to">Translate to</string>
+    <string name="translate_to_content_language">Content language</string>
+    <string name="settings_keywords_translation">translate, translation, translator, LibreTranslate, Lingva, server, comments, description</string>
+    <string name="playlist_export_all_action">Export all</string>
+    <string name="playlists_export_failed">Couldn\'t save the playlists</string>
+    <plurals name="playlists_exported">
+        <item quantity="one">Saved %d playlist</item>
+        <item quantity="other">Saved %d playlists</item>
+    </plurals>
+    <plurals name="playlists_imported">
+        <item quantity="one">Imported %d playlist</item>
+        <item quantity="other">Imported %d playlists</item>
+    </plurals>
 
 </resources>

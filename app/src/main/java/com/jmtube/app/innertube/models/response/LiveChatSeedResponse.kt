@@ -41,4 +41,14 @@ data class LiveChatSeedResponse(
     fun seedContinuation(): String? =
         contents?.twoColumnWatchNextResults?.conversationBar?.liveChatRenderer
             ?.continuations?.firstOrNull()?.reloadContinuationData?.continuation
+
+    /** The seed of a finished stream's chat; null for a live one, or when replay is off. */
+    fun replayContinuation(): String? =
+        seedContinuation()?.takeIf {
+            contents
+                ?.twoColumnWatchNextResults
+                ?.conversationBar
+                ?.liveChatRenderer
+                ?.isReplay == true
+        }
 }

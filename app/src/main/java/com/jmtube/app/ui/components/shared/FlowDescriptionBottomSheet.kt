@@ -13,6 +13,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -22,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -31,6 +33,10 @@ import com.jmtube.app.R
 import com.jmtube.app.data.model.RichTextTarget
 import com.jmtube.app.data.model.Video
 import com.jmtube.app.data.model.plainRichText
+import com.jmtube.app.data.translation.TitledTranslation
+import com.jmtube.app.data.translation.splitTitle
+import com.jmtube.app.data.translation.titledText
+import kotlinx.coroutines.launch
 import com.jmtube.app.innertube.pages.VideoDescriptionPage
 import com.jmtube.app.ui.components.layout.navigation.LocalMediaNavigator
 import com.jmtube.app.ui.components.shared.FlowBottomSheet
@@ -89,6 +95,15 @@ fun FlowDescriptionBottomSheet(
                 ?: parseHtmlDescription(video.description, linkColor)
         }
     var descLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+    val translateAction = rememberTranslateAction()
+    val scope = rememberCoroutineScope()
+    var translated by remember(video.id) { mutableStateOf<TitledTranslation?>(null) }
+    var translating by remember(video.id) { mutableStateOf(false) }
+    val shownDescription =
+        remember(translated, descriptionText) {
+            translated?.body?.takeIf { it.isNotBlank() }?.let { AnnotatedString(it) }
+                ?: descriptionText
+        }
 
     // The server marks its own hashtags; a description that only arrived as HTML is still scanned.
     val hashtags =
@@ -132,6 +147,36 @@ fun FlowDescriptionBottomSheet(
                 actions = {
                     IconButton(
                         onClick = {
+                            if (translated != null) {
+                                translated = null
+                            } else if (!translating) {
+                                scope.launch {
+                                    translating = true
+                                    try {
+                                        translated = translateAction.translate(titledText(video.title, descriptionText.text))?.splitTitle()
+                                    } finally {
+                                        translating = false
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier.size(40.dp),
+                    ) {
+                        Icon(
+                            Icons.Outlined.Translate,
+                            contentDescription =
+                                stringResource(
+                                    if (translated != null) {
+                                        R.string.translation_show_original
+                                    } else {
+                                        R.string.translate_description
+                                    },
+                                ),
+                            tint = if (translated != null) MaterialTheme.colorScheme.primary else LocalContentColor.current,
+                        )
+                    }
+                    IconButton(
+                        onClick = {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             val clip = ClipData.newPlainText("description", descriptionText.text)
                             clipboard.setPrimaryClip(clip)
@@ -161,10 +206,17 @@ fun FlowDescriptionBottomSheet(
         ) {
             SelectionContainer {
                 Text(
-                    text = video.title,
+                    text = translated?.title?.takeIf { it.isNotBlank() } ?: video.title,
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            translated?.let {
+                Text(
+                    text = stringResource(R.string.translation_by_host, it.host),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
@@ -181,12 +233,12 @@ fun FlowDescriptionBottomSheet(
             }
 
             DescriptionBody(
-                text = descriptionText,
+                text = shownDescription,
                 inlineContent = descriptionEmoji,
                 tint = tint,
                 onLayout = { descLayoutResult = it },
                 onTap = { offset ->
-                    descriptionText.handleDescriptionTap(
+                    shownDescription.handleDescriptionTap(
                         offset = offset,
                         onSeekMs = onSeekMs,
                         onHashtagClick = onHashtagClick,

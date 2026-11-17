@@ -57,6 +57,9 @@ import com.jmtube.app.ui.components.music.sheet.LocalMusicMenus
 import com.jmtube.app.ui.components.music.sheet.rememberMusicMenus
 import com.jmtube.app.ui.components.musicplayer.common.canTurnLight
 import com.jmtube.app.ui.components.musicplayer.sheet.rememberMusicPlayerSheetState
+import com.jmtube.app.ui.components.profiles.ProfileSwitchViewModel
+import com.jmtube.app.ui.components.profiles.ProfileTopBarAction
+import com.jmtube.app.ui.components.profiles.SwitchRefusals
 import com.jmtube.app.ui.components.settings.SettingsDestination
 import com.jmtube.app.ui.components.settings.SettingsTarget
 import com.jmtube.app.ui.components.shared.FlowLoadingIndicator
@@ -113,6 +116,8 @@ fun FlowApp(
     // Activity-scoped so the unread badge has exactly one collector for the whole shell.
     val notificationViewModel: NotificationViewModel = hiltViewModel(activity)
     val equalizerViewModel: EqualizerViewModel = hiltViewModel(activity)
+    // One for every root top bar's profile avatar, rather than one per back stack entry.
+    val profileSwitchViewModel: ProfileSwitchViewModel = hiltViewModel(activity)
     val playerUiStateResult = playerViewModel.uiState.collectAsStateWithLifecycle()
     val playerUiState by playerUiStateResult
 
@@ -489,8 +494,17 @@ fun FlowApp(
 
                             ProvideFlowGlobalActions(
                                 unreadNotifications = notificationViewModel.unreadCount,
+                                account = profileSwitchViewModel.topBarAccount,
                                 onOpenNotifications = { navController.navigate("notifications") },
                                 onOpenSettings = { navController.navigate("settings") },
+                                profileAction = { withSettings ->
+                                    ProfileTopBarAction(
+                                        withSettings = withSettings,
+                                        onOpenSettings = { navController.navigate("settings") },
+                                        onOpenSettingsPage = mediaNavigator::openSettings,
+                                        viewModel = profileSwitchViewModel,
+                                    )
+                                },
                             ) {
                                 CompositionLocalProvider(
                                     *mediaNavigationLocals(mediaNavigator),
@@ -503,6 +517,7 @@ fun FlowApp(
                                 ) {
                                     if (needsOnboarding == false) SubscriptionBellAlerts(snackbarHostState)
                                     LinkedSyncAlerts(snackbarHostState)
+                                    SwitchRefusals(profileSwitchViewModel)
                                     PlayOnHost(onManageDevices = { mediaNavigator.openSettings(SettingsTarget(SettingsDestination.SYNC)) })
                                     NavHost(
                                         navController = navController,

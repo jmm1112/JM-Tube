@@ -21,8 +21,10 @@ import kotlinx.coroutines.flow.StateFlow
 @Immutable
 data class FlowGlobalActions(
     val unreadNotifications: StateFlow<Int>,
+    val account: StateFlow<TopBarAccountSettings?>,
     val onOpenNotifications: () -> Unit,
     val onOpenSettings: () -> Unit,
+    val profileAction: @Composable (withSettings: Boolean) -> Unit,
 )
 
 /**
@@ -38,16 +40,20 @@ val LocalFlowGlobalActions = staticCompositionLocalOf<FlowGlobalActions?> { null
 @Composable
 fun ProvideFlowGlobalActions(
     unreadNotifications: StateFlow<Int>,
+    account: StateFlow<TopBarAccountSettings?>,
     onOpenNotifications: () -> Unit,
     onOpenSettings: () -> Unit,
+    profileAction: @Composable (withSettings: Boolean) -> Unit,
     content: @Composable () -> Unit,
 ) {
     val actions =
-        remember(unreadNotifications, onOpenNotifications, onOpenSettings) {
+        remember(unreadNotifications, account, onOpenNotifications, onOpenSettings, profileAction) {
             FlowGlobalActions(
                 unreadNotifications = unreadNotifications,
+                account = account,
                 onOpenNotifications = onOpenNotifications,
                 onOpenSettings = onOpenSettings,
+                profileAction = profileAction,
             )
         }
     CompositionLocalProvider(LocalFlowGlobalActions provides actions, content = content)

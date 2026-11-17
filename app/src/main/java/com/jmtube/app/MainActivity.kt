@@ -14,6 +14,8 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.*
+import com.jmtube.app.data.translation.TextTranslator
+import com.jmtube.app.ui.components.shared.LocalTextTranslator
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -67,6 +69,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var aiList: com.jmtube.app.data.contentfilter.aislist.AiListRepository
+
+    @Inject
+    lateinit var textTranslator: TextTranslator
 
     @Inject
     lateinit var lifecyclePlaybackPreferences: LifecyclePlaybackPreferences
@@ -193,17 +198,19 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch { dataManager.themeSettings(appFontPreferences).collect { storedTheme.value = it } }
 
         setContent {
-            FlowRoot(
-                storedTheme = storedTheme,
-                links = links,
-                splashController = splashController,
-                originalTitles = originalTitles,
-                deArrow = deArrow,
-                aiList = aiList,
-                appIconController = appIconController,
-                appLockPreferences = appLockPreferences,
-                onUiRoot = { cachedAppUiRoot = it },
-            )
+            CompositionLocalProvider(LocalTextTranslator provides textTranslator) {
+                FlowRoot(
+                    storedTheme = storedTheme,
+                    links = links,
+                    splashController = splashController,
+                    originalTitles = originalTitles,
+                    deArrow = deArrow,
+                    aiList = aiList,
+                    appIconController = appIconController,
+                    appLockPreferences = appLockPreferences,
+                    onUiRoot = { cachedAppUiRoot = it },
+                )
+            }
         }
     }
 

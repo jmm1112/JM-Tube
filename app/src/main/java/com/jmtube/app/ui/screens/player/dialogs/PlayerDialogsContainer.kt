@@ -10,7 +10,7 @@ import com.jmtube.app.data.model.Video
 import com.jmtube.app.player.EnhancedPlayerManager
 import com.jmtube.app.player.dlna.DlnaCastManager
 import com.jmtube.app.player.state.EnhancedPlayerState
-import com.jmtube.app.ui.components.videoplayer.DlnaDevicePickerDialog
+import com.jmtube.app.ui.components.shared.DlnaDevicePickerDialog
 import com.jmtube.app.ui.screens.player.VideoPlayerViewModel
 import com.jmtube.app.ui.screens.player.state.PlayerScreenState
 import com.jmtube.app.ui.screens.player.state.PlayerSheet
@@ -78,7 +78,7 @@ internal fun PlayerDialogsContainer(
             devices = dlnaDevices,
             isDiscovering = isDlnaDiscovering,
             isCasting = DlnaCastManager.isCasting,
-            videoTitle = video.title,
+            title = video.title,
             onDeviceSelected = { device ->
                 val playerManager = EnhancedPlayerManager.getInstance()
                 val currentPlayerUrl =

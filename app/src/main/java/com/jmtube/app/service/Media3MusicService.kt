@@ -142,6 +142,10 @@ class Media3MusicService : MediaLibraryService() {
         private const val EXTRA_SKIP_MEDIA_ID = "mediaId"
         private val CommandSkipTo = SessionCommand(ACTION_SKIP_TO, Bundle.EMPTY)
 
+        private const val ACTION_HOLD_FOR_NEW_QUEUE = "ACTION_HOLD_FOR_NEW_QUEUE"
+        private const val EXTRA_QUEUE_HELD = "queueHeld"
+        private val CommandHoldForNewQueue = SessionCommand(ACTION_HOLD_FOR_NEW_QUEUE, Bundle.EMPTY)
+
         private val CommandToggleShuffle = SessionCommand(ACTION_TOGGLE_SHUFFLE, Bundle.EMPTY)
         private val CommandToggleRepeat = SessionCommand(ACTION_TOGGLE_REPEAT, Bundle.EMPTY)
         private val CommandStop = SessionCommand(ACTION_STOP, Bundle.EMPTY)
@@ -178,6 +182,11 @@ class Media3MusicService : MediaLibraryService() {
                 },
             )
         }
+
+        fun holdForNewQueue(controller: MediaController): ListenableFuture<SessionResult> =
+            controller.sendCustomCommand(CommandHoldForNewQueue, Bundle.EMPTY)
+
+        fun queueHeld(result: SessionResult): Boolean = result.extras.getBoolean(EXTRA_QUEUE_HELD, false)
     }
 
     private lateinit var mediaLibrarySession: MediaLibrarySession
@@ -549,7 +558,8 @@ class Media3MusicService : MediaLibraryService() {
 
         val renderersFactory = musicRenderers(equalizer)
 
-        val loadControl = LoadControlFactory.forMusic()
+        val isLowRamDevice = (getSystemService(ACTIVITY_SERVICE) as? ActivityManager)?.isLowRamDevice == true
+        val loadControl = MusicLoadControl(LoadControlFactory.forMusic(wholeSong = !isLowRamDevice), NetworkState.isDataSaverOn(this))
 
         player =
             ExoPlayer
@@ -580,6 +590,7 @@ class Media3MusicService : MediaLibraryService() {
         // order, the player's shuffle flag reorders nothing on its own, whichever controller sets it.
         player.setShuffleOrder(ShuffleOrder.UnshuffledShuffleOrder(0))
         musicResume.attach(player)
+        MusicPreload(this, player) { loadControl.savesData = it }.attach(lifecycleScope, prefs.bufferProfile)
         crossfader = MusicCrossfader(player, ::buildCrossfadeTail, ::crossfadeMoment, ::applyLoudnessGain).also { it.attach() }
         lifecycleScope.launch {
             combine(
@@ -2027,6 +2038,7 @@ class Media3MusicService : MediaLibraryService() {
                     .add(CommandToggleLike)
                     .add(CommandStop)
                     .add(CommandSkipTo)
+                    .add(CommandHoldForNewQueue)
                     .build()
             val isLiked = com.jmtube.app.player.EnhancedMusicPlayerManager.isLiked.value
             val customButtons = buildCustomButtons(isLiked)
@@ -2141,6 +2153,15 @@ class Media3MusicService : MediaLibraryService() {
             if (customCommand.customAction == ACTION_SKIP_TO) {
                 crossfader?.skipTo(args.getInt(EXTRA_SKIP_INDEX), args.getString(EXTRA_SKIP_MEDIA_ID).orEmpty())
                 return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
+            }
+
+            if (customCommand.customAction == ACTION_HOLD_FOR_NEW_QUEUE) {
+                val answer = SettableFuture.create<SessionResult>()
+                val reply = { held: Boolean ->
+                    answer.set(SessionResult(SessionResult.RESULT_SUCCESS, Bundle().apply { putBoolean(EXTRA_QUEUE_HELD, held) }))
+                }
+                crossfader?.holdForNewQueue { reply(it) } ?: reply(false)
+                return answer
             }
 
             return super.onCustomCommand(session, controller, customCommand, args)

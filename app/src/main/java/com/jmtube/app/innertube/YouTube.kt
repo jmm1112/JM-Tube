@@ -2493,10 +2493,11 @@ object YouTube {
     suspend fun liveChat(
         continuation: String,
         offsetMs: Long? = null,
+        replay: Boolean = false,
     ): Result<com.jmtube.app.innertube.models.response.GetLiveChatResponse> =
         runCatching {
             innerTube
-                .getLiveChat(continuation, offsetMs)
+                .getLiveChat(continuation, offsetMs, replay)
                 .body<com.jmtube.app.innertube.models.response.GetLiveChatResponse>()
         }
 
@@ -2582,12 +2583,7 @@ object YouTube {
                     ?.tabbedRenderer
                     ?.watchNextTabbedResultsRenderer
                     ?.tabs
-            val lyricsBrowseEndpoint =
-                watchNextTabs?.firstNotNullOfOrNull { tab ->
-                    tab.tabRenderer.endpoint
-                        ?.browseEndpoint
-                        ?.takeIf { it.browseId.startsWith("MPLYt") }
-                }
+            val lyricsBrowseEndpoint = response.lyricsBrowseEndpoint()
             val relatedBrowseEndpoint =
                 watchNextTabs?.firstNotNullOfOrNull { tab ->
                     tab.tabRenderer.endpoint
@@ -2659,6 +2655,26 @@ object YouTube {
                 continuation = playlistPanelRenderer.continuations?.getContinuation(),
                 endpoint = endpoint,
             )
+        }
+
+    private fun NextResponse.lyricsBrowseEndpoint(): BrowseEndpoint? =
+        contents.singleColumnMusicWatchNextResultsRenderer
+            ?.tabbedRenderer
+            ?.watchNextTabbedResultsRenderer
+            ?.tabs
+            ?.firstNotNullOfOrNull { tab ->
+                tab.tabRenderer.endpoint
+                    ?.browseEndpoint
+                    ?.takeIf { it.browseId.startsWith("MPLYt") }
+            }
+
+    /** One `next` and nothing else: [next] follows the automix row, which is a second, slower request. */
+    suspend fun lyricsEndpoint(videoId: String): Result<BrowseEndpoint?> =
+        runCatching {
+            innerTube
+                .next(WEB_REMIX, videoId, null, null, null, null)
+                .body<NextResponse>()
+                .lyricsBrowseEndpoint()
         }
 
     suspend fun timedLyrics(endpoint: BrowseEndpoint): Result<List<TimedLyricLine>> =

@@ -5,6 +5,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.jmtube.app.data.local.CONTENT_LANGUAGE_FOLLOW_APP
 import com.jmtube.app.data.local.PlayerPreferences
+import com.jmtube.app.data.translation.TranslationServer
+import com.jmtube.app.data.translation.TranslationServerType
+import com.jmtube.app.data.translation.TranslationSettings
 import com.jmtube.app.ui.screens.settings.SettingsViewModel
 import com.jmtube.app.utils.AppLanguageManager
 import org.schabi.newpipe.extractor.ServiceList
@@ -29,6 +32,7 @@ class LanguageRegionViewModel
         val contentLanguage = preferences.contentLanguage.asState(CONTENT_LANGUAGE_FOLLOW_APP)
         val contentCountry = preferences.trendingRegion.asState(DEFAULT_COUNTRY)
         val originalTitles = preferences.originalTitles.asState(false)
+        val translation = preferences.translationSettings.asState(TranslationSettings())
 
         /** The languages YouTube localizes content into, i.e. every value its `hl` accepts. */
         val contentLanguages: List<LanguageOption> by lazy {
@@ -60,6 +64,22 @@ class LanguageRegionViewModel
         fun setContentCountry(code: String) = write { preferences.setTrendingRegion(code) }
 
         fun setOriginalTitles(enabled: Boolean) = write { preferences.setOriginalTitles(enabled) }
+
+        fun setTranslateWithServer(useServer: Boolean) = write { preferences.setTranslationUseServer(useServer) }
+
+        /** Saves the server and switches Translate to it; an address JM Tube won't send text to is refused. */
+        fun saveTranslationServer(
+            type: TranslationServerType,
+            url: String,
+            apiKey: String,
+            onResult: (Boolean) -> Unit,
+        ) {
+            val normalized = TranslationServer.normalizeUrl(url) ?: return onResult(false)
+            write { preferences.setTranslationServer(type, normalized, apiKey.takeIf { type == TranslationServerType.LIBRETRANSLATE }) }
+            onResult(true)
+        }
+
+        fun setTranslationTarget(tag: String) = write { preferences.setTranslationTarget(tag) }
 
         private companion object {
             const val DEFAULT_COUNTRY = "US"

@@ -1,0 +1,15 @@
+JM TUBE CHANGE LOG
+VERSION: 1.2.6
+DATE: 2026-11-17
+STATUS: stable
+
+HIGHLIGHTS
+- In-App Translation Engine: Translate video descriptions, comments, and comment replies into your device or preferred language with a single tap, supporting Google Translate, LibreTranslate, and Lingva instances.
+- DLNA / UPnP Music Casting: Stream music directly to your smart TVs, AV receivers, soundbars, and DLNA media renderers over your local Wi-Fi network with full playback controls.
+- Synchronized Live Chat Replay: Relive the stream experience with live chat replay for recorded livestreams and premieres, keeping chat messages in sync with video seeking and playback.
+- Music Preloading & Skip Crossfading: Enjoy gapless audio playback with ahead-of-time track preloading and smooth audio crossfading when skipping forward or backward between songs.
+- Playlists Batch Archive: Export and import all your custom playlists at once using unified JSON batch archives (.jmplaylists / .flowplaylists) with duplicate detection and conflict resolution.
+- Download Storage Recovery: Scan your JM Tube download directory to rediscover and re-index downloaded tracks and videos that were unlinked or imported externally.
+- Subscription Scope Filtering: Switch between All uploads, standard Videos, Shorts, or Livestreams on your Subscriptions feed with persistent per-group filters.
+- Immersive Lyrics & Wavy Progress Bar: Toggle in-place lyrics over album art in the immersive music player, view repeated lyrics badges, and enjoy playful animated wavy seek bars.
+- DeArrow Custom Thumbnails & Avatars: DeArrow community thumbnails now seamlessly render across cards, sheets, and player panels; top bar now features profile switching and avatar display.

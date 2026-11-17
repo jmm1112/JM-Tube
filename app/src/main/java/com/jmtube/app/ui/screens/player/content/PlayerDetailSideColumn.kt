@@ -242,7 +242,7 @@ internal fun PlayerDetailSideColumn(
                                 ) {
                                     if (uiState.isLiveChatAvailable) {
                                         item {
-                                            LiveChatPreview(onClick = { screenState.showLiveChatPanel = true })
+                                            LiveChatPreview(onClick = { screenState.showLiveChatPanel = true }, isReplay = !uiState.isLive)
                                         }
                                     }
                                     relatedVideosContent(

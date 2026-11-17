@@ -23,6 +23,7 @@ import com.jmtube.app.player.error.PlayerDiagnostics
 import com.jmtube.app.player.musicvideo.MusicVideoItems
 import com.jmtube.app.player.musicvideo.MusicVideoPlanner
 import com.jmtube.app.service.Media3MusicService
+import com.jmtube.app.utils.await
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -138,12 +139,19 @@ object EnhancedMusicPlayerManager {
      */
     private var preciseProgressConsumers = 0
 
+    private val _preciseProgressWanted = MutableStateFlow(false)
+
+    /** Whether a screen shows the position to the second now, so a cast renderer is asked about it each second. */
+    val preciseProgressWanted: StateFlow<Boolean> = _preciseProgressWanted.asStateFlow()
+
     fun acquirePreciseProgress() {
         preciseProgressConsumers++
+        _preciseProgressWanted.value = true
     }
 
     fun releasePreciseProgress() {
         preciseProgressConsumers = (preciseProgressConsumers - 1).coerceAtLeast(0)
+        _preciseProgressWanted.value = preciseProgressConsumers > 0
     }
 
     // Events
@@ -168,6 +176,7 @@ object EnhancedMusicPlayerManager {
     private var pendingSkip: PendingSkip? = null
     private var skipJob: kotlinx.coroutines.Job? = null
     private var heldSkipLimit: kotlinx.coroutines.Job? = null
+    private var queueHold: kotlinx.coroutines.Job? = null
 
     /** Reads what a skip has to respect from storage. The app's ViewModel sets it; until then a skip rebuilds. */
     private var readSkipStored: (suspend (MusicTrack) -> MusicSkipPolicy.Stored)? = null
@@ -727,8 +736,11 @@ object EnhancedMusicPlayerManager {
         }
         val restoredStart = resumePosition?.takeIf { (id, _) -> id == track.videoId && startPositionMs == 0L }?.second
         resumePosition = null
-        player?.stop()
-        player?.clearMediaItems()
+        val holdFrom = (player as? MediaController)?.takeIf { it.isPlaying && it.currentMediaItem?.mediaId != track.videoId }
+        if (holdFrom == null) {
+            player?.stop()
+            player?.clearMediaItems()
+        }
         clearPendingPlayNext()
         // A new queue ends a named station even when it shares tracks with it, which the service
         // would read as the same session. Start radio re-marks it from its pending seed.
@@ -756,9 +768,14 @@ object EnhancedMusicPlayerManager {
 
         val startIdx = if (startIndex >= 0) startIndex else activeQueue.indexOfFirst { it.videoId == track.videoId }.coerceAtLeast(0)
 
-        player?.setMediaItems(mediaItems, startIdx, restoredStart ?: startPositionMs)
-        player?.prepare()
-        player?.play()
+        playerItemFiles = localUriOverrides
+        if (holdFrom != null) {
+            replaceQueueAfterHold(holdFrom, track, mediaItems, startIdx, restoredStart ?: startPositionMs)
+        } else {
+            player?.setMediaItems(mediaItems, startIdx, restoredStart ?: startPositionMs)
+            player?.prepare()
+            player?.play()
+        }
 
         prefetchNextTrack()
     }
@@ -1122,7 +1139,48 @@ object EnhancedMusicPlayerManager {
         pendingSkip?.let { Log.d("EnhancedMusicPlayer", "Skip to ${it.mediaId} dropped by a new play") }
         skipJob?.cancel()
         heldSkipLimit?.cancel()
+        queueHold?.cancel()
         pendingSkip = null
+    }
+
+    /**
+     * A song picked while another plays: the player keeps the old song until the service has moved it
+     * to a fade tail, so it plays on while the new queue loads (#2163). Meanwhile the app already shows
+     * the new song, as for a held skip.
+     */
+    private fun replaceQueueAfterHold(
+        controller: MediaController,
+        track: MusicTrack,
+        mediaItems: List<MediaItem>,
+        index: Int,
+        positionMs: Long,
+    ) {
+        pendingSkip = mediaItems.getOrNull(index)?.let { PendingSkip(index, it.mediaId) }
+        _currentPosition.value = 0L
+        _playerState.value = _playerState.value.copy(position = 0L, duration = track.duration * 1000L)
+        queueHold =
+            scope.launch {
+                val held =
+                    try {
+                        withTimeoutOrNull(QUEUE_HOLD_LIMIT_MS) {
+                            Media3MusicService.queueHeld(Media3MusicService.holdForNewQueue(controller).await())
+                        } == true
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.w("EnhancedMusicPlayer", "The service didn't answer the new queue's hold", e)
+                        false
+                    }
+                if (player !== controller) return@launch
+                Log.d("EnhancedMusicPlayer", "New queue at ${track.videoId}, old song held for a fade: $held")
+                if (!held) {
+                    controller.stop()
+                    controller.clearMediaItems()
+                }
+                controller.setMediaItems(mediaItems, index, positionMs)
+                controller.prepare()
+                controller.play()
+            }
     }
 
     private fun skipBaseIndex(): Int = pendingSkip?.index ?: currentPlaybackQueueIndex()
@@ -1316,7 +1374,7 @@ object EnhancedMusicPlayerManager {
 
     fun getCurrentPosition(): Long =
         try {
-            if (player?.isPlaying == true) {
+            if (player?.isPlaying == true && pendingSkip == null) {
                 player?.currentPosition ?: _currentPosition.value
             } else {
                 _currentPosition.value
@@ -1465,8 +1523,13 @@ object EnhancedMusicPlayerManager {
         _radioStationActive.value = false
         _currentQueueIndex.value = 0
         clearPendingPlayNext()
+        skipJob?.cancel()
+        heldSkipLimit?.cancel()
+        queueHold?.cancel()
+        pendingSkip = null
+        playerItemFiles = emptyMap()
         _currentPosition.value = 0L
-        _playingFrom.value = "Flow Music"
+        _playingFrom.value = "JM Music"
         _playerState.value = MusicPlayerState()
     }
 
@@ -1562,6 +1625,9 @@ data class MusicPlayerState(
 private const val PRECISE_POSITION_INTERVAL_MS = 250L
 private const val COARSE_POSITION_INTERVAL_MS = 1_000L
 private const val HELD_SKIP_LIMIT_MS = 3_000L
+
+/** Longer than the service waits for a tail, so a new queue goes ahead even if the service never answers. */
+private const val QUEUE_HOLD_LIMIT_MS = 2_000L
 
 /** [savedCode] is how a saved queue writes the mode; [playerMode] is Media3's own value for it. */
 enum class RepeatMode(

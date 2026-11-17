@@ -8,9 +8,11 @@ import com.jmtube.app.data.local.AppDatabase
 import com.jmtube.app.data.local.PlayerPreferences
 import com.jmtube.app.data.local.SubscriptionRepository
 import com.jmtube.app.data.local.dao.CacheDao
+import com.jmtube.app.data.local.dao.SubscriptionGroupDao
 import com.jmtube.app.data.local.entity.SubscriptionFeedEntity
 import com.jmtube.app.data.model.Video
 import com.jmtube.app.data.model.VideoCollaborator
+import com.jmtube.app.data.model.toUiModel
 import com.jmtube.app.data.subscriptions.SubscriptionFeedMerger.preservingEnrichedMetadata
 import com.jmtube.app.di.ProfileDb
 import com.jmtube.app.utils.PerformanceDispatcher
@@ -58,6 +60,7 @@ class SubscriptionFeedRepository
         @ProfileDb private val database: AppDatabase,
         private val playerPreferences: PlayerPreferences,
         private val collabIndex: ChannelCollabIndex,
+        private val subscriptionGroupDao: SubscriptionGroupDao,
     ) {
         /**
          * Guards against overlapping refreshes; the screen, the startup pass and the worker can all
@@ -104,6 +107,19 @@ class SubscriptionFeedRepository
             } else {
                 SubscriptionRefreshPlanner.planForGroup(subscriptions, scope, now, force)
             }
+        }
+
+        /** [planRefresh] for the All chip: the channels of hidden groups and of groups kept out of All are skipped (#1387). */
+        suspend fun planAllRefresh(force: Boolean): SubscriptionRefreshPlan {
+            val subscriptions = subscriptionRepository.getAllSubscriptions().first()
+            val shown =
+                allChipScope(
+                    subscribedIds = subscriptions.map { it.channelId },
+                    groups = subscriptionGroupDao.getAllGroupsOnce().map { it.toUiModel() },
+                    hiddenGroups = playerPreferences.subscriptionHiddenGroups.first(),
+                    groupsOutOfAll = playerPreferences.subscriptionGroupsOutOfAll.first(),
+                )
+            return SubscriptionRefreshPlanner.planForAll(subscriptions, shown, System.currentTimeMillis(), force)
         }
 
         /**

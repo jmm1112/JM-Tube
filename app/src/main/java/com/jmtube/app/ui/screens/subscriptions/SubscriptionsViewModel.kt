@@ -189,6 +189,19 @@ class SubscriptionsViewModel
             }
 
             viewModelScope.launch(PerformanceDispatcher.diskIO) {
+                combine(
+                    playerPreferences.subscriptionHiddenGroups,
+                    playerPreferences.subscriptionGroupsOutOfAll,
+                    playerPreferences.subscriptionAllChip,
+                    ::Triple,
+                ).distinctUntilChanged()
+                    .collect { (hidden, outOfAll, allChip) ->
+                        _uiState.update { it.copy(hiddenGroups = hidden, groupsOutOfAll = outOfAll, showAllChip = allChip) }
+                        refreshVisibleFeed()
+                    }
+            }
+
+            viewModelScope.launch(PerformanceDispatcher.diskIO) {
                 playerPreferences.subscriptionPinnedChannels.collect { stored ->
                     _uiState.update { it.copy(pinnedChannelIds = parsePinnedChannels(stored)) }
                 }
@@ -292,12 +305,22 @@ class SubscriptionsViewModel
 
         /**
          * Fetches only the channels that are actually due, unless [force] (an explicit pull-to-refresh)
-         * asks for every channel. With a group selected, only that group's channels (#1099).
+         * asks for every channel. With a group selected, only that group's channels (#1099); on All,
+         * every channel except those only hidden or out-of-All groups hold (#1387).
          */
         private suspend fun runRefresh(
             force: Boolean,
             showLoading: Boolean,
-        ) = runRefresh(subscriptionFeedRepository.planRefresh(force, _uiState.value.selectedGroupScope()), showLoading)
+        ) {
+            val state = _uiState.value
+            val plan =
+                if (state.selectedChip() == null) {
+                    subscriptionFeedRepository.planAllRefresh(force)
+                } else {
+                    subscriptionFeedRepository.planRefresh(force, state.selectedGroupScope())
+                }
+            runRefresh(plan, showLoading)
+        }
 
         private suspend fun runRefresh(
             plan: SubscriptionRefreshPlan,
@@ -469,42 +492,37 @@ class SubscriptionsViewModel
             if (groupName != null) refreshIfStaleOrMissedUploads()
         }
 
+        private val groupEditor =
+            SubscriptionGroupEditor(
+                scope = viewModelScope,
+                dao = subscriptionGroupDao,
+                preferences = playerPreferences,
+                selectedGroup = { _uiState.value.selectedGroupName },
+                onSelectedRenamed = { newName -> _uiState.update { it.copy(selectedGroupName = newName) } },
+                onSelectedDeleted = { selectGroup(null) },
+            )
+
         fun createGroup(
             name: String,
             channelIds: List<String>,
-        ) {
-            viewModelScope.launch(PerformanceDispatcher.diskIO) { subscriptionGroupDao.appendGroup(name, channelIds) }
-        }
+            inAll: Boolean,
+        ) = groupEditor.create(name, channelIds, inAll)
 
         fun updateGroup(
             oldName: String,
             newName: String,
             channelIds: List<String>,
-        ) {
-            viewModelScope.launch(PerformanceDispatcher.diskIO) {
-                val edited = subscriptionGroupDao.editGroup(oldName, newName, channelIds)
-                if (edited && _uiState.value.selectedGroupName == oldName) {
-                    _uiState.update { it.copy(selectedGroupName = newName) }
-                    playerPreferences.setSelectedSubscriptionGroup(newName)
-                }
-            }
-        }
+            inAll: Boolean,
+        ) = groupEditor.update(oldName, newName, channelIds, inAll)
 
-        fun deleteGroup(name: String) {
-            viewModelScope.launch(PerformanceDispatcher.diskIO) {
-                subscriptionGroupDao.deleteGroup(name)
-                if (_uiState.value.selectedGroupName == name) {
-                    selectGroup(null)
-                }
-            }
-        }
+        fun setGroupHidden(
+            name: String,
+            hidden: Boolean,
+        ) = groupEditor.setHidden(name, hidden)
 
-        private val groupOrderLock = Mutex()
+        fun deleteGroup(name: String) = groupEditor.delete(name)
 
-        /** Saves [names] as the group order; each save is a whole order, so saves are kept in sequence. */
-        fun setGroupOrder(names: List<String>) {
-            viewModelScope.launch(PerformanceDispatcher.diskIO) { groupOrderLock.withLock { subscriptionGroupDao.setOrder(names) } }
-        }
+        fun setGroupOrder(names: List<String>) = groupEditor.setOrder(names)
 
         fun togglePin(channelId: String) = savePins(togglePinned(_uiState.value.pinnedChannelIds, channelId))
 
