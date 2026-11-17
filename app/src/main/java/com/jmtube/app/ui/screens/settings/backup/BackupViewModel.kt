@@ -3,6 +3,7 @@ package com.jmtube.app.ui.screens.settings.backup
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Environment
 import android.provider.DocumentsContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -16,6 +17,7 @@ import com.jmtube.app.notification.AutoBackupWorker
 import com.jmtube.app.notification.periodDays
 import com.jmtube.app.ui.screens.settings.SettingsViewModel
 import kotlinx.coroutines.flow.map
+import java.io.File
 import javax.inject.Inject
 
 /** Backup & restore: manual exports and imports through the coordinator, and the automatic schedule. */
@@ -34,6 +36,15 @@ class BackupViewModel
         val type = preferences.autoBackupType.asState(AutoBackupType.APP_DATA)
         val folder = preferences.autoBackupFolderUri.asState(null)
         val lastRun = localDataManager.autoBackupLastRun.asState(0L)
+
+        val defaultBackupFolder: File
+            get() = File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                "JM Tube/Backups",
+            )
+
+        val defaultBackupFolderUri: Uri
+            get() = Uri.fromFile(defaultBackupFolder)
 
         /** Two or more profiles: only a master backup holds them all, so the type is fixed. */
         val severalProfiles = profiles.state.map { it.profiles.size >= 2 }.asState(false)
@@ -64,15 +75,23 @@ class BackupViewModel
                 preferences.setAutoBackupFolderUri(uri.toString())
             }
 
-        fun folderName(folder: String): String? =
-            folderDisplayName(
+        fun folderName(folderUriStr: String?): String {
+            if (folderUriStr == null) return "Download/JM Tube/Backups"
+            val uri = Uri.parse(folderUriStr)
+            if (uri.scheme == "file") {
+                val path = uri.path.orEmpty()
+                val relative = path.substringAfter("Download/", "").ifEmpty { path }
+                return if (relative.isNotEmpty()) "Download/$relative" else path
+            }
+            return folderDisplayName(
                 runCatching {
-                    DocumentsContract.getTreeDocumentId(Uri.parse(folder))
+                    DocumentsContract.getTreeDocumentId(uri)
                 }.getOrNull(),
-            )
+            ) ?: folderUriStr
+        }
 
         fun backUpNow() {
-            val target = folder.value?.let(Uri::parse) ?: return
+            val target = folder.value?.let(Uri::parse) ?: defaultBackupFolderUri
             coordinator.backUpNow(AutoBackupWorker.effectiveType(type.value, if (severalProfiles.value) 2 else 1), target)
         }
     }

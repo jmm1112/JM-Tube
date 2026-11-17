@@ -1,6 +1,7 @@
 package com.jmtube.app.ui.screens.settings.backup
 
 import android.net.Uri
+import android.provider.DocumentsContract
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -114,11 +115,24 @@ internal fun BackupScreen(
             uri?.let(viewModel::setFolder)
         }
 
+    // Build a default initial URI hint pointing to Download/JM Tube/Backups so the picker
+    // opens there when the user has not yet chosen a backup folder.
+    val defaultBackupFolderHint: Uri? = remember {
+        runCatching {
+            // Build a primary external storage document URI that Android's file picker recognises
+            // as an initial directory hint (requires no special permissions).
+            DocumentsContract.buildDocumentUri(
+                "com.android.externalstorage.documents",
+                "primary:Download/JM Tube/Backups",
+            )
+        }.getOrNull()
+    }
+
     val autoState =
         AutoBackupState(
             frequency = frequency,
             type = type,
-            folderName = folder?.let { viewModel.folderName(it) },
+            folderName = viewModel.folderName(folder),
             noFolderLabel = stringResource(R.string.auto_backup_no_folder),
             lastRun = lastRun.takeIf { it > 0 }?.let { stringResource(R.string.auto_backup_last_run, formatLastRun(it)) },
             running = operation is BackupOperation.Running,
@@ -193,7 +207,7 @@ internal fun BackupScreen(
                     state = autoState,
                     onFrequency = viewModel::setFrequency,
                     onType = viewModel::setType,
-                    onPickFolder = { folderPicker.launch(folder?.let(Uri::parse)) },
+                    onPickFolder = { folderPicker.launch(folder?.let(Uri::parse) ?: defaultBackupFolderHint) },
                     onBackUpNow = viewModel::backUpNow,
                 )
             }

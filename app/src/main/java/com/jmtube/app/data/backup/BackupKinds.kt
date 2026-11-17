@@ -21,20 +21,20 @@ enum class ExportKind(
     private val extension: String,
     private val timestamped: Boolean = true,
 ) {
-    MASTER(R.string.master_backup_title, R.string.master_backup_subtitle, ZIP, "jmtube_master_backup", "zip"),
-    APP_DATA(R.string.export_app_data_title, R.string.export_app_data_desc, JSON, "jmtube_backup", "json"),
-    ENGINE(R.string.export_engine_data, R.string.export_engine_data_subtitle, JSON, "jmtube_engine", "json"),
-    MUSIC_BRAIN(R.string.export_music_brain_title, R.string.export_music_brain_desc, JSON, "jmtube_music_brain", "json"),
+    MASTER(R.string.master_backup_title, R.string.master_backup_subtitle, ZIP, "JM Tube_master_backup", "zip"),
+    APP_DATA(R.string.export_app_data_title, R.string.export_app_data_desc, JSON, "JM Tube_backup", "json"),
+    ENGINE(R.string.export_engine_data, R.string.export_engine_data_subtitle, JSON, "JM Tube_engine", "json"),
+    MUSIC_BRAIN(R.string.export_music_brain_title, R.string.export_music_brain_desc, JSON, "JM Tube_music_brain", "json"),
     NEWPIPE_SUBSCRIPTIONS(R.string.export_newpipe_subs_title, R.string.export_newpipe_subs_desc, JSON, "newpipe_subscriptions", "json"),
     WATCH_HISTORY(
         R.string.export_watch_history_title,
         R.string.export_watch_history_desc,
         JSON,
-        "jmtube-watch-history",
+        "JM Tube_watch_history",
         "json",
         timestamped = false,
     ),
-    PLAYLISTS(R.string.export_playlists_title, R.string.export_playlists_desc, ZIP, "jmtube_playlists", "zip"),
+    PLAYLISTS(R.string.export_playlists_title, R.string.export_playlists_desc, ZIP, "JM Tube_playlists", "zip"),
     ;
 
     fun fileName(now: Instant = Instant.now()): String =

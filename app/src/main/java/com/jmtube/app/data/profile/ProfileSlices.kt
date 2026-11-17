@@ -258,7 +258,7 @@ class ProfileSlices
         private companion object {
             const val TAG = "ProfileSlices"
             const val SLICE_NAME = "slice.zip"
-            const val MASTER_FILE_NAME = "flow_master_backup.zip"
+            const val MASTER_FILE_NAME = "JM Tube_master_backup.zip"
             const val MASTER_MIME_TYPE = "application/zip"
         }
     }
