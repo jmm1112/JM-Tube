@@ -13,4 +13,5 @@ HIGHLIGHTS
 - WebView Crash Recovery: Protected JavaScript cipher decoding with automatic renderer recovery (`onRenderProcessGone`) to prevent background webview terminations from crashing the app.
 - Multi-Language Upload Dates: Extended relative upload date parsing across German, Spanish, French, Italian, Portuguese, and Russian date units.
 - Paxsenix & Apple Music Lyrics Reliability: Added iTunes search fallback and rate-limit recovery for timed synced lyrics.
+- Synced Device Branding: Synced and linked devices now dynamically default and display with JM Tube branding ("JM Tube (MODEL)") across linked devices, QR pairing, and local networks.
 - Updated Global Translations: Updated translation resources for Arabic, Azerbaijani, Spanish, Polish, Brazilian Portuguese, Russian, Vietnamese, and Traditional Chinese.

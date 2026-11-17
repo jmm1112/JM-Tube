@@ -1,4 +1,4 @@
-﻿package com.jmtube.app.sync2.linking
+package com.jmtube.app.sync2.linking
 
 import com.jmtube.app.sync.crypto.SyncBytes
 import com.jmtube.app.sync2.crypto.ProtocolException
@@ -8,6 +8,18 @@ import com.jmtube.app.sync2.roster.Entry
 import com.jmtube.app.sync2.roster.RosterState
 import com.jmtube.app.sync2.roster.applyEntry
 import com.jmtube.app.sync2.roster.openDeviceMeta
+
+/**
+ * Normalizes device names across sync and display, ensuring JM Tube branding is used
+ * in place of any legacy "Flow" names.
+ */
+fun sanitizeDeviceName(name: String): String =
+    when {
+        name.startsWith("Flow (") -> "JM Tube (" + name.removePrefix("Flow (")
+        name == "Flow (Android)" -> "JM Tube (Android)"
+        name == "Flow" -> "JM Tube"
+        else -> name
+    }
 
 /**
  * Device names and platforms, as the latest roster entry naming each device says. Names are only
@@ -25,7 +37,10 @@ internal suspend fun deviceNames(
     for (entry in entries) {
         val after = applyEntry(state, entry)
         for ((did, sealed) in entry.meta.orEmpty()) {
-            openName(group, epochKey, after.epoch, entry.seq, did, sealed)?.let { names[did] = it }
+            openName(group, epochKey, after.epoch, entry.seq, did, sealed)?.let {
+                val clean = sanitizeDeviceName(it.name)
+                names[did] = if (clean != it.name) it.copy(name = clean) else it
+            }
         }
         state = after
     }
@@ -50,7 +65,9 @@ private suspend fun openName(
                 SyncBytes.fromHex(did),
                 SyncBytes.b64urlDecode(sealed),
             )
-        pairingJson.decodeFromString(DeviceMeta.serializer(), content)
+        val meta = pairingJson.decodeFromString(DeviceMeta.serializer(), content)
+        val clean = sanitizeDeviceName(meta.name)
+        if (clean != meta.name) meta.copy(name = clean) else meta
     } catch (_: ProtocolException) {
         null
     } catch (_: LinkedException) {

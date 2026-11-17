@@ -174,7 +174,9 @@ class LinkedActions
                 .keys
                 .map { id ->
                     val synced = listOfNotNull(seen[id], met[id]).maxOrNull()
-                    LinkedDevice(id, names[id]?.name.orEmpty(), names[id]?.platform.orEmpty(), id == me, id == installer, synced)
+                    val rawName = names[id]?.name.orEmpty()
+                    val cleanName = com.jmtube.app.sync2.linking.sanitizeDeviceName(rawName)
+                    LinkedDevice(id, cleanName, names[id]?.platform.orEmpty(), id == me, id == installer, synced)
                 }.sortedByDescending { it.thisDevice }
         }
 
@@ -308,6 +310,10 @@ class LinkedActions
             name: String,
         ) {
             val session = session()
+            val me = SyncBytes.toHex(session.device.did)
+            if (id == me) {
+                identity.setDeviceName(name)
+            }
             val current = deviceNames(session)[id] ?: DeviceMeta("", "", "")
             renameDevice(session, keys.load(), id, current.copy(name = name.trim().take(NAME_LIMIT)))
         }

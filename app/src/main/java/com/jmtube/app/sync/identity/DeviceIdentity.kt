@@ -1,4 +1,4 @@
-﻿package com.jmtube.app.sync.identity
+package com.jmtube.app.sync.identity
 
 import android.content.Context
 import android.os.Build
@@ -46,7 +46,27 @@ class DeviceIdentity
             return store.edit { it[KEY_DEVICE_ID] = it[KEY_DEVICE_ID] ?: generated }[KEY_DEVICE_ID]!!
         }
 
-        suspend fun deviceName(): String = store.data.first()[KEY_DEVICE_NAME]?.takeIf { it.isNotBlank() } ?: defaultDeviceName()
+        suspend fun deviceName(): String {
+            val stored = store.data.first()[KEY_DEVICE_NAME]?.takeIf { it.isNotBlank() }
+            if (stored == null) {
+                val defaultName = defaultDeviceName()
+                setDeviceName(defaultName)
+                return defaultName
+            }
+            if (stored.startsWith("Flow (") || stored == "Flow (Android)" || stored == "Flow") {
+                val migrated =
+                    if (stored.startsWith("Flow (")) {
+                        "JM Tube (" + stored.removePrefix("Flow (")
+                    } else if (stored == "Flow (Android)") {
+                        "JM Tube (Android)"
+                    } else {
+                        "JM Tube"
+                    }
+                setDeviceName(migrated)
+                return migrated
+            }
+            return stored
+        }
 
         suspend fun setDeviceName(name: String) {
             store.edit { it[KEY_DEVICE_NAME] = name.trim().take(64) }
@@ -71,7 +91,7 @@ class DeviceIdentity
 
         private fun defaultDeviceName(): String {
             val model = Build.MODEL?.trim().orEmpty()
-            return if (model.isEmpty()) "Flow (Android)" else "Flow ($model)"
+            return if (model.isEmpty()) "JM Tube (Android)" else "JM Tube ($model)"
         }
 
         companion object {

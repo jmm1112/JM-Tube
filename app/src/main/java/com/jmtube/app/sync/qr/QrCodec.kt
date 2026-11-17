@@ -1,4 +1,4 @@
-﻿package com.jmtube.app.sync.qr
+package com.jmtube.app.sync.qr
 
 import com.jmtube.app.sync.crypto.SyncBytes
 import kotlinx.serialization.EncodeDefault
@@ -158,7 +158,7 @@ object QrCodec {
                 key,
                 addresses,
                 payload.port,
-                payload.deviceName,
+                com.jmtube.app.sync2.linking.sanitizeDeviceName(payload.deviceName),
                 payload.exp,
                 role,
             ),

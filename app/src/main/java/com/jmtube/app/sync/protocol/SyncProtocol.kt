@@ -1,4 +1,4 @@
-﻿package com.jmtube.app.sync.protocol
+package com.jmtube.app.sync.protocol
 
 import com.jmtube.app.sync.apply.PeerInfo
 import com.jmtube.app.sync.apply.ReceivedCollection
@@ -121,11 +121,11 @@ class SyncProtocol(
                 )
             }
             sendFrame(FrameType.HELLO_ACK, HelloAck.serializer(), localHello.toAck())
-            PeerInfo(hello.deviceId, hello.deviceName, hello.platform)
+            PeerInfo(hello.deviceId, com.jmtube.app.sync2.linking.sanitizeDeviceName(hello.deviceName), hello.platform)
         } else {
             sendFrame(FrameType.HELLO, Hello.serializer(), localHello)
             val ack = decode(expect(FrameType.HELLO_ACK, NETWORK_WAIT), HelloAck.serializer())
-            PeerInfo(ack.deviceId, ack.deviceName, ack.platform)
+            PeerInfo(ack.deviceId, com.jmtube.app.sync2.linking.sanitizeDeviceName(ack.deviceName), ack.platform)
         }
 
     private suspend fun exchangeCapabilities(): Capabilities =
